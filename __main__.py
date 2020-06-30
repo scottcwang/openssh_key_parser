@@ -26,7 +26,6 @@ class PascalStyleFormatInstruction(enum.Enum):
     BYTES = enum.auto()
     STRING = enum.auto()
     MPINT = enum.auto()
-    FIXED = enum.auto()
 
 
 class PascalStyleByteStream(io.BytesIO):
@@ -230,6 +229,10 @@ def parse_public_bytes(public_bytes):
     public_key_byte_stream = PascalStyleByteStream(public_bytes)
     public_key = public_key_byte_stream.read_from_format_instructions_dict(
         _key_header)
+    if public_key['key_type'] not in _public_key:
+        warnings.warn('Unsupported public key type')
+        public_key['public_bytes'] = public_key_byte_stream.read()
+        return public_key
     public_key['values'] = public_key_byte_stream.read_from_format_instructions_dict(
         _public_key[public_key['key_type']])
     remainder = public_key_byte_stream.read()
@@ -269,6 +272,11 @@ def parse_private_bytes(private_bytes):
     else:
         passphrase = ''
 
+    if key['kdf_name'] not in _kdf:
+        warnings.warn('Unsupported KDF type')
+        key['private_bytes'] = private_bytes
+        return key
+
     key['kdf_options'] = PascalStyleByteStream(
         key['kdf_options']
     ).read_from_format_instructions_dict(
@@ -276,6 +284,11 @@ def parse_private_bytes(private_bytes):
     )
     kdf_result = _kdf[key['kdf_name']]['kdf'].derive_key(
         key['kdf_options'], passphrase)
+
+    if key['cipher'] not in _cipher:
+        warnings.warn('Unsupported cipher type')
+        key['private_bytes'] = private_bytes
+        return key
 
     cipher_bytes_decrypted = _cipher[key['cipher']].decrypt(
         kdf_result['cipher_key'],
@@ -297,6 +310,11 @@ def parse_private_bytes(private_bytes):
             if private_key['key_type'] != key['keys'][i]['public']['key_type']:
                 warnings.warn(
                     f'Inconsistency between private and public key types for key {i}')
+            if private_key['key_type'] not in _private_key:
+                warnings.warn('Unsupported private key type')
+                private_key['value_bytes'] = cipher_byte_stream.read()
+                key['keys'][i]['private'] = private_key
+                continue
             private_key['values'] = cipher_byte_stream.read_from_format_instructions_dict(
                 _private_key[private_key['key_type']])
             if not all([
