@@ -12,3 +12,83 @@ def test_read_from_struct_format_instruction():
     result = byte_stream.read_from_format_instruction('>I')
     assert result == test_int
 
+
+def test_read_from_string_format_instruction():
+    # random ascii string of random length
+    test_string = secrets.token_urlsafe(secrets.randbelow(32))
+    test_string_encoded = test_string.encode()
+    pascal_bytes = len(test_string_encoded).to_bytes(
+        4, byteorder='big') + test_string_encoded
+    byte_stream = PascalStyleByteStream(pascal_bytes)
+    result = byte_stream.read_from_format_instruction(
+        PascalStyleFormatInstruction.STRING)
+    assert result == test_string
+
+
+def test_read_from_bytes_format_instruction():
+    test_bytes = secrets.token_bytes(secrets.randbelow(32))
+    pascal_bytes = len(test_bytes).to_bytes(
+        4, byteorder='big') + test_bytes
+    byte_stream = PascalStyleByteStream(pascal_bytes)
+    result = byte_stream.read_from_format_instruction(
+        PascalStyleFormatInstruction.BYTES)
+    assert result == test_bytes
+
+
+def test_read_from_pos_mpint_format_instruction():
+    test_int = secrets.randbelow(2 ** 128) + 1  # +1 guarantees positive
+    # 7 bits => 1 byte
+    # 8 bits => 2 bytes (MSB is 1, so extra prefix needed for zero byte)
+    # 9 bits => 2 bytes
+    test_int_bytes = test_int.to_bytes(
+        test_int.bit_length() // 8 + 1,  # +1 guarantees zero byte prefix if MSB is 1
+        byteorder='big'
+    )
+    pascal_bytes = len(test_int_bytes).to_bytes(
+        4, byteorder='big') + test_int_bytes
+    byte_stream = PascalStyleByteStream(pascal_bytes)
+    result = byte_stream.read_from_format_instruction(
+        PascalStyleFormatInstruction.MPINT)
+    assert result == test_int
+
+
+def test_read_from_neg_mpint_format_instruction():
+    test_int = -secrets.randbelow(2 ** 12) - 1  # -1 guarantees negative
+    # 8 bits => 1 byte
+    # 9 bits => 2 bytes
+    test_int_bytes = test_int.to_bytes(
+        (test_int.bit_length() - 1) // 8 + 1,
+        byteorder='big',
+        signed=True
+    )
+    pascal_bytes = len(test_int_bytes).to_bytes(
+        4, byteorder='big') + test_int_bytes
+    byte_stream = PascalStyleByteStream(pascal_bytes)
+    result = byte_stream.read_from_format_instruction(
+        PascalStyleFormatInstruction.MPINT)
+    assert result == test_int
+
+
+def test_read_from_zero_mpint_format_instruction():
+    test_int = 0
+    test_int_bytes = b'\x00\x00\x00\x00'
+    pascal_bytes = len(test_int_bytes).to_bytes(
+        4, byteorder='big') + test_int_bytes
+    byte_stream = PascalStyleByteStream(pascal_bytes)
+    result = byte_stream.read_from_format_instruction(
+        PascalStyleFormatInstruction.MPINT)
+    assert result == test_int
+
+
+def test_read_from_string_format_instruction_length():
+    # random ascii string of random length
+    test_string = secrets.token_urlsafe(secrets.randbelow(32))
+    test_string_encoded = test_string.encode()
+    pascal_bytes = len(test_string_encoded).to_bytes(
+        8, byteorder='big') + test_string_encoded
+    byte_stream = PascalStyleByteStream(pascal_bytes)
+    result = byte_stream.read_from_format_instruction(
+        PascalStyleFormatInstruction.STRING,
+        string_length_size=8
+    )
+    assert result == test_string
