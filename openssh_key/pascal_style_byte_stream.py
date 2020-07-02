@@ -31,7 +31,11 @@ class PascalStyleByteStream(io.BytesIO):
             elif format_instruction == PascalStyleFormatInstruction.STRING:
                 return read_bytes.decode()
             elif format_instruction == PascalStyleFormatInstruction.MPINT:
-                return int.from_bytes(read_bytes, byteorder='big')
+                return int.from_bytes(
+                    read_bytes,
+                    byteorder='big',
+                    signed=True
+                )
         raise NotImplementedError()
 
     def read_from_format_instructions_dict(self, format_instructions_dict):
