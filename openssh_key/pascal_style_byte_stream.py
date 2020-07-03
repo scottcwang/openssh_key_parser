@@ -85,12 +85,10 @@ class PascalStyleByteStream(io.BytesIO):
             elif format_instruction == PascalStyleFormatInstruction.MPINT:
                 assert isinstance(value, int)
                 write_bytes = value.to_bytes(
-                    length=value.bit_length(),
+                    length=(value.bit_length() + (8 if value > 0 else 7)) // 8,
                     byteorder='big',
                     signed=True
                 )
-                if value > 0 and write_bytes[0] // 128 == 1:
-                    write_bytes = b'\x00' + write_bytes
             write_bytes_len_bytes = len(write_bytes).to_bytes(
                 length=OPENSSH_DEFAULT_STRING_LENGTH_SIZE,
                 byteorder='big',
