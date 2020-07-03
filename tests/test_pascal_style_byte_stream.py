@@ -190,3 +190,62 @@ def test_read_from_pascal_overfull():
     byte_stream.read_from_format_instruction(
         PascalStyleFormatInstruction.STRING)
     assert byte_stream.read() == b'\x00'
+
+
+def test_read_from_format_instructions_dict():
+    pascal_bytes = b'\x00\x00\x00\x01' + b'\x00' \
+        + b'\x00\x00\x00\x02'
+    byte_stream = PascalStyleByteStream(pascal_bytes)
+    result = byte_stream.read_from_format_instructions_dict({
+        'first': PascalStyleFormatInstruction.BYTES,
+        'second': '>I'
+    })
+    assert result == {
+        'first': b'\x00',
+        'second': 2
+    }
+
+
+def test_read_from_empty_format_instructions_dict():
+    pascal_bytes = b'\x00\x00\x00\x01' + b'\x00' \
+        + b'\x00\x00\x00\x02'
+    byte_stream = PascalStyleByteStream(pascal_bytes)
+    result = byte_stream.read_from_format_instructions_dict({})
+    assert result == {}
+
+
+def test_read_from_format_instructions_dict_underfull():
+    pascal_bytes = b'\x00\x00\x00\x01' + b'\x00' \
+        + b'\x00\x00\x00'
+    byte_stream = PascalStyleByteStream(pascal_bytes)
+    with pytest.raises(EOFError):
+        byte_stream.read_from_format_instructions_dict({
+            'first': PascalStyleFormatInstruction.BYTES,
+            'second': '>I',
+        })
+
+
+def test_read_from_format_instructions_dict_overfull():
+    pascal_bytes = b'\x00\x00\x00\x01' + b'\x00' \
+        + b'\x00\x00\x00\x02' \
+        + b'\x03'
+    byte_stream = PascalStyleByteStream(pascal_bytes)
+    byte_stream.read_from_format_instructions_dict({
+        'first': PascalStyleFormatInstruction.BYTES,
+        'second': '>I',
+    })
+    assert byte_stream.read() == b'\x03'
+
+
+def test_read_from_format_instructions_dict_length():
+    pascal_bytes = b'\x01' + b'\x00'
+    byte_stream = PascalStyleByteStream(pascal_bytes)
+    result = byte_stream.read_from_format_instructions_dict({
+        'first': {
+            'format_instruction': PascalStyleFormatInstruction.BYTES,
+            'string_length_size': 1
+        }
+    })
+    assert result == {
+        'first': b'\x00'
+    }
