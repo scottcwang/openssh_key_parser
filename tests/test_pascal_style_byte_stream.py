@@ -5,6 +5,34 @@ import pytest
 from openssh_key.pascal_style_byte_stream import PascalStyleByteStream, PascalStyleFormatInstruction
 
 
+def test_read_fixed_bytes():
+    test_bytes = b'\x01\x02\x03\x04'
+    byte_stream = PascalStyleByteStream(test_bytes)
+    result = byte_stream.read_fixed_bytes(4)
+    assert result == test_bytes
+
+
+def test_read_fixed_bytes_underfull():
+    test_bytes = b'\x01\x02\x03\x04'
+    byte_stream = PascalStyleByteStream(test_bytes)
+    with pytest.raises(EOFError):
+        byte_stream.read_fixed_bytes(5)
+
+
+def test_read_fixed_bytes_overfull():
+    test_bytes = b'\x01\x02\x03\x04'
+    byte_stream = PascalStyleByteStream(test_bytes)
+    byte_stream.read_fixed_bytes(3)
+    assert byte_stream.read() == b'\x04'
+
+
+def test_read_fixed_bytes_zero():
+    test_bytes = b'\x01\x02\x03\x04'
+    byte_stream = PascalStyleByteStream(test_bytes)
+    byte_stream.read_fixed_bytes(0)
+    assert byte_stream.read() == test_bytes
+
+
 def test_read_from_struct_format_instruction():
     test_int = secrets.randbits(16)
     test_bytes = test_int.to_bytes(4, byteorder='big')
@@ -94,7 +122,7 @@ def test_read_from_string_format_instruction_length():
     assert result == test_string
 
 
-def test_read_underfull_length():
+def test_read_from_pascal_underfull_length():
     pascal_bytes = b'\x00\x00\x00'
     byte_stream = PascalStyleByteStream(pascal_bytes)
     with pytest.raises(EOFError):
@@ -102,7 +130,7 @@ def test_read_underfull_length():
             PascalStyleFormatInstruction.STRING)
 
 
-def test_read_underfull_string():
+def test_read_from_pascal_underfull_string():
     pascal_bytes = b'\x00\x00\x00\x04' + b'\x00\x00\x00'
     byte_stream = PascalStyleByteStream(pascal_bytes)
     with pytest.raises(EOFError):
@@ -110,7 +138,7 @@ def test_read_underfull_string():
             PascalStyleFormatInstruction.STRING)
 
 
-def test_read_overfull():
+def test_read_from_pascal_overfull():
     test_string = secrets.token_urlsafe(secrets.randbelow(32))
     test_string_encoded = test_string.encode()
     pascal_bytes = len(test_string_encoded).to_bytes(
