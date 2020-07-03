@@ -249,3 +249,70 @@ def test_read_from_format_instructions_dict_length():
     assert result == {
         'first': b'\x00'
     }
+
+
+def test_write_from_struct_format_instruction():
+    test_int = 1
+    byte_stream = PascalStyleByteStream()
+    byte_stream.write_from_format_instruction('>I', test_int)
+    assert byte_stream.getvalue() == b'\x00\x00\x00\x01'
+
+
+def test_write_from_bytes_format_instruction():
+    test_bytes = b'\x00'
+    byte_stream = PascalStyleByteStream()
+    byte_stream.write_from_format_instruction(
+        PascalStyleFormatInstruction.BYTES,
+        test_bytes
+    )
+    assert byte_stream.getvalue() == b'\x00\x00\x00\x01' + b'\x00'
+
+
+def test_write_from_string_format_instruction():
+    test_string = 'abcd'
+    byte_stream = PascalStyleByteStream()
+    byte_stream.write_from_format_instruction(
+        PascalStyleFormatInstruction.STRING,
+        test_string
+    )
+    assert byte_stream.getvalue() == b'\x00\x00\x00\x04' + b'abcd'
+
+
+def test_write_from_pos_no_prefix_mpint_format_instruction():
+    test_int = 0x1000
+    byte_stream = PascalStyleByteStream()
+    byte_stream.write_from_format_instruction(
+        PascalStyleFormatInstruction.MPINT,
+        test_int
+    )
+    assert byte_stream.getvalue() == b'\x00\x00\x00\x02' + b'\x10\x00'
+
+
+def test_write_from_pos_with_prefix_mpint_format_instruction():
+    test_int = 0x8000
+    byte_stream = PascalStyleByteStream()
+    byte_stream.write_from_format_instruction(
+        PascalStyleFormatInstruction.MPINT,
+        test_int
+    )
+    assert byte_stream.getvalue() == b'\x00\x00\x00\x03' + b'\x00\x80\x00'
+
+
+def test_write_from_neg_mpint_format_instruction():
+    test_int = -0x8000
+    byte_stream = PascalStyleByteStream()
+    byte_stream.write_from_format_instruction(
+        PascalStyleFormatInstruction.MPINT,
+        test_int
+    )
+    assert byte_stream.getvalue() == b'\x00\x00\x00\x02' + b'\x80\x00'
+
+
+def test_write_from_zero_mpint_format_instruction():
+    test_int = 0
+    byte_stream = PascalStyleByteStream()
+    byte_stream.write_from_format_instruction(
+        PascalStyleFormatInstruction.MPINT,
+        test_int
+    )
+    assert byte_stream.getvalue() == b'\x00\x00\x00\x00'
