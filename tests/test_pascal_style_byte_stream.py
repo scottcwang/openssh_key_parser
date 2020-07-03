@@ -33,6 +33,48 @@ def test_read_fixed_bytes_zero():
     assert byte_stream.read() == test_bytes
 
 
+def test_read_pascal_bytes():
+    pascal_bytes = b'\x00\x00\x00\x01' + b'\x02'
+    byte_stream = PascalStyleByteStream(pascal_bytes)
+    result = byte_stream.read_pascal_bytes(4)
+    assert result == b'\x02'
+
+
+def test_read_negative_pascal_bytes():
+    pascal_bytes = b'\x00\x00\x00\x01' + b'\x02'
+    byte_stream = PascalStyleByteStream(pascal_bytes)
+    with pytest.raises(ValueError):
+        byte_stream.read_pascal_bytes(-1)
+
+
+def test_read_pascal_bytes_underfull_length():
+    pascal_bytes = b'\x00\x00\x00'
+    byte_stream = PascalStyleByteStream(pascal_bytes)
+    with pytest.raises(EOFError):
+        byte_stream.read_from_format_instruction(
+            PascalStyleFormatInstruction.STRING)
+
+
+def test_read_pascal_bytes_underfull_string():
+    pascal_bytes = b'\x00\x00\x00\x04' + b'\x00\x00\x00'
+    byte_stream = PascalStyleByteStream(pascal_bytes)
+    with pytest.raises(EOFError):
+        byte_stream.read_from_format_instruction(
+            PascalStyleFormatInstruction.STRING)
+
+
+def test_read_pascal_bytes_overfull():
+    test_string = secrets.token_urlsafe(secrets.randbelow(32))
+    test_string_encoded = test_string.encode()
+    pascal_bytes = len(test_string_encoded).to_bytes(
+        4, byteorder='big') + test_string_encoded
+    pascal_bytes = pascal_bytes + b'\x00'
+    byte_stream = PascalStyleByteStream(pascal_bytes)
+    byte_stream.read_from_format_instruction(
+        PascalStyleFormatInstruction.STRING)
+    assert byte_stream.read() == b'\x00'
+
+
 def test_read_from_struct_format_instruction():
     test_int = secrets.randbits(16)
     test_bytes = test_int.to_bytes(4, byteorder='big')
