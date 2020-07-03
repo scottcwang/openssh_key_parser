@@ -4,6 +4,7 @@ import struct
 
 OPENSSH_DEFAULT_STRING_LENGTH_SIZE = 4
 
+
 class PascalStyleFormatInstruction(enum.Enum):
     # https://tools.ietf.org/html/rfc4251#section-5
     BYTES = enum.auto()
@@ -57,6 +58,8 @@ class PascalStyleByteStream(io.BytesIO):
         return read_bytes
 
     def read_pascal_bytes(self, string_length_size):
+        if string_length_size <= 0:
+            raise ValueError('string_length_size must be positive')
         length = int.from_bytes(
             self.read_fixed_bytes(string_length_size),
             byteorder='big'
