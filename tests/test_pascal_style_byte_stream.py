@@ -92,3 +92,31 @@ def test_read_from_string_format_instruction_length():
         string_length_size=8
     )
     assert result == test_string
+
+
+def test_read_underfull_length():
+    pascal_bytes = b'\x00\x00\x00'
+    byte_stream = PascalStyleByteStream(pascal_bytes)
+    with pytest.raises(EOFError):
+        byte_stream.read_from_format_instruction(
+            PascalStyleFormatInstruction.STRING)
+
+
+def test_read_underfull_string():
+    pascal_bytes = b'\x00\x00\x00\x04' + b'\x00\x00\x00'
+    byte_stream = PascalStyleByteStream(pascal_bytes)
+    with pytest.raises(EOFError):
+        byte_stream.read_from_format_instruction(
+            PascalStyleFormatInstruction.STRING)
+
+
+def test_read_overfull():
+    test_string = secrets.token_urlsafe(secrets.randbelow(32))
+    test_string_encoded = test_string.encode()
+    pascal_bytes = len(test_string_encoded).to_bytes(
+        4, byteorder='big') + test_string_encoded
+    pascal_bytes = pascal_bytes + b'\x00'
+    byte_stream = PascalStyleByteStream(pascal_bytes)
+    byte_stream.read_from_format_instruction(
+        PascalStyleFormatInstruction.STRING)
+    assert byte_stream.read() == b'\x00'
