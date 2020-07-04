@@ -69,11 +69,18 @@ def test_read_pascal_bytes_overfull():
     assert byte_stream.read() == b'\x00'
 
 
-def test_read_from_struct_format_instruction():
+def test_read_from_struct_single_format_instruction():
     test_bytes = b'\x00\x00\x00\x01'
     byte_stream = PascalStyleByteStream(test_bytes)
     result = byte_stream.read_from_format_instruction('>I')
     assert result == 1
+
+
+def test_read_from_struct_multiple_format_instruction():
+    test_bytes = b'\x00\x00\x00\x01\x00\x00\x00\x02'
+    byte_stream = PascalStyleByteStream(test_bytes)
+    result = byte_stream.read_from_format_instruction('>II')
+    assert result == (1, 2)
 
 
 def test_read_from_string_format_instruction():
