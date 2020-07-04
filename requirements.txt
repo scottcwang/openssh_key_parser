@@ -2,3 +2,4 @@ bcrypt
 cryptography
 
 pytest
+pytest-cov
