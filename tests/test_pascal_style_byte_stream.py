@@ -274,3 +274,36 @@ def test_write_from_zero_mpint_format_instruction():
         test_int
     )
     assert byte_stream.getvalue() == b'\x00\x00\x00\x00'
+
+
+def test_write_from_format_instructions_dict():
+    byte_stream = PascalStyleByteStream()
+    byte_stream.write_from_format_instructions_dict({
+        'first': PascalStyleFormatInstruction.BYTES,
+        'second': '>I',
+    }, {
+        'first': b'\x00',
+        'second': 2,
+    })
+    assert byte_stream.getvalue() == b'\x00\x00\x00\x01' + b'\x00' \
+        + b'\x00\x00\x00\x02'
+
+
+def test_write_from_empty_format_instructions_dict():
+    byte_stream = PascalStyleByteStream()
+    byte_stream.write_from_format_instructions_dict({}, {
+        'first': b'\x00',
+        'second': 2,
+    })
+    assert byte_stream.getvalue() == b''
+
+
+def test_write_from_format_instructions_dict_missing_key():
+    byte_stream = PascalStyleByteStream()
+    with pytest.raises(KeyError):
+        byte_stream.write_from_format_instructions_dict({
+            'missing': '>I'
+        }, {
+            'first': b'\x00',
+            'second': 2,
+        })
