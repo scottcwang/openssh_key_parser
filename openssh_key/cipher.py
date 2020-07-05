@@ -6,7 +6,7 @@ import cryptography.hazmat.primitives.ciphers.modes as modes
 from cryptography.hazmat.backends import default_backend
 
 
-class Cipher(abc.ABC):
+class Cipher(abc.ABC):  # pragma: no cover
     @staticmethod
     @abc.abstractmethod
     def encrypt(cipher_key, initialization_vector, plain_bytes):
