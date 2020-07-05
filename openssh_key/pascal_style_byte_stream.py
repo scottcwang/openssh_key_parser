@@ -89,13 +89,15 @@ class PascalStyleByteStream(io.BytesIO):
                     byteorder='big',
                     signed=True
                 )
+            else:
+                raise NotImplementedError()
             write_bytes_len_bytes = len(write_bytes).to_bytes(
                 length=OPENSSH_DEFAULT_STRING_LENGTH_SIZE,
                 byteorder='big',
                 signed=False
             )
             write_bytes = write_bytes_len_bytes + write_bytes
-        if write_bytes is None:
+        else:
             raise NotImplementedError()
         self.write(write_bytes)
         return
