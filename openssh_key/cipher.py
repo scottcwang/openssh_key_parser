@@ -5,6 +5,7 @@ import cryptography.hazmat.primitives.ciphers.algorithms as algorithms
 import cryptography.hazmat.primitives.ciphers.modes as modes
 from cryptography.hazmat.backends import default_backend
 
+
 class Cipher(abc.ABC):
     @staticmethod
     @abc.abstractmethod
@@ -27,7 +28,7 @@ class NoneCipher(Cipher):
         return cipher_bytes
 
 
-class AES_GCM(Cipher):
+class AES256_CTRCipher(Cipher):
     @staticmethod
     def encrypt(cipher_key, initialization_vector, cipher_bytes):
         cipher = ciphers.Cipher(
