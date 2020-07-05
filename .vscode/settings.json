@@ -1,0 +1,10 @@
+{
+    "python.testing.pytestArgs": [
+        "--cov-report=html",
+        "--cov=openssh_key",
+        "."
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.nosetestsEnabled": false,
+    "python.testing.pytestEnabled": true
+}
