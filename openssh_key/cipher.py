@@ -48,3 +48,13 @@ class AES256_CTRCipher(Cipher):
         )
         decryptor = cipher.decryptor()
         return decryptor.update(cipher_bytes) + decryptor.finalize()
+
+
+_CIPHER_MAPPING = {
+    'none': NoneCipher,
+    'aes256-ctr': AES256_CTRCipher
+}
+
+
+def create_cipher(type):
+    return _CIPHER_MAPPING[type]
