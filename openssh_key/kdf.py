@@ -22,17 +22,21 @@ class NoneKDF(KDF):
 
 
 class BcryptKDF(KDF):
+    KEY_LENGTH = 32
+    IV_LENGTH = 16
+
     @staticmethod
     def derive_key(options, passphrase):
         bcrypt_result = bcrypt.kdf(
             password=passphrase.encode(),
             salt=options['salt'],
-            desired_key_bytes=32+16,  # https://blog.rebased.pl/2020/03/24/basic-key-security.html
+            # https://blog.rebased.pl/2020/03/24/basic-key-security.html
+            desired_key_bytes=BcryptKDF.KEY_LENGTH + BcryptKDF.IV_LENGTH,
             rounds=options['rounds']
         )
         return {
-            'cipher_key': bcrypt_result[:32],
-            'initialization_vector': bcrypt_result[-16:]
+            'cipher_key': bcrypt_result[:BcryptKDF.KEY_LENGTH],
+            'initialization_vector': bcrypt_result[-BcryptKDF.IV_LENGTH:]
         }
 
 
