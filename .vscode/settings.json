@@ -2,6 +2,7 @@
     "python.testing.pytestArgs": [
         "--cov-report=html",
         "--cov=openssh_key",
+        "--pep8",
         "."
     ],
     "python.testing.unittestEnabled": false,

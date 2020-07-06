@@ -3,3 +3,4 @@ cryptography
 
 pytest
 pytest-cov
+pytest-pep8
