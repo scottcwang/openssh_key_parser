@@ -36,7 +36,7 @@ class BcryptKDF(KDF):
         }
 
 
-_kdf = {
+_KDF_MAPPING = {
     'none': {
         'kdf': NoneKDF,
         'options_format': {'': '0s'}
@@ -50,3 +50,6 @@ _kdf = {
     }
 }
 
+
+def create_kdf(type):
+    return _KDF_MAPPING[type]
