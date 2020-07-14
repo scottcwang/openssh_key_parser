@@ -1,6 +1,6 @@
 import pytest
 
-from openssh_key.key_params import create_key_params, RSAPublicKeyParams, RSAPrivateKeyParams
+from openssh_key.key_params import create_key_params, RSAPublicKeyParams, RSAPrivateKeyParams, Ed25519PublicKeyParams, Ed25519PrivateKeyParams
 from openssh_key.pascal_style_byte_stream import PascalStyleFormatInstruction, PascalStyleByteStream
 
 
@@ -148,3 +148,125 @@ def test_rsa_private_missing_params():
     rsa_private_comment = 'comment'
     with pytest.warns(UserWarning):
         RSAPrivateKeyParams(rsa_private_dict, rsa_private_comment)
+
+
+def test_factory_ed25519_public():
+    assert isinstance(create_key_params(
+        'ssh-ed25519', 'public'), Ed25519PublicKeyParams.__class__)
+
+
+def test_factory_ed25519_private():
+    assert isinstance(create_key_params(
+        'ssh-ed25519', 'private'), Ed25519PrivateKeyParams.__class__)
+
+
+def test_ed25519_public_format_instructions_dict():
+    assert Ed25519PublicKeyParams.public_format_instructions_dict() == {
+        'public': PascalStyleFormatInstruction.BYTES
+    }
+
+
+def test_ed25519_private_format_instructions_dict():
+    assert Ed25519PrivateKeyParams.private_format_instructions_dict() == {
+        'public': PascalStyleFormatInstruction.BYTES,
+        'private_public': PascalStyleFormatInstruction.BYTES
+    }
+
+
+def test_ed25519_public_params_are_valid():
+    ed25519_public_dict = {
+        'public': b'\x01'
+    }
+    ed25519_public_comment = 'comment'
+    ed25519_public = Ed25519PublicKeyParams(
+        ed25519_public_dict, ed25519_public_comment)
+    assert ed25519_public.params_are_valid()
+
+
+def test_ed25519_public_extra_params_are_valid():
+    ed25519_public_dict = {
+        'public': b'\x01',
+        'random': b'\x02'
+    }
+    ed25519_public_comment = 'comment'
+    ed25519_public = Ed25519PublicKeyParams(
+        ed25519_public_dict, ed25519_public_comment)
+    assert ed25519_public.params_are_valid()
+
+
+def test_ed25519_public_missing_params_are_not_valid():
+    ed25519_public_dict = {}
+    ed25519_public_comment = 'comment'
+    ed25519_public = Ed25519PublicKeyParams(
+        ed25519_public_dict, ed25519_public_comment)
+    assert not ed25519_public.params_are_valid()
+
+
+def test_ed25519_private_params_are_valid():
+    ed25519_private_dict = {
+        'public': b'\x01',
+        'private_public': b'\x01\x02'
+    }
+    ed25519_private_comment = 'comment'
+    ed25519_private = Ed25519PrivateKeyParams(
+        ed25519_private_dict, ed25519_private_comment)
+    assert ed25519_private.params_are_valid()
+
+
+def test_ed25519_private_extra_params_are_valid():
+    ed25519_private_dict = {
+        'public': b'\x01',
+        'private_public': b'\x01\x02',
+        'random': b'\x03'
+    }
+    ed25519_private_comment = 'comment'
+    ed25519_private = Ed25519PrivateKeyParams(
+        ed25519_private_dict, ed25519_private_comment)
+    assert ed25519_private.params_are_valid()
+
+
+def test_ed25519_private_missing_params_are_not_valid():
+    ed25519_private_dict = {
+        'public': b'\x01'
+    }
+    ed25519_private_comment = 'comment'
+    ed25519_private = Ed25519PrivateKeyParams(
+        ed25519_private_dict, ed25519_private_comment)
+    assert not ed25519_private.params_are_valid()
+
+
+def test_ed25519_public():
+    ed25519_public_dict = {
+        'public': b'\x01'
+    }
+    ed25519_public_comment = 'comment'
+    ed25519_public = Ed25519PublicKeyParams(
+        ed25519_public_dict, ed25519_public_comment)
+    assert ed25519_public.params == ed25519_public_dict and ed25519_public.comment == ed25519_public_comment
+
+
+def test_ed25519_public_missing_params():
+    ed25519_public_dict = {}
+    ed25519_public_comment = 'comment'
+    with pytest.warns(UserWarning):
+        Ed25519PublicKeyParams(ed25519_public_dict, ed25519_public_comment)
+
+
+def test_ed25519_private():
+    ed25519_private_dict = {
+        'public': b'\x01',
+        'private_public': b'\x01\x02'
+    }
+    ed25519_private_comment = 'comment'
+    ed25519_private = Ed25519PrivateKeyParams(
+        ed25519_private_dict, ed25519_private_comment)
+    assert ed25519_private.params == ed25519_private_dict and ed25519_private.comment == ed25519_private_comment
+
+
+def test_ed25519_private_missing_params():
+    ed25519_private_dict = {
+        'public': b'\x01'
+    }
+    ed25519_private_comment = 'comment'
+    with pytest.warns(UserWarning):
+        Ed25519PrivateKeyParams(ed25519_private_dict, ed25519_private_comment)
