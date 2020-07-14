@@ -68,7 +68,30 @@ class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
             'd': PascalStyleFormatInstruction.MPINT,
             'iqmp': PascalStyleFormatInstruction.MPINT,
             'p': PascalStyleFormatInstruction.MPINT,
-            'q': PascalStyleFormatInstruction.MPINT,
+            'q': PascalStyleFormatInstruction.MPINT
+        }
+
+    def params_are_valid(self):
+        return super().params_are_valid()  # TODO
+
+
+class Ed25519PublicKeyParams(PublicKeyParams):
+    @staticmethod
+    def public_format_instructions_dict():
+        return {
+            'public': PascalStyleFormatInstruction.BYTES
+        }
+
+    def params_are_valid(self):
+        return super().params_are_valid()  # TODO
+
+
+class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
+    @staticmethod
+    def private_format_instructions_dict():
+        return {
+            'public': PascalStyleFormatInstruction.BYTES,
+            'private_public': PascalStyleFormatInstruction.BYTES
         }
 
     def params_are_valid(self):
@@ -84,7 +107,10 @@ PublicPrivateKeyParamsClasses = namedtuple(
 _KEY_TYPE_MAPPING = {
     'ssh-rsa': PublicPrivateKeyParamsClasses(
         RSAPublicKeyParams, RSAPrivateKeyParams
-    )
+    ),
+    'ssh-ed25519': PublicPrivateKeyParamsClasses(
+        Ed25519PublicKeyParams, Ed25519PrivateKeyParams
+    ),
 }
 
 
