@@ -5,7 +5,7 @@ import bcrypt
 from openssh_key.pascal_style_byte_stream import PascalStyleFormatInstruction
 
 
-class KDF(abc.ABC):  # pragma: no cover
+class KDF(abc.ABC):
     @staticmethod
     @abc.abstractmethod
     def derive_key(options, passphrase):

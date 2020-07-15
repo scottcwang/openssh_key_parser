@@ -10,7 +10,7 @@ from openssh_key.pascal_style_byte_stream import (
 )
 
 
-class PublicKeyParams(collections.UserDict, abc.ABC):  # pragma: no cover
+class PublicKeyParams(collections.UserDict, abc.ABC):
     def __init__(self, params: dict, comment: str):
         self.data = params
         self._comment = comment
@@ -53,7 +53,7 @@ class PublicKeyParams(collections.UserDict, abc.ABC):  # pragma: no cover
         })
 
 
-class PrivateKeyParams(PublicKeyParams):  # pragma: no cover
+class PrivateKeyParams(PublicKeyParams):
     @staticmethod
     @abc.abstractmethod
     def private_format_instructions_dict():
