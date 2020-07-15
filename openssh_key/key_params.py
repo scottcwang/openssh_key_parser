@@ -11,8 +11,7 @@ class PublicKeyParams(collections.UserDict, abc.ABC):  # pragma: no cover
     def __init__(self, params: dict, comment: str):
         self.data = params
         self._comment = comment
-        if not self.params_are_valid():
-            warnings.warn('Parameters are not valid')
+        self.check_params_are_valid()
 
     @staticmethod
     @abc.abstractmethod
@@ -27,8 +26,17 @@ class PublicKeyParams(collections.UserDict, abc.ABC):  # pragma: no cover
     def params(self):
         return self.data
 
-    def params_are_valid(self):
-        return self.data.keys() >= self.public_format_instructions_dict().keys()
+    @staticmethod
+    def check_params_match_format_instructions_dict(params_dict, format_instructions_dict):
+        for k, v in format_instructions_dict.items():
+            if k not in params_dict:
+                warnings.warn(k + ' missing')
+            elif type(params_dict[k]) != v.value:
+                warnings.warn(k + ' should be a(n) ' + str(v.value))
+
+    def check_params_are_valid(self):
+        self.check_params_match_format_instructions_dict(
+            self.data, self.public_format_instructions_dict())
 
     def __str__(self):
         return str({
@@ -43,8 +51,9 @@ class PrivateKeyParams(PublicKeyParams):  # pragma: no cover
     def private_format_instructions_dict():
         return {}
 
-    def params_are_valid(self):
-        return self.data.keys() >= self.private_format_instructions_dict().keys()
+    def check_params_are_valid(self):
+        self.check_params_match_format_instructions_dict(
+            self.data, self.private_format_instructions_dict())
 
 
 class RSAPublicKeyParams(PublicKeyParams):
@@ -55,8 +64,8 @@ class RSAPublicKeyParams(PublicKeyParams):
             'n': PascalStyleFormatInstruction.MPINT,
         }
 
-    def params_are_valid(self):
-        return super().params_are_valid()  # TODO
+    def check_params_are_valid(self):
+        return super().check_params_are_valid()  # TODO
 
 
 class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
@@ -71,8 +80,8 @@ class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
             'q': PascalStyleFormatInstruction.MPINT
         }
 
-    def params_are_valid(self):
-        return super().params_are_valid()  # TODO
+    def check_params_are_valid(self):
+        return super().check_params_are_valid()  # TODO
 
 
 class Ed25519PublicKeyParams(PublicKeyParams):
@@ -82,8 +91,8 @@ class Ed25519PublicKeyParams(PublicKeyParams):
             'public': PascalStyleFormatInstruction.BYTES
         }
 
-    def params_are_valid(self):
-        return super().params_are_valid()  # TODO
+    def check_params_are_valid(self):
+        return super().check_params_are_valid()  # TODO
 
 
 class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
@@ -94,8 +103,8 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
             'private_public': PascalStyleFormatInstruction.BYTES
         }
 
-    def params_are_valid(self):
-        return super().params_are_valid()  # TODO
+    def check_params_are_valid(self):
+        return super().check_params_are_valid()  # TODO
 
 
 PublicPrivateKeyParamsClasses = namedtuple(

@@ -7,9 +7,9 @@ OPENSSH_DEFAULT_STRING_LENGTH_SIZE = 4
 
 class PascalStyleFormatInstruction(enum.Enum):
     # https://tools.ietf.org/html/rfc4251#section-5
-    BYTES = enum.auto()
-    STRING = enum.auto()
-    MPINT = enum.auto()
+    BYTES = bytes
+    STRING = str
+    MPINT = int
 
 
 class PascalStyleByteStream(io.BytesIO):

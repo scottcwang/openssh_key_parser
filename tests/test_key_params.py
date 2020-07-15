@@ -32,17 +32,19 @@ def test_rsa_private_format_instructions_dict():
     }
 
 
-def test_rsa_public_params_are_valid():
+def test_rsa_public_check_params_are_valid():
     rsa_public_dict = {
         'e': 1,
         'n': 2
     }
     rsa_public_comment = 'comment'
     rsa_public = RSAPublicKeyParams(rsa_public_dict, rsa_public_comment)
-    assert rsa_public.params_are_valid()
+    with pytest.warns(None) as warnings:
+         rsa_public.check_params_are_valid()
+    assert not warnings
 
 
-def test_rsa_public_extra_params_are_valid():
+def test_rsa_public_check_extra_params_are_valid():
     rsa_public_dict = {
         'e': 1,
         'n': 2,
@@ -50,7 +52,9 @@ def test_rsa_public_extra_params_are_valid():
     }
     rsa_public_comment = 'comment'
     rsa_public = RSAPublicKeyParams(rsa_public_dict, rsa_public_comment)
-    assert rsa_public.params_are_valid()
+    with pytest.warns(None) as warnings:
+        rsa_public.check_params_are_valid()
+    assert not warnings
 
 
 def test_rsa_public_missing_params_are_not_valid():
@@ -59,10 +63,11 @@ def test_rsa_public_missing_params_are_not_valid():
     }
     rsa_public_comment = 'comment'
     rsa_public = RSAPublicKeyParams(rsa_public_dict, rsa_public_comment)
-    assert not rsa_public.params_are_valid()
+    with pytest.warns(UserWarning):
+        rsa_public.check_params_are_valid()
 
 
-def test_rsa_private_params_are_valid():
+def test_rsa_private_check_params_are_valid():
     rsa_private_dict = {
         'n': 1,
         'e': 2,
@@ -73,10 +78,12 @@ def test_rsa_private_params_are_valid():
     }
     rsa_private_comment = 'comment'
     rsa_private = RSAPrivateKeyParams(rsa_private_dict, rsa_private_comment)
-    assert rsa_private.params_are_valid()
+    with pytest.warns(None) as warnings:
+        rsa_private.check_params_are_valid()
+    assert not warnings
 
 
-def test_rsa_private_extra_params_are_valid():
+def test_rsa_private_check_extra_params_are_valid():
     rsa_private_dict = {
         'n': 1,
         'e': 2,
@@ -88,7 +95,9 @@ def test_rsa_private_extra_params_are_valid():
     }
     rsa_private_comment = 'comment'
     rsa_private = RSAPrivateKeyParams(rsa_private_dict, rsa_private_comment)
-    assert rsa_private.params_are_valid()
+    with pytest.warns(None) as warnings:
+        rsa_private.check_params_are_valid()
+    assert not warnings
 
 
 def test_rsa_private_missing_params_are_not_valid():
@@ -101,7 +110,8 @@ def test_rsa_private_missing_params_are_not_valid():
     }
     rsa_private_comment = 'comment'
     rsa_private = RSAPrivateKeyParams(rsa_private_dict, rsa_private_comment)
-    assert not rsa_private.params_are_valid()
+    with pytest.warns(UserWarning):
+        rsa_private.check_params_are_valid()
 
 
 def test_rsa_public():
@@ -173,17 +183,19 @@ def test_ed25519_private_format_instructions_dict():
     }
 
 
-def test_ed25519_public_params_are_valid():
+def test_ed25519_public_check_params_are_valid():
     ed25519_public_dict = {
         'public': b'\x01'
     }
     ed25519_public_comment = 'comment'
     ed25519_public = Ed25519PublicKeyParams(
         ed25519_public_dict, ed25519_public_comment)
-    assert ed25519_public.params_are_valid()
+    with pytest.warns(None) as warnings:
+        ed25519_public.check_params_are_valid()
+    assert not warnings
 
 
-def test_ed25519_public_extra_params_are_valid():
+def test_ed25519_public_check_extra_params_are_valid():
     ed25519_public_dict = {
         'public': b'\x01',
         'random': b'\x02'
@@ -191,7 +203,9 @@ def test_ed25519_public_extra_params_are_valid():
     ed25519_public_comment = 'comment'
     ed25519_public = Ed25519PublicKeyParams(
         ed25519_public_dict, ed25519_public_comment)
-    assert ed25519_public.params_are_valid()
+    with pytest.warns(None) as warnings:
+        ed25519_public.check_params_are_valid()
+    assert not warnings
 
 
 def test_ed25519_public_missing_params_are_not_valid():
@@ -199,10 +213,11 @@ def test_ed25519_public_missing_params_are_not_valid():
     ed25519_public_comment = 'comment'
     ed25519_public = Ed25519PublicKeyParams(
         ed25519_public_dict, ed25519_public_comment)
-    assert not ed25519_public.params_are_valid()
+    with pytest.warns(UserWarning):
+        ed25519_public.check_params_are_valid()
 
 
-def test_ed25519_private_params_are_valid():
+def test_ed25519_private_check_params_are_valid():
     ed25519_private_dict = {
         'public': b'\x01',
         'private_public': b'\x01\x02'
@@ -210,10 +225,12 @@ def test_ed25519_private_params_are_valid():
     ed25519_private_comment = 'comment'
     ed25519_private = Ed25519PrivateKeyParams(
         ed25519_private_dict, ed25519_private_comment)
-    assert ed25519_private.params_are_valid()
+    with pytest.warns(None) as warnings:
+        ed25519_private.check_params_are_valid()
+    assert not warnings
 
 
-def test_ed25519_private_extra_params_are_valid():
+def test_ed25519_private_check_extra_params_are_valid():
     ed25519_private_dict = {
         'public': b'\x01',
         'private_public': b'\x01\x02',
@@ -222,7 +239,9 @@ def test_ed25519_private_extra_params_are_valid():
     ed25519_private_comment = 'comment'
     ed25519_private = Ed25519PrivateKeyParams(
         ed25519_private_dict, ed25519_private_comment)
-    assert ed25519_private.params_are_valid()
+    with pytest.warns(None) as warnings:
+        ed25519_private.check_params_are_valid()
+    assert not warnings
 
 
 def test_ed25519_private_missing_params_are_not_valid():
@@ -232,7 +251,8 @@ def test_ed25519_private_missing_params_are_not_valid():
     ed25519_private_comment = 'comment'
     ed25519_private = Ed25519PrivateKeyParams(
         ed25519_private_dict, ed25519_private_comment)
-    assert not ed25519_private.params_are_valid()
+    with pytest.warns(UserWarning):
+        ed25519_private.check_params_are_valid()
 
 
 def test_ed25519_public():
