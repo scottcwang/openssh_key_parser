@@ -64,9 +64,6 @@ class RSAPublicKeyParams(PublicKeyParams):
             'n': PascalStyleFormatInstruction.MPINT,
         }
 
-    def check_params_are_valid(self):
-        return super().check_params_are_valid()  # TODO
-
 
 class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
     @staticmethod
@@ -80,8 +77,8 @@ class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
             'q': PascalStyleFormatInstruction.MPINT
         }
 
-    def check_params_are_valid(self):
-        return super().check_params_are_valid()  # TODO
+
+ED25519_KEY_SIZE = 32
 
 
 class Ed25519PublicKeyParams(PublicKeyParams):
@@ -92,7 +89,9 @@ class Ed25519PublicKeyParams(PublicKeyParams):
         }
 
     def check_params_are_valid(self):
-        return super().check_params_are_valid()  # TODO
+        super().check_params_are_valid()
+        if 'public' in self.data and len(self.data['public']) != ED25519_KEY_SIZE:
+            warnings.warn('Public key not of length ' + str(ED25519_KEY_SIZE))
 
 
 class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
@@ -104,7 +103,14 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
         }
 
     def check_params_are_valid(self):
-        return super().check_params_are_valid()  # TODO
+        Ed25519PublicKeyParams.check_params_are_valid(self)
+        PrivateKeyParams.check_params_are_valid(self)
+        if 'private_public' not in self.data:
+            return
+        if self.data['private_public'][ED25519_KEY_SIZE:] != self.data['public']:
+            warnings.warn('Public key does not match')
+        if len(self.data['private_public'][ED25519_KEY_SIZE:]) != ED25519_KEY_SIZE:
+            warnings.warn('Private key not of length ' + str(ED25519_KEY_SIZE))
 
 
 PublicPrivateKeyParamsClasses = namedtuple(

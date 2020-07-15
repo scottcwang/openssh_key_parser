@@ -1,3 +1,5 @@
+import secrets
+
 import pytest
 
 from openssh_key.key_params import create_key_params, RSAPublicKeyParams, RSAPrivateKeyParams, Ed25519PublicKeyParams, Ed25519PrivateKeyParams
@@ -223,9 +225,12 @@ def test_ed25519_private_format_instructions_dict():
     }
 
 
+ED25519_KEY_SIZE = 32
+
+
 def test_ed25519_public_check_params_are_valid():
     ed25519_public_dict = {
-        'public': b'\x01'
+        'public': secrets.token_bytes(ED25519_KEY_SIZE)
     }
     ed25519_public_comment = 'comment'
     ed25519_public = Ed25519PublicKeyParams(
@@ -237,7 +242,7 @@ def test_ed25519_public_check_params_are_valid():
 
 def test_ed25519_public_check_extra_params_are_valid():
     ed25519_public_dict = {
-        'public': b'\x01',
+        'public': secrets.token_bytes(ED25519_KEY_SIZE),
         'random': b'\x02'
     }
     ed25519_public_comment = 'comment'
@@ -269,9 +274,10 @@ def test_ed25519_public_bad_type_params_are_not_valid():
 
 
 def test_ed25519_private_check_params_are_valid():
+    public_bytes = secrets.token_bytes(ED25519_KEY_SIZE)
     ed25519_private_dict = {
-        'public': b'\x01',
-        'private_public': b'\x01\x02'
+        'public': public_bytes,
+        'private_public': secrets.token_bytes(ED25519_KEY_SIZE) + public_bytes
     }
     ed25519_private_comment = 'comment'
     ed25519_private = Ed25519PrivateKeyParams(
@@ -282,9 +288,10 @@ def test_ed25519_private_check_params_are_valid():
 
 
 def test_ed25519_private_check_extra_params_are_valid():
+    public_bytes = secrets.token_bytes(ED25519_KEY_SIZE)
     ed25519_private_dict = {
-        'public': b'\x01',
-        'private_public': b'\x01\x02',
+        'public': public_bytes,
+        'private_public': secrets.token_bytes(ED25519_KEY_SIZE) + public_bytes,
         'random': b'\x03'
     }
     ed25519_private_comment = 'comment'
@@ -297,7 +304,7 @@ def test_ed25519_private_check_extra_params_are_valid():
 
 def test_ed25519_private_missing_params_are_not_valid():
     ed25519_private_dict = {
-        'public': b'\x01'
+        'public': secrets.token_bytes(ED25519_KEY_SIZE)
     }
     ed25519_private_comment = 'comment'
     ed25519_private = Ed25519PrivateKeyParams(
@@ -308,7 +315,7 @@ def test_ed25519_private_missing_params_are_not_valid():
 
 def test_ed25519_private_bad_type_params_are_not_valid():
     ed25519_private_dict = {
-        'public': b'\x01',
+        'public': secrets.token_bytes(ED25519_KEY_SIZE),
         'private_public': 'bad'
     }
     ed25519_private_comment = 'comment'
@@ -320,7 +327,7 @@ def test_ed25519_private_bad_type_params_are_not_valid():
 
 def test_ed25519_public():
     ed25519_public_dict = {
-        'public': b'\x01'
+        'public': secrets.token_bytes(ED25519_KEY_SIZE)
     }
     ed25519_public_comment = 'comment'
     ed25519_public = Ed25519PublicKeyParams(
@@ -337,8 +344,8 @@ def test_ed25519_public_missing_params():
 
 def test_ed25519_private():
     ed25519_private_dict = {
-        'public': b'\x01',
-        'private_public': b'\x01\x02'
+        'public': secrets.token_bytes(ED25519_KEY_SIZE),
+        'private_public': secrets.token_bytes(ED25519_KEY_SIZE * 2)
     }
     ed25519_private_comment = 'comment'
     ed25519_private = Ed25519PrivateKeyParams(
@@ -348,7 +355,7 @@ def test_ed25519_private():
 
 def test_ed25519_private_missing_params():
     ed25519_private_dict = {
-        'public': b'\x01'
+        'public': secrets.token_bytes(ED25519_KEY_SIZE)
     }
     ed25519_private_comment = 'comment'
     with pytest.warns(UserWarning):
@@ -357,7 +364,7 @@ def test_ed25519_private_missing_params():
 
 def test_ed25519_private_bad_type_params():
     ed25519_private_dict = {
-        'public': b'\x01',
+        'public': secrets.token_bytes(ED25519_KEY_SIZE),
         'private_public': 'bad'
     }
     ed25519_private_comment = 'comment'
