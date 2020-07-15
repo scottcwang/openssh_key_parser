@@ -40,7 +40,7 @@ def test_rsa_public_check_params_are_valid():
     rsa_public_comment = 'comment'
     rsa_public = RSAPublicKeyParams(rsa_public_dict, rsa_public_comment)
     with pytest.warns(None) as warnings:
-         rsa_public.check_params_are_valid()
+        rsa_public.check_params_are_valid()
     assert not warnings
 
 
@@ -60,6 +60,17 @@ def test_rsa_public_check_extra_params_are_valid():
 def test_rsa_public_missing_params_are_not_valid():
     rsa_public_dict = {
         'e': 1
+    }
+    rsa_public_comment = 'comment'
+    rsa_public = RSAPublicKeyParams(rsa_public_dict, rsa_public_comment)
+    with pytest.warns(UserWarning):
+        rsa_public.check_params_are_valid()
+
+
+def test_rsa_public_bad_type_params_are_not_valid():
+    rsa_public_dict = {
+        'e': 1,
+        'n': b'bad'
     }
     rsa_public_comment = 'comment'
     rsa_public = RSAPublicKeyParams(rsa_public_dict, rsa_public_comment)
@@ -114,6 +125,21 @@ def test_rsa_private_missing_params_are_not_valid():
         rsa_private.check_params_are_valid()
 
 
+def test_rsa_private_bad_type_params_are_not_valid():
+    rsa_private_dict = {
+        'n': 1,
+        'e': 2,
+        'd': 3,
+        'iqmp': 4,
+        'p': 5,
+        'q': b'bad'
+    }
+    rsa_private_comment = 'comment'
+    rsa_private = RSAPrivateKeyParams(rsa_private_dict, rsa_private_comment)
+    with pytest.warns(UserWarning):
+        rsa_private.check_params_are_valid()
+
+
 def test_rsa_public():
     rsa_public_dict = {
         'e': 1,
@@ -154,6 +180,20 @@ def test_rsa_private_missing_params():
         'd': 3,
         'iqmp': 4,
         'p': 5
+    }
+    rsa_private_comment = 'comment'
+    with pytest.warns(UserWarning):
+        RSAPrivateKeyParams(rsa_private_dict, rsa_private_comment)
+
+
+def test_rsa_private_bad_type_params():
+    rsa_private_dict = {
+        'n': 1,
+        'e': 2,
+        'd': 3,
+        'iqmp': 4,
+        'p': 5,
+        'q': b'bad'
     }
     rsa_private_comment = 'comment'
     with pytest.warns(UserWarning):
@@ -217,6 +257,17 @@ def test_ed25519_public_missing_params_are_not_valid():
         ed25519_public.check_params_are_valid()
 
 
+def test_ed25519_public_bad_type_params_are_not_valid():
+    ed25519_public_dict = {
+        'public': 'bad'
+    }
+    ed25519_public_comment = 'comment'
+    ed25519_public = Ed25519PublicKeyParams(
+        ed25519_public_dict, ed25519_public_comment)
+    with pytest.warns(UserWarning):
+        ed25519_public.check_params_are_valid()
+
+
 def test_ed25519_private_check_params_are_valid():
     ed25519_private_dict = {
         'public': b'\x01',
@@ -247,6 +298,18 @@ def test_ed25519_private_check_extra_params_are_valid():
 def test_ed25519_private_missing_params_are_not_valid():
     ed25519_private_dict = {
         'public': b'\x01'
+    }
+    ed25519_private_comment = 'comment'
+    ed25519_private = Ed25519PrivateKeyParams(
+        ed25519_private_dict, ed25519_private_comment)
+    with pytest.warns(UserWarning):
+        ed25519_private.check_params_are_valid()
+
+
+def test_ed25519_private_bad_type_params_are_not_valid():
+    ed25519_private_dict = {
+        'public': b'\x01',
+        'private_public': 'bad'
     }
     ed25519_private_comment = 'comment'
     ed25519_private = Ed25519PrivateKeyParams(
@@ -286,6 +349,16 @@ def test_ed25519_private():
 def test_ed25519_private_missing_params():
     ed25519_private_dict = {
         'public': b'\x01'
+    }
+    ed25519_private_comment = 'comment'
+    with pytest.warns(UserWarning):
+        Ed25519PrivateKeyParams(ed25519_private_dict, ed25519_private_comment)
+
+
+def test_ed25519_private_bad_type_params():
+    ed25519_private_dict = {
+        'public': b'\x01',
+        'private_public': 'bad'
     }
     ed25519_private_comment = 'comment'
     with pytest.warns(UserWarning):
