@@ -32,7 +32,9 @@ class PublicKeyParams(collections.UserDict, abc.ABC):  # pragma: no cover
             if k not in params_dict:
                 warnings.warn(k + ' missing')
             elif type(params_dict[k]) != v.value:
-                warnings.warn(k + ' should be a(n) ' + str(v.value))
+                warnings.warn(
+                    k + ' should be of class ' + str(v.value.__name__)
+                )
 
     def check_params_are_valid(self):
         self.check_params_match_format_instructions_dict(
