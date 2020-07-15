@@ -351,9 +351,10 @@ def test_ed25519_public_missing_params():
 
 
 def test_ed25519_private():
+    public_bytes = secrets.token_bytes(ED25519_KEY_SIZE)
     ed25519_private_dict = {
-        'public': secrets.token_bytes(ED25519_KEY_SIZE),
-        'private_public': secrets.token_bytes(ED25519_KEY_SIZE * 2)
+        'public': public_bytes,
+        'private_public': secrets.token_bytes(ED25519_KEY_SIZE) + public_bytes
     }
     ed25519_private_comment = 'comment'
     ed25519_private = Ed25519PrivateKeyParams(
