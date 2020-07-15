@@ -380,3 +380,18 @@ def test_ed25519_private_bad_type_params():
     ed25519_private_comment = 'comment'
     with pytest.warns(UserWarning):
         Ed25519PrivateKeyParams(ed25519_private_dict, ed25519_private_comment)
+
+
+def test_str():
+    public_bytes = secrets.token_bytes(ED25519_KEY_SIZE)
+    ed25519_private_dict = {
+        'public': public_bytes,
+        'private_public': secrets.token_bytes(ED25519_KEY_SIZE) + public_bytes
+    }
+    ed25519_private_comment = 'comment'
+    ed25519_private = Ed25519PrivateKeyParams(
+        ed25519_private_dict, ed25519_private_comment)
+    assert str(ed25519_private) == str({
+        'comment': ed25519_private_comment,
+        'params': ed25519_private_dict
+    })
