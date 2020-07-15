@@ -280,10 +280,8 @@ def test_ed25519_private_check_params_are_valid():
         'private_public': secrets.token_bytes(ED25519_KEY_SIZE) + public_bytes
     }
     ed25519_private_comment = 'comment'
-    ed25519_private = Ed25519PrivateKeyParams(
-        ed25519_private_dict, ed25519_private_comment)
     with pytest.warns(None) as warnings:
-        ed25519_private.check_params_are_valid()
+        Ed25519PrivateKeyParams(ed25519_private_dict, ed25519_private_comment)
     assert not warnings
 
 
@@ -295,10 +293,8 @@ def test_ed25519_private_check_extra_params_are_valid():
         'random': b'\x03'
     }
     ed25519_private_comment = 'comment'
-    ed25519_private = Ed25519PrivateKeyParams(
-        ed25519_private_dict, ed25519_private_comment)
     with pytest.warns(None) as warnings:
-        ed25519_private.check_params_are_valid()
+        Ed25519PrivateKeyParams(ed25519_private_dict, ed25519_private_comment)
     assert not warnings
 
 
