@@ -1,6 +1,9 @@
 import pytest
 
-from openssh_key.pascal_style_byte_stream import PascalStyleByteStream, PascalStyleFormatInstruction
+from openssh_key.pascal_style_byte_stream import (
+    PascalStyleByteStream,
+    PascalStyleFormatInstruction
+)
 
 
 def test_read_fixed_bytes():

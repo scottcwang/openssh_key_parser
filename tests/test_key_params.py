@@ -2,8 +2,17 @@ import secrets
 
 import pytest
 
-from openssh_key.key_params import create_key_params, RSAPublicKeyParams, RSAPrivateKeyParams, Ed25519PublicKeyParams, Ed25519PrivateKeyParams
-from openssh_key.pascal_style_byte_stream import PascalStyleFormatInstruction, PascalStyleByteStream
+from openssh_key.key_params import (
+    create_key_params,
+    RSAPublicKeyParams,
+    RSAPrivateKeyParams,
+    Ed25519PublicKeyParams,
+    Ed25519PrivateKeyParams
+)
+from openssh_key.pascal_style_byte_stream import (
+    PascalStyleFormatInstruction,
+    PascalStyleByteStream
+)
 
 
 def test_factory_rsa_public():
@@ -149,7 +158,8 @@ def test_rsa_public():
     }
     rsa_public_comment = 'comment'
     rsa_public = RSAPublicKeyParams(rsa_public_dict, rsa_public_comment)
-    assert rsa_public.params == rsa_public_dict and rsa_public.comment == rsa_public_comment
+    assert rsa_public.params == rsa_public_dict \
+        and rsa_public.comment == rsa_public_comment
 
 
 def test_rsa_public_missing_params():
@@ -172,7 +182,8 @@ def test_rsa_private():
     }
     rsa_private_comment = 'comment'
     rsa_private = RSAPrivateKeyParams(rsa_private_dict, rsa_private_comment)
-    assert rsa_private.params == rsa_private_dict and rsa_private.comment == rsa_private_comment
+    assert rsa_private.params == rsa_private_dict \
+        and rsa_private.comment == rsa_private_comment
 
 
 def test_rsa_private_missing_params():
@@ -328,7 +339,8 @@ def test_ed25519_public():
     ed25519_public_comment = 'comment'
     ed25519_public = Ed25519PublicKeyParams(
         ed25519_public_dict, ed25519_public_comment)
-    assert ed25519_public.params == ed25519_public_dict and ed25519_public.comment == ed25519_public_comment
+    assert ed25519_public.params == ed25519_public_dict \
+        and ed25519_public.comment == ed25519_public_comment
 
 
 def test_ed25519_public_missing_params():
@@ -346,7 +358,8 @@ def test_ed25519_private():
     ed25519_private_comment = 'comment'
     ed25519_private = Ed25519PrivateKeyParams(
         ed25519_private_dict, ed25519_private_comment)
-    assert ed25519_private.params == ed25519_private_dict and ed25519_private.comment == ed25519_private_comment
+    assert ed25519_private.params == ed25519_private_dict \
+        and ed25519_private.comment == ed25519_private_comment
 
 
 def test_ed25519_private_missing_params():

@@ -4,7 +4,10 @@ import warnings
 import enum
 from collections import namedtuple
 
-from openssh_key.pascal_style_byte_stream import PascalStyleByteStream, PascalStyleFormatInstruction
+from openssh_key.pascal_style_byte_stream import (
+    PascalStyleByteStream,
+    PascalStyleFormatInstruction
+)
 
 
 class PublicKeyParams(collections.UserDict, abc.ABC):  # pragma: no cover
@@ -27,7 +30,10 @@ class PublicKeyParams(collections.UserDict, abc.ABC):  # pragma: no cover
         return self.data
 
     @staticmethod
-    def check_params_match_format_instructions_dict(params_dict, format_instructions_dict):
+    def check_params_match_format_instructions_dict(
+        params_dict,
+        format_instructions_dict
+    ):
         for k, v in format_instructions_dict.items():
             if k not in params_dict:
                 warnings.warn(k + ' missing')
@@ -55,7 +61,8 @@ class PrivateKeyParams(PublicKeyParams):  # pragma: no cover
 
     def check_params_are_valid(self):
         self.check_params_match_format_instructions_dict(
-            self.data, self.private_format_instructions_dict())
+            self.data, self.private_format_instructions_dict()
+        )
 
 
 class RSAPublicKeyParams(PublicKeyParams):
@@ -92,7 +99,8 @@ class Ed25519PublicKeyParams(PublicKeyParams):
 
     def check_params_are_valid(self):
         super().check_params_are_valid()
-        if 'public' in self.data and len(self.data['public']) != ED25519_KEY_SIZE:
+        if 'public' in self.data \
+                and len(self.data['public']) != ED25519_KEY_SIZE:
             warnings.warn('Public key not of length ' + str(ED25519_KEY_SIZE))
 
 
@@ -109,16 +117,21 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
         PrivateKeyParams.check_params_are_valid(self)
         if 'private_public' not in self.data:
             return
-        if self.data['private_public'][ED25519_KEY_SIZE:] != self.data['public']:
+        if self.data['private_public'][ED25519_KEY_SIZE:] \
+                != self.data['public']:
             warnings.warn('Public key does not match')
-        if len(self.data['private_public'][ED25519_KEY_SIZE:]) != ED25519_KEY_SIZE:
-            warnings.warn('Private key not of length ' + str(ED25519_KEY_SIZE))
+        if len(self.data['private_public'][ED25519_KEY_SIZE:]) \
+                != ED25519_KEY_SIZE:
+            warnings.warn(
+                'Private key not of length ' + str(ED25519_KEY_SIZE)
+            )
 
 
 PublicPrivateKeyParamsClasses = namedtuple(
     'PublicPrivateKeyParamsClasses', [
         'PublicKeyParamsClass', 'PrivateKeyParamsClass'
-    ])
+    ]
+)
 
 
 _KEY_TYPE_MAPPING = {
