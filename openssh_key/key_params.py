@@ -2,7 +2,6 @@ import collections
 import abc
 import warnings
 import enum
-from collections import namedtuple
 
 from openssh_key.pascal_style_byte_stream import (
     PascalStyleByteStream,
@@ -127,7 +126,7 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
             )
 
 
-PublicPrivateKeyParamsClasses = namedtuple(
+PublicPrivateKeyParamsClasses = collections.namedtuple(
     'PublicPrivateKeyParamsClasses', [
         'PublicKeyParamsClass', 'PrivateKeyParamsClass'
     ]
