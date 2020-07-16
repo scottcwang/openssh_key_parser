@@ -44,69 +44,59 @@ def test_rsa_private_format_instructions_dict():
 
 
 def test_rsa_public_check_params_are_valid():
-    rsa_public_dict = {
+    rsa_public = RSAPublicKeyParams({
         'e': 1,
         'n': 2
-    }
-    rsa_public_comment = 'comment'
-    rsa_public = RSAPublicKeyParams(rsa_public_dict, rsa_public_comment)
+    })
     with pytest.warns(None) as warnings:
         rsa_public.check_params_are_valid()
     assert not warnings
 
 
 def test_rsa_public_check_extra_params_are_valid():
-    rsa_public_dict = {
+    rsa_public = RSAPublicKeyParams({
         'e': 1,
         'n': 2,
         'random': 3
-    }
-    rsa_public_comment = 'comment'
-    rsa_public = RSAPublicKeyParams(rsa_public_dict, rsa_public_comment)
+    })
     with pytest.warns(None) as warnings:
         rsa_public.check_params_are_valid()
     assert not warnings
 
 
 def test_rsa_public_missing_params_are_not_valid():
-    rsa_public_dict = {
+    rsa_public = RSAPublicKeyParams({
         'e': 1
-    }
-    rsa_public_comment = 'comment'
-    rsa_public = RSAPublicKeyParams(rsa_public_dict, rsa_public_comment)
+    })
     with pytest.warns(UserWarning):
         rsa_public.check_params_are_valid()
 
 
 def test_rsa_public_bad_type_params_are_not_valid():
-    rsa_public_dict = {
+    rsa_public = RSAPublicKeyParams({
         'e': 1,
         'n': b'bad'
-    }
-    rsa_public_comment = 'comment'
-    rsa_public = RSAPublicKeyParams(rsa_public_dict, rsa_public_comment)
+    })
     with pytest.warns(UserWarning):
         rsa_public.check_params_are_valid()
 
 
 def test_rsa_private_check_params_are_valid():
-    rsa_private_dict = {
+    rsa_private = RSAPrivateKeyParams({
         'n': 1,
         'e': 2,
         'd': 3,
         'iqmp': 4,
         'p': 5,
         'q': 6
-    }
-    rsa_private_comment = 'comment'
-    rsa_private = RSAPrivateKeyParams(rsa_private_dict, rsa_private_comment)
+    })
     with pytest.warns(None) as warnings:
         rsa_private.check_params_are_valid()
     assert not warnings
 
 
 def test_rsa_private_check_extra_params_are_valid():
-    rsa_private_dict = {
+    rsa_private = RSAPrivateKeyParams({
         'n': 1,
         'e': 2,
         'd': 3,
@@ -114,39 +104,33 @@ def test_rsa_private_check_extra_params_are_valid():
         'p': 5,
         'q': 6,
         'random': 7
-    }
-    rsa_private_comment = 'comment'
-    rsa_private = RSAPrivateKeyParams(rsa_private_dict, rsa_private_comment)
+    })
     with pytest.warns(None) as warnings:
         rsa_private.check_params_are_valid()
     assert not warnings
 
 
 def test_rsa_private_missing_params_are_not_valid():
-    rsa_private_dict = {
+    rsa_private = RSAPrivateKeyParams({
         'n': 1,
         'e': 2,
         'd': 3,
         'iqmp': 4,
         'p': 5
-    }
-    rsa_private_comment = 'comment'
-    rsa_private = RSAPrivateKeyParams(rsa_private_dict, rsa_private_comment)
+    })
     with pytest.warns(UserWarning):
         rsa_private.check_params_are_valid()
 
 
 def test_rsa_private_bad_type_params_are_not_valid():
-    rsa_private_dict = {
+    rsa_private = RSAPrivateKeyParams({
         'n': 1,
         'e': 2,
         'd': 3,
         'iqmp': 4,
         'p': 5,
         'q': b'bad'
-    }
-    rsa_private_comment = 'comment'
-    rsa_private = RSAPrivateKeyParams(rsa_private_dict, rsa_private_comment)
+    })
     with pytest.warns(UserWarning):
         rsa_private.check_params_are_valid()
 
@@ -156,19 +140,15 @@ def test_rsa_public():
         'e': 1,
         'n': 2
     }
-    rsa_public_comment = 'comment'
-    rsa_public = RSAPublicKeyParams(rsa_public_dict, rsa_public_comment)
-    assert rsa_public.params == rsa_public_dict \
-        and rsa_public.comment == rsa_public_comment
+    rsa_public = RSAPublicKeyParams(rsa_public_dict)
+    assert rsa_public.params == rsa_public_dict
 
 
 def test_rsa_public_missing_params():
-    rsa_public_dict = {
-        'e': 1
-    }
-    rsa_public_comment = 'comment'
     with pytest.warns(UserWarning):
-        RSAPublicKeyParams(rsa_public_dict, rsa_public_comment)
+        RSAPublicKeyParams({
+            'e': 1
+        })
 
 
 def test_rsa_private():
@@ -180,37 +160,31 @@ def test_rsa_private():
         'p': 5,
         'q': 6
     }
-    rsa_private_comment = 'comment'
-    rsa_private = RSAPrivateKeyParams(rsa_private_dict, rsa_private_comment)
-    assert rsa_private.params == rsa_private_dict \
-        and rsa_private.comment == rsa_private_comment
+    rsa_private = RSAPrivateKeyParams(rsa_private_dict)
+    assert rsa_private.params == rsa_private_dict
 
 
 def test_rsa_private_missing_params():
-    rsa_private_dict = {
-        'n': 1,
-        'e': 2,
-        'd': 3,
-        'iqmp': 4,
-        'p': 5
-    }
-    rsa_private_comment = 'comment'
     with pytest.warns(UserWarning):
-        RSAPrivateKeyParams(rsa_private_dict, rsa_private_comment)
+        RSAPrivateKeyParams({
+            'n': 1,
+            'e': 2,
+            'd': 3,
+            'iqmp': 4,
+            'p': 5
+        })
 
 
 def test_rsa_private_bad_type_params():
-    rsa_private_dict = {
-        'n': 1,
-        'e': 2,
-        'd': 3,
-        'iqmp': 4,
-        'p': 5,
-        'q': b'bad'
-    }
-    rsa_private_comment = 'comment'
     with pytest.warns(UserWarning):
-        RSAPrivateKeyParams(rsa_private_dict, rsa_private_comment)
+        RSAPrivateKeyParams({
+            'n': 1,
+            'e': 2,
+            'd': 3,
+            'iqmp': 4,
+            'p': 5,
+            'q': b'bad'
+        })
 
 
 def test_factory_ed25519_public():
@@ -240,94 +214,72 @@ ED25519_KEY_SIZE = 32
 
 
 def test_ed25519_public_check_params_are_valid():
-    ed25519_public_dict = {
+    ed25519_public = Ed25519PublicKeyParams({
         'public': secrets.token_bytes(ED25519_KEY_SIZE)
-    }
-    ed25519_public_comment = 'comment'
-    ed25519_public = Ed25519PublicKeyParams(
-        ed25519_public_dict, ed25519_public_comment)
+    })
     with pytest.warns(None) as warnings:
         ed25519_public.check_params_are_valid()
     assert not warnings
 
 
 def test_ed25519_public_check_extra_params_are_valid():
-    ed25519_public_dict = {
+    ed25519_public = Ed25519PublicKeyParams({
         'public': secrets.token_bytes(ED25519_KEY_SIZE),
         'random': b'\x02'
-    }
-    ed25519_public_comment = 'comment'
-    ed25519_public = Ed25519PublicKeyParams(
-        ed25519_public_dict, ed25519_public_comment)
+    })
     with pytest.warns(None) as warnings:
         ed25519_public.check_params_are_valid()
     assert not warnings
 
 
 def test_ed25519_public_missing_params_are_not_valid():
-    ed25519_public_dict = {}
-    ed25519_public_comment = 'comment'
-    ed25519_public = Ed25519PublicKeyParams(
-        ed25519_public_dict, ed25519_public_comment)
+    ed25519_public = Ed25519PublicKeyParams({})
     with pytest.warns(UserWarning):
         ed25519_public.check_params_are_valid()
 
 
 def test_ed25519_public_bad_type_params_are_not_valid():
-    ed25519_public_dict = {
+    ed25519_public = Ed25519PublicKeyParams({
         'public': 'bad'
-    }
-    ed25519_public_comment = 'comment'
-    ed25519_public = Ed25519PublicKeyParams(
-        ed25519_public_dict, ed25519_public_comment)
+    })
     with pytest.warns(UserWarning):
         ed25519_public.check_params_are_valid()
 
 
 def test_ed25519_private_check_params_are_valid():
     public_bytes = secrets.token_bytes(ED25519_KEY_SIZE)
-    ed25519_private_dict = {
-        'public': public_bytes,
-        'private_public': secrets.token_bytes(ED25519_KEY_SIZE) + public_bytes
-    }
-    ed25519_private_comment = 'comment'
     with pytest.warns(None) as warnings:
-        Ed25519PrivateKeyParams(ed25519_private_dict, ed25519_private_comment)
+        Ed25519PrivateKeyParams({
+            'public': public_bytes,
+            'private_public': secrets.token_bytes(ED25519_KEY_SIZE) + public_bytes
+        })
     assert not warnings
 
 
 def test_ed25519_private_check_extra_params_are_valid():
     public_bytes = secrets.token_bytes(ED25519_KEY_SIZE)
-    ed25519_private_dict = {
-        'public': public_bytes,
-        'private_public': secrets.token_bytes(ED25519_KEY_SIZE) + public_bytes,
-        'random': b'\x03'
-    }
-    ed25519_private_comment = 'comment'
     with pytest.warns(None) as warnings:
-        Ed25519PrivateKeyParams(ed25519_private_dict, ed25519_private_comment)
+        Ed25519PrivateKeyParams({
+            'public': public_bytes,
+            'private_public': secrets.token_bytes(ED25519_KEY_SIZE) + public_bytes,
+            'random': b'\x03'
+        })
     assert not warnings
 
 
 def test_ed25519_private_missing_params_are_not_valid():
-    ed25519_private_dict = {
+    ed25519_private = Ed25519PrivateKeyParams({
         'public': secrets.token_bytes(ED25519_KEY_SIZE)
-    }
-    ed25519_private_comment = 'comment'
-    ed25519_private = Ed25519PrivateKeyParams(
-        ed25519_private_dict, ed25519_private_comment)
+    })
     with pytest.warns(UserWarning):
         ed25519_private.check_params_are_valid()
 
 
 def test_ed25519_private_bad_type_params_are_not_valid():
-    ed25519_private_dict = {
+    ed25519_private = Ed25519PrivateKeyParams({
         'public': secrets.token_bytes(ED25519_KEY_SIZE),
         'private_public': 'bad'
-    }
-    ed25519_private_comment = 'comment'
-    ed25519_private = Ed25519PrivateKeyParams(
-        ed25519_private_dict, ed25519_private_comment)
+    })
     with pytest.warns(UserWarning):
         ed25519_private.check_params_are_valid()
 
@@ -336,18 +288,13 @@ def test_ed25519_public():
     ed25519_public_dict = {
         'public': secrets.token_bytes(ED25519_KEY_SIZE)
     }
-    ed25519_public_comment = 'comment'
-    ed25519_public = Ed25519PublicKeyParams(
-        ed25519_public_dict, ed25519_public_comment)
-    assert ed25519_public.params == ed25519_public_dict \
-        and ed25519_public.comment == ed25519_public_comment
+    ed25519_public = Ed25519PublicKeyParams(ed25519_public_dict)
+    assert ed25519_public.params == ed25519_public_dict
 
 
 def test_ed25519_public_missing_params():
-    ed25519_public_dict = {}
-    ed25519_public_comment = 'comment'
     with pytest.warns(UserWarning):
-        Ed25519PublicKeyParams(ed25519_public_dict, ed25519_public_comment)
+        Ed25519PublicKeyParams({})
 
 
 def test_ed25519_private():
@@ -356,30 +303,23 @@ def test_ed25519_private():
         'public': public_bytes,
         'private_public': secrets.token_bytes(ED25519_KEY_SIZE) + public_bytes
     }
-    ed25519_private_comment = 'comment'
-    ed25519_private = Ed25519PrivateKeyParams(
-        ed25519_private_dict, ed25519_private_comment)
-    assert ed25519_private.params == ed25519_private_dict \
-        and ed25519_private.comment == ed25519_private_comment
+    ed25519_private = Ed25519PrivateKeyParams(ed25519_private_dict)
+    assert ed25519_private.params == ed25519_private_dict
 
 
 def test_ed25519_private_missing_params():
-    ed25519_private_dict = {
-        'public': secrets.token_bytes(ED25519_KEY_SIZE)
-    }
-    ed25519_private_comment = 'comment'
     with pytest.warns(UserWarning):
-        Ed25519PrivateKeyParams(ed25519_private_dict, ed25519_private_comment)
+        Ed25519PrivateKeyParams({
+            'public': secrets.token_bytes(ED25519_KEY_SIZE)
+        })
 
 
 def test_ed25519_private_bad_type_params():
-    ed25519_private_dict = {
-        'public': secrets.token_bytes(ED25519_KEY_SIZE),
-        'private_public': 'bad'
-    }
-    ed25519_private_comment = 'comment'
     with pytest.warns(UserWarning):
-        Ed25519PrivateKeyParams(ed25519_private_dict, ed25519_private_comment)
+        Ed25519PrivateKeyParams({
+            'public': secrets.token_bytes(ED25519_KEY_SIZE),
+            'private_public': 'bad'
+        })
 
 
 def test_str():
@@ -388,10 +328,5 @@ def test_str():
         'public': public_bytes,
         'private_public': secrets.token_bytes(ED25519_KEY_SIZE) + public_bytes
     }
-    ed25519_private_comment = 'comment'
-    ed25519_private = Ed25519PrivateKeyParams(
-        ed25519_private_dict, ed25519_private_comment)
-    assert str(ed25519_private) == str({
-        'comment': ed25519_private_comment,
-        'params': ed25519_private_dict
-    })
+    ed25519_private = Ed25519PrivateKeyParams(ed25519_private_dict)
+    assert str(ed25519_private) == str(ed25519_private_dict)

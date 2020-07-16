@@ -10,19 +10,14 @@ from openssh_key.pascal_style_byte_stream import (
 
 
 class PublicKeyParams(collections.UserDict, abc.ABC):
-    def __init__(self, params: dict, comment: str):
+    def __init__(self, params: dict):
         self.data = params
-        self._comment = comment
         self.check_params_are_valid()
 
     @staticmethod
     @abc.abstractmethod
     def public_format_instructions_dict():
         return {}
-
-    @property
-    def comment(self):
-        return self._comment
 
     @property
     def params(self):
@@ -44,12 +39,6 @@ class PublicKeyParams(collections.UserDict, abc.ABC):
     def check_params_are_valid(self):
         self.check_params_match_format_instructions_dict(
             self.data, self.public_format_instructions_dict())
-
-    def __str__(self):
-        return str({
-            'comment': self._comment,
-            'params': self.data
-        })
 
 
 class PrivateKeyParams(PublicKeyParams):
