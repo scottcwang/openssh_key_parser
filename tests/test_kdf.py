@@ -4,14 +4,26 @@ import pytest
 import bcrypt
 
 from openssh_key.kdf import create_kdf, NoneKDF, BcryptKDF
+from openssh_key.pascal_style_byte_stream import PascalStyleFormatInstruction
 
 
 def test_factory_none():
-    assert isinstance(create_kdf('none')['kdf'], NoneKDF.__class__)
+    assert isinstance(create_kdf('none'), NoneKDF.__class__)
 
 
 def test_factory_bcrypt():
-    assert isinstance(create_kdf('bcrypt')['kdf'], BcryptKDF.__class__)
+    assert isinstance(create_kdf('bcrypt'), BcryptKDF.__class__)
+
+
+def test_none_options_format_instructions_dict():
+    assert NoneKDF.options_format_instructions_dict() == {}
+
+
+def test_bcrypt_options_format_instructions_dict():
+    assert BcryptKDF.options_format_instructions_dict() == {
+        'salt': PascalStyleFormatInstruction.BYTES,
+        'rounds': '>I'
+    }
 
 
 def test_none():

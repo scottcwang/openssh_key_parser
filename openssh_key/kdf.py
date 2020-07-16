@@ -11,6 +11,11 @@ class KDF(abc.ABC):
     def derive_key(options, passphrase):
         pass
 
+    @staticmethod
+    @abc.abstractmethod
+    def options_format_instructions_dict():
+        return {}
+
 
 class NoneKDF(KDF):
     @staticmethod
@@ -19,6 +24,10 @@ class NoneKDF(KDF):
             'cipher_key': b'',
             'initialization_vector': b''
         }
+
+    @staticmethod
+    def options_format_instructions_dict():
+        return {}
 
 
 class BcryptKDF(KDF):
@@ -39,19 +48,17 @@ class BcryptKDF(KDF):
             'initialization_vector': bcrypt_result[-BcryptKDF.IV_LENGTH:]
         }
 
-
-_KDF_MAPPING = {
-    'none': {
-        'kdf': NoneKDF,
-        'options_format': {'': '0s'}
-    },
-    'bcrypt': {
-        'kdf': BcryptKDF,
-        'options_format': {
+    @staticmethod
+    def options_format_instructions_dict():
+        return {
             'salt': PascalStyleFormatInstruction.BYTES,
             'rounds': '>I'
         }
-    }
+
+
+_KDF_MAPPING = {
+    'none': NoneKDF,
+    'bcrypt': BcryptKDF
 }
 
 
