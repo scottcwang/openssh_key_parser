@@ -3,7 +3,8 @@ import secrets
 import pytest
 
 from openssh_key.key_params import (
-    create_key_params,
+    create_public_key_params,
+    create_private_key_params,
     RSAPublicKeyParams,
     RSAPrivateKeyParams,
     Ed25519PublicKeyParams,
@@ -16,13 +17,17 @@ from openssh_key.pascal_style_byte_stream import (
 
 
 def test_factory_rsa_public():
-    assert isinstance(create_key_params(
-        'ssh-rsa', 'public'), RSAPublicKeyParams.__class__)
+    assert isinstance(
+        create_public_key_params('ssh-rsa'),
+        RSAPublicKeyParams.__class__
+    )
 
 
 def test_factory_rsa_private():
-    assert isinstance(create_key_params(
-        'ssh-rsa', 'private'), RSAPrivateKeyParams.__class__)
+    assert isinstance(
+        create_private_key_params('ssh-rsa'),
+        RSAPrivateKeyParams.__class__
+    )
 
 
 def test_rsa_public_format_instructions_dict():
@@ -188,13 +193,17 @@ def test_rsa_private_bad_type_params():
 
 
 def test_factory_ed25519_public():
-    assert isinstance(create_key_params(
-        'ssh-ed25519', 'public'), Ed25519PublicKeyParams.__class__)
+    assert isinstance(
+        create_public_key_params('ssh-ed25519'),
+        Ed25519PublicKeyParams.__class__
+    )
 
 
 def test_factory_ed25519_private():
-    assert isinstance(create_key_params(
-        'ssh-ed25519', 'private'), Ed25519PrivateKeyParams.__class__)
+    assert isinstance(
+        create_private_key_params('ssh-ed25519'),
+        Ed25519PrivateKeyParams.__class__
+    )
 
 
 def test_ed25519_public_format_instructions_dict():

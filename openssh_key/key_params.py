@@ -132,11 +132,9 @@ _KEY_TYPE_MAPPING = {
 }
 
 
-def create_key_params(key_type, public_or_private):
-    public_private_key_params_classes = _KEY_TYPE_MAPPING[key_type]
-    if public_or_private == 'public':
-        return public_private_key_params_classes.PublicKeyParamsClass
-    elif public_or_private == 'private':
-        return public_private_key_params_classes.PrivateKeyParamsClass
-    else:
-        raise NotImplementedError()
+def create_public_key_params(key_type):
+    return _KEY_TYPE_MAPPING[key_type].PublicKeyParamsClass
+
+
+def create_private_key_params(key_type):
+    return _KEY_TYPE_MAPPING[key_type].PrivateKeyParamsClass
