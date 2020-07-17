@@ -24,8 +24,6 @@ class PublicKey(Key):
         return {}
 
     def __init__(self, key_byte_stream):
-        self.bytes = key_byte_stream.getvalue()
-
         self.header = key_byte_stream.read_from_format_instructions_dict(
             self.header_format_instructions_dict()
         )
@@ -58,8 +56,6 @@ class PrivateKey(Key):
         }
 
     def __init__(self, key_byte_stream):
-        self.bytes = key_byte_stream.getvalue()
-
         self.header = key_byte_stream.read_from_format_instructions_dict(
             self.header_format_instructions_dict()
         )

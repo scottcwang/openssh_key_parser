@@ -59,7 +59,6 @@ def test_public_key():
     )
     byte_stream = PascalStyleByteStream(write_byte_stream.getvalue())
     key = PublicKey(byte_stream)
-    assert key.bytes == byte_stream.getvalue()
     assert key.header == header
     assert isinstance(key.params, Ed25519PublicKeyParams)
     assert key.params == params
@@ -97,7 +96,6 @@ def test_private_key():
     )
     byte_stream = PascalStyleByteStream(write_byte_stream.getvalue())
     key = PrivateKey(byte_stream)
-    assert key.bytes == byte_stream.getvalue()
     assert key.header == header
     assert key.params == params
     assert isinstance(key.params, Ed25519PrivateKeyParams)
