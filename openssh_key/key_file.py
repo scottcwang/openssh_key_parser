@@ -52,6 +52,8 @@ class Key():
                     ).private_format_instructions_dict()
                 )
             )
+        else:
+            raise AssertionError()
 
         self.footer = key_byte_stream.read_from_format_instructions_dict(
             self.footer_format_instructions_dict()
