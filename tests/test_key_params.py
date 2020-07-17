@@ -260,7 +260,8 @@ def test_ed25519_private_check_params_are_valid():
     with pytest.warns(None) as warnings:
         Ed25519PrivateKeyParams({
             'public': public_bytes,
-            'private_public': secrets.token_bytes(ED25519_KEY_SIZE) + public_bytes
+            'private_public': secrets.token_bytes(
+                ED25519_KEY_SIZE) + public_bytes
         })
     assert not warnings
 
@@ -270,7 +271,8 @@ def test_ed25519_private_check_extra_params_are_valid():
     with pytest.warns(None) as warnings:
         Ed25519PrivateKeyParams({
             'public': public_bytes,
-            'private_public': secrets.token_bytes(ED25519_KEY_SIZE) + public_bytes,
+            'private_public': secrets.token_bytes(
+                ED25519_KEY_SIZE) + public_bytes,
             'random': b'\x03'
         })
     assert not warnings
