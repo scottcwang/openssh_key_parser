@@ -3,7 +3,6 @@ import secrets
 import pytest
 
 from openssh_key.key_file import (
-    Key,
     PublicKey,
     PrivateKey,
 )
@@ -18,19 +17,26 @@ from openssh_key.key_params import (
 )
 
 
-def test_key_header_format_instructions_dict():
-    assert Key.header_format_instructions_dict() == {
+def test_public_key_header_format_instructions_dict():
+    assert PublicKey.header_format_instructions_dict() == {
         'key_type': PascalStyleFormatInstruction.STRING
     }
 
 
-def test_key_footer_format_instructions_dict():
-    assert Key.footer_format_instructions_dict() == {}
+def test_public_key_footer_format_instructions_dict():
+    assert PublicKey.footer_format_instructions_dict() == {}
 
 
-def test_key_neither_public_nor_private():
-    with pytest.raises(ValueError):
-        Key(PascalStyleByteStream(), 'x')
+def test_private_key_header_format_instructions_dict():
+    assert PrivateKey.header_format_instructions_dict() == {
+        'key_type': PascalStyleFormatInstruction.STRING
+    }
+
+
+def test_private_key_footer_format_instructions_dict():
+    assert PrivateKey.footer_format_instructions_dict() == {
+        'comment': PascalStyleFormatInstruction.STRING
+    }
 
 
 def test_public_key():
