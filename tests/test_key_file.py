@@ -162,11 +162,20 @@ def test_private_key_list_negative_num_keys():
 
 def test_private_key_list_one_key(mocker):
     write_byte_stream = PascalStyleByteStream()
+
+    kdf_options_write_byte_stream = PascalStyleByteStream()
+    kdf_options = {}
+    kdf_options_write_byte_stream.write_from_format_instructions_dict(
+        NoneKDF.options_format_instructions_dict(),
+        kdf_options
+    )
+    kdf_options_bytes = kdf_options_write_byte_stream.getvalue()
+
     header = {
         'auth_magic': b'openssh-key-v1\x00',
         'cipher': 'none',
         'kdf': 'none',
-        'kdf_options': b'',
+        'kdf_options': kdf_options_bytes,
         'num_keys': 1
     }
     write_byte_stream.write_from_format_instructions_dict(
@@ -270,7 +279,7 @@ def test_private_key_list_one_key(mocker):
     assert private_key_list[0].private.params == private_key.params
     assert private_key_list[0].private.footer == private_key.footer
 
-    assert private_key_list.kdf_options == {}  # TODO expand into function
+    assert private_key_list.kdf_options == kdf_options
 
     assert private_key_list.decipher_bytes == decipher_byte_stream.getvalue()
     assert private_key_list.decipher_bytes_header == decipher_bytes_header
