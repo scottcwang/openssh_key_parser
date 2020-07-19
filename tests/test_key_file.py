@@ -18,14 +18,8 @@ from openssh_key.key_params import (
     Ed25519PrivateKeyParams,
     ED25519_KEY_SIZE
 )
-from openssh_key.kdf import (
-    NoneKDF,
-    BcryptKDF
-)
-from openssh_key.cipher import (
-    NoneCipher,
-    AES256_CTRCipher
-)
+from openssh_key.kdf import create_kdf
+from openssh_key.cipher import create_cipher
 
 
 def test_public_key_header_format_instructions_dict():
@@ -166,7 +160,7 @@ def test_private_key_list_one_key(mocker):
     kdf_options_write_byte_stream = PascalStyleByteStream()
     kdf_options = {}
     kdf_options_write_byte_stream.write_from_format_instructions_dict(
-        NoneKDF.options_format_instructions_dict(),
+        create_kdf('none').options_format_instructions_dict(),
         kdf_options
     )
     kdf_options_bytes = kdf_options_write_byte_stream.getvalue()
@@ -243,12 +237,14 @@ def test_private_key_list_one_key(mocker):
         PrivateKeyList.decipher_bytes_header_format_instructions_dict(),
         decipher_bytes_header
     )
+    # TODO Add correct padding
     decipher_byte_stream.write(private_key_bytes)
 
-    passphrase = ''
-    kdf_result = NoneKDF.derive_key({}, '')
+    passphrase = 'passphrase'
 
-    cipher_bytes = NoneCipher.encrypt(
+    kdf_result = create_kdf('none').derive_key(kdf_options, passphrase)
+
+    cipher_bytes = create_cipher('none').encrypt(
         kdf_result['cipher_key'],
         kdf_result['initialization_vector'],
         decipher_byte_stream.getvalue()
