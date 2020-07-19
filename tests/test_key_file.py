@@ -56,9 +56,7 @@ def test_public_key():
         'key_type': 'ssh-ed25519'
     }
     write_byte_stream.write_from_format_instructions_dict(
-        {
-            'key_type': PascalStyleFormatInstruction.STRING
-        },
+        PublicKey.header_format_instructions_dict(),
         header
     )
     params = {
@@ -82,9 +80,7 @@ def test_private_key():
         'key_type': 'ssh-ed25519'
     }
     write_byte_stream.write_from_format_instructions_dict(
-        {
-            'key_type': PascalStyleFormatInstruction.STRING
-        },
+        PrivateKey.header_format_instructions_dict(),
         header
     )
     public_bytes = secrets.token_bytes(ED25519_KEY_SIZE)
@@ -100,9 +96,7 @@ def test_private_key():
         'comment': 'comment'
     }
     write_byte_stream.write_from_format_instructions_dict(
-        {
-            'comment': PascalStyleFormatInstruction.STRING
-        },
+        PrivateKey.footer_format_instructions_dict(),
         footer
     )
     byte_stream = PascalStyleByteStream(write_byte_stream.getvalue())
@@ -140,13 +134,7 @@ def test_private_key_list_invalid_auth_magic():
         'num_keys': 0
     }
     write_byte_stream.write_from_format_instructions_dict(
-        {
-            'auth_magic': '15s',
-            'cipher': PascalStyleFormatInstruction.STRING,
-            'kdf': PascalStyleFormatInstruction.STRING,
-            'kdf_options': PascalStyleFormatInstruction.BYTES,
-            'num_keys': '>i'
-        },
+        PrivateKeyList.header_format_instructions_dict(),
         header
     )
     byte_stream = PascalStyleByteStream(write_byte_stream.getvalue())
@@ -164,13 +152,7 @@ def test_private_key_list_negative_num_keys():
         'num_keys': -1
     }
     write_byte_stream.write_from_format_instructions_dict(
-        {
-            'auth_magic': '15s',
-            'cipher': PascalStyleFormatInstruction.STRING,
-            'kdf': PascalStyleFormatInstruction.STRING,
-            'kdf_options': PascalStyleFormatInstruction.BYTES,
-            'num_keys': '>i'
-        },
+        PrivateKeyList.header_format_instructions_dict(),
         header
     )
     byte_stream = PascalStyleByteStream(write_byte_stream.getvalue())
@@ -188,13 +170,7 @@ def test_private_key_list_one_key(mocker):
         'num_keys': 1
     }
     write_byte_stream.write_from_format_instructions_dict(
-        {
-            'auth_magic': '15s',
-            'cipher': PascalStyleFormatInstruction.STRING,
-            'kdf': PascalStyleFormatInstruction.STRING,
-            'kdf_options': PascalStyleFormatInstruction.BYTES,
-            'num_keys': '>i'
-        },
+        PrivateKeyList.header_format_instructions_dict(),
         header
     )
 
@@ -205,9 +181,7 @@ def test_private_key_list_one_key(mocker):
         'key_type': 'ssh-ed25519'
     }
     public_key_write_byte_stream.write_from_format_instructions_dict(
-        {
-            'key_type': PascalStyleFormatInstruction.STRING
-        },
+        PublicKey.header_format_instructions_dict(),
         public_key_header
     )
     public_key_params = {
@@ -229,9 +203,7 @@ def test_private_key_list_one_key(mocker):
         'key_type': 'ssh-ed25519'
     }
     private_key_write_byte_stream.write_from_format_instructions_dict(
-        {
-            'key_type': PascalStyleFormatInstruction.STRING
-        },
+        PrivateKey.header_format_instructions_dict(),
         private_key_header
     )
     private_key_params = {
@@ -246,9 +218,7 @@ def test_private_key_list_one_key(mocker):
         'comment': 'comment'
     }
     private_key_write_byte_stream.write_from_format_instructions_dict(
-        {
-            'comment': PascalStyleFormatInstruction.STRING
-        },
+        PrivateKey.footer_format_instructions_dict(),
         private_key_footer
     )
     private_key_bytes = private_key_write_byte_stream.getvalue()
@@ -261,10 +231,8 @@ def test_private_key_list_one_key(mocker):
         'check_int_2': check_int
     }
     decipher_byte_stream.write_from_format_instructions_dict(
-        {
-            'check_int_1': '>I',
-            'check_int_2': '>I'
-        }, decipher_bytes_header
+        PrivateKeyList.decipher_bytes_header_format_instructions_dict(),
+        decipher_bytes_header
     )
     decipher_byte_stream.write(private_key_bytes)
 
