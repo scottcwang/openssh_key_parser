@@ -155,7 +155,8 @@ class PrivateKeyList(collections.UserList):
             passphrase = ''
 
         kdf_result = kdf_class.derive_key(
-            private_key_list.header['kdf_options'], passphrase)
+            private_key_list.kdf_options, passphrase
+        )
 
         private_key_list.decipher_bytes = cipher_class.decrypt(
             kdf_result['cipher_key'],
