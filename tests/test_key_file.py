@@ -155,20 +155,23 @@ def test_private_key_list_negative_num_keys():
 
 
 def test_private_key_list_one_key(mocker):
+    kdf = 'none'
+    cipher = 'none'
+
     write_byte_stream = PascalStyleByteStream()
 
     kdf_options_write_byte_stream = PascalStyleByteStream()
     kdf_options = {}
     kdf_options_write_byte_stream.write_from_format_instructions_dict(
-        create_kdf('none').options_format_instructions_dict(),
+        create_kdf(kdf).options_format_instructions_dict(),
         kdf_options
     )
     kdf_options_bytes = kdf_options_write_byte_stream.getvalue()
 
     header = {
         'auth_magic': b'openssh-key-v1\x00',
-        'cipher': 'none',
-        'kdf': 'none',
+        'cipher': cipher,
+        'kdf': kdf,
         'kdf_options': kdf_options_bytes,
         'num_keys': 1
     }
@@ -240,15 +243,15 @@ def test_private_key_list_one_key(mocker):
     decipher_byte_stream.write(private_key_bytes)
 
     padding_length = (-len(decipher_byte_stream.getvalue())) \
-        % create_cipher('none').block_size()
+        % create_cipher(cipher).block_size()
     padding_bytes = bytes(range(1, 1 + padding_length))
     decipher_byte_stream.write(padding_bytes)
 
     passphrase = 'passphrase'
 
-    kdf_result = create_kdf('none').derive_key(kdf_options, passphrase)
+    kdf_result = create_kdf(kdf).derive_key(kdf_options, passphrase)
 
-    cipher_bytes = create_cipher('none').encrypt(
+    cipher_bytes = create_cipher(cipher).encrypt(
         kdf_result['cipher_key'],
         kdf_result['initialization_vector'],
         decipher_byte_stream.getvalue()
