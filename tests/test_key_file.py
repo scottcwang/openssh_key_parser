@@ -237,8 +237,12 @@ def test_private_key_list_one_key(mocker):
         PrivateKeyList.decipher_bytes_header_format_instructions_dict(),
         decipher_bytes_header
     )
-    # TODO Add correct padding
     decipher_byte_stream.write(private_key_bytes)
+
+    padding_length = (-len(decipher_byte_stream.getvalue())) \
+        % create_cipher('none').block_size()
+    padding_bytes = bytes(range(1, 1 + padding_length))
+    decipher_byte_stream.write(padding_bytes)
 
     passphrase = 'passphrase'
 
@@ -280,4 +284,4 @@ def test_private_key_list_one_key(mocker):
     assert private_key_list.decipher_bytes == decipher_byte_stream.getvalue()
     assert private_key_list.decipher_bytes_header == decipher_bytes_header
 
-    assert private_key_list.decipher_padding == b''
+    assert private_key_list.decipher_padding == padding_bytes
