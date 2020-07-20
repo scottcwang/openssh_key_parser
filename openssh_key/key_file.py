@@ -203,8 +203,16 @@ class PrivateKeyList(collections.UserList):
                 )
 
         private_key_list.decipher_padding = decipher_byte_stream.read()
-        if not b'\x01\x02\x03\x04\x05\x06\x07\x08'.startswith(
-            private_key_list.decipher_padding
+
+        if (
+            len(decipher_byte_stream.getvalue()) % cipher_class.block_size()
+            != 0
+        ) or not (
+            bytes(
+                range(1, 1 + cipher_class.block_size())
+            ).startswith(
+                private_key_list.decipher_padding
+            )
         ):
             warnings.warn('Incorrect padding at end of ciphertext')
 
