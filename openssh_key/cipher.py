@@ -17,6 +17,11 @@ class Cipher(abc.ABC):
     def decrypt(cipher_key, initialization_vector, cipher_bytes):
         pass
 
+    @staticmethod
+    @abc.abstractmethod
+    def block_size():
+        pass
+
 
 class NoneCipher(Cipher):
     @staticmethod
@@ -26,6 +31,10 @@ class NoneCipher(Cipher):
     @staticmethod
     def decrypt(cipher_key, initialization_vector, cipher_bytes):
         return cipher_bytes
+
+    @staticmethod
+    def block_size():
+        return 8
 
 
 class AES256_CTRCipher(Cipher):
@@ -48,6 +57,10 @@ class AES256_CTRCipher(Cipher):
         )
         decryptor = cipher.decryptor()
         return decryptor.update(cipher_bytes) + decryptor.finalize()
+
+    @staticmethod
+    def block_size():
+        return 16
 
 
 _CIPHER_MAPPING = {

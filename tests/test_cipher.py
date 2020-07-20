@@ -21,6 +21,10 @@ def test_none_decrypt():
     assert NoneCipher.decrypt(None, None, test_bytes) == test_bytes
 
 
+def test_none_block_size():
+    assert NoneCipher.block_size() == 8
+
+
 # RFC 3686
 AES256_CTR_TEST_VECTORS = [
     {
@@ -84,3 +88,7 @@ def test_aes256_ctr_encrypt_2():
 
 def test_aes256_ctr_decrypt_2():
     assert aes256_ctr_decrypt(2)
+
+
+def test_aes256_ctr_block_size():
+    assert AES256_CTRCipher.block_size() == 16
