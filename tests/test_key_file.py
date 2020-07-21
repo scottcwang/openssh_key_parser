@@ -369,6 +369,7 @@ def private_key_list_test_assertions(
     write_byte_stream,
     mocker,
     passphrase,
+    getpass_assert_called,
     header,
     cipher_bytes,
     public_keys,
@@ -384,7 +385,10 @@ def private_key_list_test_assertions(
 
     private_key_list = PrivateKeyList.from_byte_stream(byte_stream)
 
-    getpass.getpass.assert_called_once()
+    if getpass_assert_called:
+        getpass.getpass.assert_called_once()
+    else:
+        getpass.getpass.assert_not_called()
 
     assert private_key_list.bytes == byte_stream.getvalue()
     assert private_key_list.header == header
@@ -448,6 +452,7 @@ def test_private_key_list_one_key_none(mocker):
         write_byte_stream,
         mocker,
         passphrase,
+        False,
         header,
         cipher_bytes,
         [public_key],
@@ -499,6 +504,7 @@ def test_private_key_list_one_key_bcrypt_aes256ctr(mocker):
         write_byte_stream,
         mocker,
         passphrase,
+        True,
         header,
         cipher_bytes,
         [public_key],
@@ -552,6 +558,7 @@ def test_private_key_list_two_keys_bcrypt_aes256ctr(mocker):
         write_byte_stream,
         mocker,
         passphrase,
+        True,
         header,
         cipher_bytes,
         [public_key_0, public_key_1],

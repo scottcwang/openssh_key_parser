@@ -149,7 +149,7 @@ class PrivateKeyList(collections.UserList):
 
         cipher_class = create_cipher(private_key_list.header['cipher'])
 
-        if kdf_class != NoneKDF.__class__:
+        if kdf_class != NoneKDF:
             passphrase = getpass.getpass('Key passphrase: ')
         else:
             passphrase = ''
