@@ -767,3 +767,171 @@ def test_private_key_list_one_key_none_inconsistent_key_params(mocker):
 
     with pytest.warns(UserWarning):
         PrivateKeyList.from_byte_stream(byte_stream)
+
+
+def test_private_key_list_one_key_none_unexpected_padding_bytes(mocker):
+    kdf = 'none'
+    cipher = 'none'
+
+    write_byte_stream = PascalStyleByteStream()
+    kdf_options_bytes, kdf_options = correct_kdf_options_bytes(kdf)
+    _ = correct_header(
+        cipher,
+        kdf,
+        kdf_options_bytes,
+        num_keys=1,
+        write_byte_stream=write_byte_stream
+    )
+
+    _ = correct_public_key_bytes_ed25519(write_byte_stream)
+
+    decipher_byte_stream = PascalStyleByteStream()
+
+    _ = correct_decipher_bytes_header(decipher_byte_stream)
+
+    _, _ = correct_private_key_bytes_ed25519(decipher_byte_stream)
+    padding_bytes = correct_decipher_bytes_padding(
+        decipher_byte_stream, cipher, write=False
+    )
+    padding_bytes = bytes([
+        byte ^ 255 for byte in padding_bytes
+    ])
+    decipher_byte_stream.write(padding_bytes)
+
+    passphrase = 'passphrase'
+    _ = correct_cipher_bytes(
+        passphrase,
+        kdf,
+        kdf_options,
+        cipher,
+        decipher_byte_stream,
+        write_byte_stream
+    )
+
+    byte_stream = PascalStyleByteStream(write_byte_stream.getvalue())
+
+    with pytest.warns(UserWarning):
+        PrivateKeyList.from_byte_stream(byte_stream)
+
+
+def test_private_key_list_one_key_none_excess_padding_bytes(mocker):
+    kdf = 'none'
+    cipher = 'none'
+
+    write_byte_stream = PascalStyleByteStream()
+    kdf_options_bytes, kdf_options = correct_kdf_options_bytes(kdf)
+    _ = correct_header(
+        cipher,
+        kdf,
+        kdf_options_bytes,
+        num_keys=1,
+        write_byte_stream=write_byte_stream
+    )
+
+    _ = correct_public_key_bytes_ed25519(write_byte_stream)
+
+    decipher_byte_stream = PascalStyleByteStream()
+
+    _ = correct_decipher_bytes_header(decipher_byte_stream)
+
+    _, _ = correct_private_key_bytes_ed25519(decipher_byte_stream)
+    padding_bytes = correct_decipher_bytes_padding(
+        decipher_byte_stream, cipher, write=False
+    )
+    decipher_byte_stream.write(padding_bytes + padding_bytes)
+
+    passphrase = 'passphrase'
+    _ = correct_cipher_bytes(
+        passphrase,
+        kdf,
+        kdf_options,
+        cipher,
+        decipher_byte_stream,
+        write_byte_stream
+    )
+
+    byte_stream = PascalStyleByteStream(write_byte_stream.getvalue())
+
+    with pytest.warns(UserWarning):
+        PrivateKeyList.from_byte_stream(byte_stream)
+
+
+def test_private_key_list_one_key_none_no_padding_bytes(mocker):
+    kdf = 'none'
+    cipher = 'none'
+
+    write_byte_stream = PascalStyleByteStream()
+    kdf_options_bytes, kdf_options = correct_kdf_options_bytes(kdf)
+    _ = correct_header(
+        cipher,
+        kdf,
+        kdf_options_bytes,
+        num_keys=1,
+        write_byte_stream=write_byte_stream
+    )
+
+    _ = correct_public_key_bytes_ed25519(write_byte_stream)
+
+    decipher_byte_stream = PascalStyleByteStream()
+
+    _ = correct_decipher_bytes_header(decipher_byte_stream)
+
+    _, _ = correct_private_key_bytes_ed25519(decipher_byte_stream)
+
+    passphrase = 'passphrase'
+    _ = correct_cipher_bytes(
+        passphrase,
+        kdf,
+        kdf_options,
+        cipher,
+        decipher_byte_stream,
+        write_byte_stream
+    )
+
+    byte_stream = PascalStyleByteStream(write_byte_stream.getvalue())
+
+    with pytest.warns(UserWarning):
+        PrivateKeyList.from_byte_stream(byte_stream)
+
+
+def test_private_key_list_one_key_none_insufficient_padding_bytes(mocker):
+    kdf = 'none'
+    cipher = 'none'
+
+    write_byte_stream = PascalStyleByteStream()
+    kdf_options_bytes, kdf_options = correct_kdf_options_bytes(kdf)
+    _ = correct_header(
+        cipher,
+        kdf,
+        kdf_options_bytes,
+        num_keys=1,
+        write_byte_stream=write_byte_stream
+    )
+
+    _ = correct_public_key_bytes_ed25519(write_byte_stream)
+
+    decipher_byte_stream = PascalStyleByteStream()
+
+    _ = correct_decipher_bytes_header(decipher_byte_stream)
+
+    _, _ = correct_private_key_bytes_ed25519(decipher_byte_stream)
+
+    padding_bytes = correct_decipher_bytes_padding(
+        decipher_byte_stream, cipher, write=False
+    )
+    decipher_byte_stream.write(padding_bytes[:-1])
+
+    passphrase = 'passphrase'
+    _ = correct_cipher_bytes(
+        passphrase,
+        kdf,
+        kdf_options,
+        cipher,
+        decipher_byte_stream,
+        write_byte_stream
+    )
+
+    byte_stream = PascalStyleByteStream(write_byte_stream.getvalue())
+
+    with pytest.warns(UserWarning):
+        PrivateKeyList.from_byte_stream(byte_stream)
