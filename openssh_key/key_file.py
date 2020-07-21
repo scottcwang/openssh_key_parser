@@ -184,7 +184,7 @@ class PrivateKeyList(collections.UserList):
                 PrivateKey(decipher_byte_stream)
             )
             if private_key_list[i].public.header['key_type'] \
-                    != private_key_list[i].public.header['key_type']:
+                    != private_key_list[i].private.header['key_type']:
                 warnings.warn(
                     f'Inconsistency between private and public '
                     f'key types for key {i}'
