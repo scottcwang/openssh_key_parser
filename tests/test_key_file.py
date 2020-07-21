@@ -45,6 +45,10 @@ def test_private_key_footer_format_instructions_dict():
     }
 
 
+ED25519_TEST_HEADER = {
+    'key_type': 'ssh-ed25519'
+}
+
 ED25519_TEST_PUBLIC = {
     'public': bytes.fromhex('2751e7d2ba43820988d1b05f2c322e9bfb432c633e6dbc337e7f05d56126c3a3')
 }
@@ -52,6 +56,14 @@ ED25519_TEST_PUBLIC = {
 ED25519_TEST_PRIVATE = {
     'private_public': bytes.fromhex('d783bfa87ec767c0daf35d64a3eeb591369cab440da8c1c5ddab1756b03ac8ab2751e7d2ba43820988d1b05f2c322e9bfb432c633e6dbc337e7f05d56126c3a3'),
     'public': bytes.fromhex('2751e7d2ba43820988d1b05f2c322e9bfb432c633e6dbc337e7f05d56126c3a3')
+}
+
+PRIVATE_TEST_FOOTER = {
+    'comment': 'comment'
+}
+
+RSA_TEST_HEADER = {
+    'key_type': 'ssh-rsa'
 }
 
 RSA_TEST_PUBLIC = {
@@ -76,17 +88,13 @@ BCRYPT_OPTIONS_TEST = {
 
 def correct_public_key_bytes_ed25519(write_byte_stream=None):
     public_key_write_byte_stream = PascalStyleByteStream()
-    public_key_header = {
-        'key_type': 'ssh-ed25519'
-    }
     public_key_write_byte_stream.write_from_format_instructions_dict(
         PublicKey.header_format_instructions_dict(),
-        public_key_header
+        ED25519_TEST_HEADER
     )
-    public_key_params = ED25519_TEST_PUBLIC
     public_key_write_byte_stream.write_from_format_instructions_dict(
         Ed25519PublicKeyParams.public_format_instructions_dict(),
-        public_key_params
+        ED25519_TEST_PUBLIC
     )
     public_key_bytes = public_key_write_byte_stream.getvalue()
     public_key = PublicKey(PascalStyleByteStream(public_key_bytes))
@@ -100,24 +108,17 @@ def correct_public_key_bytes_ed25519(write_byte_stream=None):
 
 def correct_private_key_bytes_ed25519(decipher_byte_stream=None):
     private_key_write_byte_stream = PascalStyleByteStream()
-    private_key_header = {
-        'key_type': 'ssh-ed25519'
-    }
     private_key_write_byte_stream.write_from_format_instructions_dict(
         PrivateKey.header_format_instructions_dict(),
-        private_key_header
+        ED25519_TEST_HEADER
     )
-    private_key_params = ED25519_TEST_PRIVATE
     private_key_write_byte_stream.write_from_format_instructions_dict(
         Ed25519PrivateKeyParams.private_format_instructions_dict(),
-        private_key_params
+        ED25519_TEST_PRIVATE
     )
-    private_key_footer = {
-        'comment': 'comment'
-    }
     private_key_write_byte_stream.write_from_format_instructions_dict(
         PrivateKey.footer_format_instructions_dict(),
-        private_key_footer
+        PRIVATE_TEST_FOOTER
     )
     private_key_bytes = private_key_write_byte_stream.getvalue()
     private_key = PrivateKey(PascalStyleByteStream(private_key_bytes))
@@ -128,17 +129,13 @@ def correct_private_key_bytes_ed25519(decipher_byte_stream=None):
 
 def correct_public_key_bytes_rsa(write_byte_stream=None):
     public_key_write_byte_stream = PascalStyleByteStream()
-    public_key_header = {
-        'key_type': 'ssh-rsa'
-    }
     public_key_write_byte_stream.write_from_format_instructions_dict(
         PublicKey.header_format_instructions_dict(),
-        public_key_header
+        RSA_TEST_HEADER
     )
-    public_key_params = RSA_TEST_PUBLIC
     public_key_write_byte_stream.write_from_format_instructions_dict(
         RSAPublicKeyParams.public_format_instructions_dict(),
-        public_key_params
+        RSA_TEST_PUBLIC
     )
     public_key_bytes = public_key_write_byte_stream.getvalue()
     public_key = PublicKey(PascalStyleByteStream(public_key_bytes))
@@ -152,24 +149,17 @@ def correct_public_key_bytes_rsa(write_byte_stream=None):
 
 def correct_private_key_bytes_rsa(decipher_byte_stream=None):
     private_key_write_byte_stream = PascalStyleByteStream()
-    private_key_header = {
-        'key_type': 'ssh-rsa'
-    }
     private_key_write_byte_stream.write_from_format_instructions_dict(
         PrivateKey.header_format_instructions_dict(),
-        private_key_header
+        RSA_TEST_HEADER
     )
-    private_key_params = RSA_TEST_PRIVATE
     private_key_write_byte_stream.write_from_format_instructions_dict(
         RSAPrivateKeyParams.private_format_instructions_dict(),
-        private_key_params
+        RSA_TEST_PRIVATE
     )
-    private_key_footer = {
-        'comment': 'comment'
-    }
     private_key_write_byte_stream.write_from_format_instructions_dict(
         PrivateKey.footer_format_instructions_dict(),
-        private_key_footer
+        PRIVATE_TEST_FOOTER
     )
     private_key_bytes = private_key_write_byte_stream.getvalue()
     private_key = PrivateKey(PascalStyleByteStream(private_key_bytes))
@@ -179,54 +169,21 @@ def correct_private_key_bytes_rsa(decipher_byte_stream=None):
 
 
 def test_public_key():
-    write_byte_stream = PascalStyleByteStream()
-    header = {
-        'key_type': 'ssh-ed25519'
-    }
-    write_byte_stream.write_from_format_instructions_dict(
-        PublicKey.header_format_instructions_dict(),
-        header
-    )
-    params = ED25519_TEST_PUBLIC
-    write_byte_stream.write_from_format_instructions_dict(
-        Ed25519PublicKeyParams.public_format_instructions_dict(),
-        params
-    )
-    byte_stream = PascalStyleByteStream(write_byte_stream.getvalue())
-    key = PublicKey(byte_stream)
-    assert key.header == header
+    public_key_bytes, _ = correct_public_key_bytes_ed25519()
+    key = PublicKey(PascalStyleByteStream(public_key_bytes))
+    assert key.header == ED25519_TEST_HEADER
     assert isinstance(key.params, Ed25519PublicKeyParams)
-    assert key.params == params
+    assert key.params == ED25519_TEST_PUBLIC
     assert key.footer == {}
 
 
 def test_private_key():
-    write_byte_stream = PascalStyleByteStream()
-    header = {
-        'key_type': 'ssh-ed25519'
-    }
-    write_byte_stream.write_from_format_instructions_dict(
-        PrivateKey.header_format_instructions_dict(),
-        header
-    )
-    params = ED25519_TEST_PRIVATE
-    write_byte_stream.write_from_format_instructions_dict(
-        Ed25519PrivateKeyParams.private_format_instructions_dict(),
-        params
-    )
-    footer = {
-        'comment': 'comment'
-    }
-    write_byte_stream.write_from_format_instructions_dict(
-        PrivateKey.footer_format_instructions_dict(),
-        footer
-    )
-    byte_stream = PascalStyleByteStream(write_byte_stream.getvalue())
-    key = PrivateKey(byte_stream)
-    assert key.header == header
-    assert key.params == params
+    private_key_bytes, _ = correct_private_key_bytes_ed25519()
+    key = PrivateKey(PascalStyleByteStream(private_key_bytes))
+    assert key.header == ED25519_TEST_HEADER
+    assert key.params == ED25519_TEST_PRIVATE
     assert isinstance(key.params, Ed25519PrivateKeyParams)
-    assert key.footer == footer
+    assert key.footer == PRIVATE_TEST_FOOTER
 
 
 def test_private_key_list_header_format_instructions_dict():
