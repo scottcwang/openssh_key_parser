@@ -568,3 +568,50 @@ def test_private_key_list_two_keys_bcrypt_aes256ctr(mocker):
         decipher_bytes_header,
         padding_bytes
     )
+
+
+def test_private_key_list_one_key_none_extra_bytes_public_key(mocker):
+    kdf = 'none'
+    cipher = 'none'
+
+    write_byte_stream = PascalStyleByteStream()
+    kdf_options_bytes, kdf_options = correct_kdf_options_bytes(kdf)
+    _ = correct_header(
+        cipher,
+        kdf,
+        kdf_options_bytes,
+        num_keys=1,
+        write_byte_stream=write_byte_stream
+    )
+
+    public_key_bytes, _ = correct_public_key_bytes_ed25519()
+    public_key_bytes += b'\x00'
+    write_byte_stream.write_from_format_instruction(
+        PascalStyleFormatInstruction.BYTES,
+        public_key_bytes
+    )
+
+    decipher_byte_stream = PascalStyleByteStream()
+
+    _ = correct_decipher_bytes_header(
+        decipher_byte_stream
+    )
+    _, _ = correct_private_key_bytes_ed25519(decipher_byte_stream)
+    _ = correct_decipher_bytes_padding(
+        decipher_byte_stream, cipher, write=True
+    )
+
+    passphrase = 'passphrase'
+    _ = correct_cipher_bytes(
+        passphrase,
+        kdf,
+        kdf_options,
+        cipher,
+        decipher_byte_stream,
+        write_byte_stream
+    )
+
+    byte_stream = PascalStyleByteStream(write_byte_stream.getvalue())
+
+    with pytest.warns(UserWarning):
+        PrivateKeyList.from_byte_stream(byte_stream)
