@@ -15,7 +15,9 @@ from openssh_key.pascal_style_byte_stream import (
 )
 from openssh_key.key_params import (
     Ed25519PublicKeyParams,
-    Ed25519PrivateKeyParams
+    Ed25519PrivateKeyParams,
+    RSAPublicKeyParams,
+    RSAPrivateKeyParams
 )
 from openssh_key.kdf import create_kdf
 from openssh_key.cipher import create_cipher
@@ -266,6 +268,58 @@ def correct_private_key_bytes_ed25519(decipher_byte_stream=None):
     return private_key_bytes, private_key
 
 
+def correct_public_key_bytes_rsa(write_byte_stream=None):
+    public_key_write_byte_stream = PascalStyleByteStream()
+    public_key_header = {
+        'key_type': 'ssh-rsa'
+    }
+    public_key_write_byte_stream.write_from_format_instructions_dict(
+        PublicKey.header_format_instructions_dict(),
+        public_key_header
+    )
+    public_key_params = RSA_TEST_PUBLIC
+    public_key_write_byte_stream.write_from_format_instructions_dict(
+        RSAPublicKeyParams.public_format_instructions_dict(),
+        public_key_params
+    )
+    public_key_bytes = public_key_write_byte_stream.getvalue()
+    public_key = PublicKey(PascalStyleByteStream(public_key_bytes))
+    if write_byte_stream is not None:
+        write_byte_stream.write_from_format_instruction(
+            PascalStyleFormatInstruction.BYTES,
+            public_key_bytes
+        )
+    return public_key_bytes, public_key
+
+
+def correct_private_key_bytes_rsa(decipher_byte_stream=None):
+    private_key_write_byte_stream = PascalStyleByteStream()
+    private_key_header = {
+        'key_type': 'ssh-rsa'
+    }
+    private_key_write_byte_stream.write_from_format_instructions_dict(
+        PrivateKey.header_format_instructions_dict(),
+        private_key_header
+    )
+    private_key_params = RSA_TEST_PRIVATE
+    private_key_write_byte_stream.write_from_format_instructions_dict(
+        RSAPrivateKeyParams.private_format_instructions_dict(),
+        private_key_params
+    )
+    private_key_footer = {
+        'comment': 'comment'
+    }
+    private_key_write_byte_stream.write_from_format_instructions_dict(
+        PrivateKey.footer_format_instructions_dict(),
+        private_key_footer
+    )
+    private_key_bytes = private_key_write_byte_stream.getvalue()
+    private_key = PrivateKey(PascalStyleByteStream(private_key_bytes))
+    if decipher_byte_stream is not None:
+        decipher_byte_stream.write(private_key_bytes)
+    return private_key_bytes, private_key
+
+
 def correct_decipher_bytes_header(decipher_byte_stream=None):
     check_int = secrets.randbits(32)
     decipher_bytes_header = {
@@ -449,6 +503,59 @@ def test_private_key_list_one_key_bcrypt_aes256ctr(mocker):
         cipher_bytes,
         [public_key],
         [private_key],
+        kdf_options,
+        decipher_byte_stream,
+        decipher_bytes_header,
+        padding_bytes
+    )
+
+
+def test_private_key_list_two_keys_bcrypt_aes256ctr(mocker):
+    kdf = 'bcrypt'
+    cipher = 'aes256-ctr'
+
+    write_byte_stream = PascalStyleByteStream()
+    kdf_options_bytes, kdf_options = correct_kdf_options_bytes(kdf)
+    header = correct_header(
+        cipher,
+        kdf,
+        kdf_options_bytes,
+        num_keys=2,
+        write_byte_stream=write_byte_stream
+    )
+
+    _, public_key_0 = correct_public_key_bytes_ed25519(write_byte_stream)
+    _, public_key_1 = correct_public_key_bytes_rsa(write_byte_stream)
+
+    decipher_byte_stream = PascalStyleByteStream()
+
+    decipher_bytes_header = correct_decipher_bytes_header(
+        decipher_byte_stream
+    )
+    _, private_key_0 = correct_private_key_bytes_ed25519(decipher_byte_stream)
+    _, private_key_1 = correct_private_key_bytes_rsa(decipher_byte_stream)
+    padding_bytes = correct_decipher_bytes_padding(
+        decipher_byte_stream, cipher, write=True
+    )
+
+    passphrase = 'passphrase'
+    cipher_bytes = correct_cipher_bytes(
+        passphrase,
+        kdf,
+        kdf_options,
+        cipher,
+        decipher_byte_stream,
+        write_byte_stream
+    )
+
+    private_key_list_test_assertions(
+        write_byte_stream,
+        mocker,
+        passphrase,
+        header,
+        cipher_bytes,
+        [public_key_0, public_key_1],
+        [private_key_0, private_key_1],
         kdf_options,
         decipher_byte_stream,
         decipher_bytes_header,
