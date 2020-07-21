@@ -664,3 +664,44 @@ def test_private_key_list_one_key_none_bad_decipher_bytes_header(mocker):
 
     with pytest.warns(UserWarning):
         PrivateKeyList.from_byte_stream(byte_stream)
+
+
+def test_private_key_list_one_key_none_inconsistent_key_types(mocker):
+    kdf = 'none'
+    cipher = 'none'
+
+    write_byte_stream = PascalStyleByteStream()
+    kdf_options_bytes, kdf_options = correct_kdf_options_bytes(kdf)
+    _ = correct_header(
+        cipher,
+        kdf,
+        kdf_options_bytes,
+        num_keys=1,
+        write_byte_stream=write_byte_stream
+    )
+
+    _, _ = correct_public_key_bytes_ed25519(write_byte_stream)
+
+    decipher_byte_stream = PascalStyleByteStream()
+
+    _ = correct_decipher_bytes_header(decipher_byte_stream)
+
+    _, _ = correct_private_key_bytes_rsa(decipher_byte_stream)
+    _ = correct_decipher_bytes_padding(
+        decipher_byte_stream, cipher, write=True
+    )
+
+    passphrase = 'passphrase'
+    _ = correct_cipher_bytes(
+        passphrase,
+        kdf,
+        kdf_options,
+        cipher,
+        decipher_byte_stream,
+        write_byte_stream
+    )
+
+    byte_stream = PascalStyleByteStream(write_byte_stream.getvalue())
+
+    with pytest.warns(UserWarning):
+        PrivateKeyList.from_byte_stream(byte_stream)
