@@ -74,148 +74,6 @@ BCRYPT_OPTIONS_TEST = {
 }
 
 
-def test_public_key():
-    write_byte_stream = PascalStyleByteStream()
-    header = {
-        'key_type': 'ssh-ed25519'
-    }
-    write_byte_stream.write_from_format_instructions_dict(
-        PublicKey.header_format_instructions_dict(),
-        header
-    )
-    params = ED25519_TEST_PUBLIC
-    write_byte_stream.write_from_format_instructions_dict(
-        Ed25519PublicKeyParams.public_format_instructions_dict(),
-        params
-    )
-    byte_stream = PascalStyleByteStream(write_byte_stream.getvalue())
-    key = PublicKey(byte_stream)
-    assert key.header == header
-    assert isinstance(key.params, Ed25519PublicKeyParams)
-    assert key.params == params
-    assert key.footer == {}
-
-
-def test_private_key():
-    write_byte_stream = PascalStyleByteStream()
-    header = {
-        'key_type': 'ssh-ed25519'
-    }
-    write_byte_stream.write_from_format_instructions_dict(
-        PrivateKey.header_format_instructions_dict(),
-        header
-    )
-    params = ED25519_TEST_PRIVATE
-    write_byte_stream.write_from_format_instructions_dict(
-        Ed25519PrivateKeyParams.private_format_instructions_dict(),
-        params
-    )
-    footer = {
-        'comment': 'comment'
-    }
-    write_byte_stream.write_from_format_instructions_dict(
-        PrivateKey.footer_format_instructions_dict(),
-        footer
-    )
-    byte_stream = PascalStyleByteStream(write_byte_stream.getvalue())
-    key = PrivateKey(byte_stream)
-    assert key.header == header
-    assert key.params == params
-    assert isinstance(key.params, Ed25519PrivateKeyParams)
-    assert key.footer == footer
-
-
-def test_private_key_list_header_format_instructions_dict():
-    assert PrivateKeyList.header_format_instructions_dict() == {
-        'auth_magic': '15s',
-        'cipher': PascalStyleFormatInstruction.STRING,
-        'kdf': PascalStyleFormatInstruction.STRING,
-        'kdf_options': PascalStyleFormatInstruction.BYTES,
-        'num_keys': '>i'
-    }
-
-
-def test_private_key_list_decipher_bytes_format_instructions_dict():
-    assert PrivateKeyList.decipher_bytes_header_format_instructions_dict() == {
-        'check_int_1': '>I',
-        'check_int_2': '>I'
-    }
-
-
-def test_private_key_list_invalid_auth_magic():
-    write_byte_stream = PascalStyleByteStream()
-    header = {
-        'auth_magic': b'not_openssh_key',
-        'cipher': 'none',
-        'kdf': 'none',
-        'kdf_options': b'',
-        'num_keys': 0
-    }
-    write_byte_stream.write_from_format_instructions_dict(
-        PrivateKeyList.header_format_instructions_dict(),
-        header
-    )
-    byte_stream = PascalStyleByteStream(write_byte_stream.getvalue())
-    with pytest.raises(ValueError):
-        PrivateKeyList.from_byte_stream(byte_stream)
-
-
-def test_private_key_list_negative_num_keys():
-    write_byte_stream = PascalStyleByteStream()
-    header = {
-        'auth_magic': b'openssh-key-v1\x00',
-        'cipher': 'none',
-        'kdf': 'none',
-        'kdf_options': b'',
-        'num_keys': -1
-    }
-    write_byte_stream.write_from_format_instructions_dict(
-        PrivateKeyList.header_format_instructions_dict(),
-        header
-    )
-    byte_stream = PascalStyleByteStream(write_byte_stream.getvalue())
-    with pytest.raises(ValueError):
-        PrivateKeyList.from_byte_stream(byte_stream)
-
-
-def correct_header(
-        cipher,
-        kdf,
-        kdf_options_bytes,
-        num_keys,
-        write_byte_stream=None
-):
-    header = {
-        'auth_magic': b'openssh-key-v1\x00',
-        'cipher': cipher,
-        'kdf': kdf,
-        'kdf_options': kdf_options_bytes,
-        'num_keys': num_keys
-    }
-    if write_byte_stream is not None:
-        write_byte_stream.write_from_format_instructions_dict(
-            PrivateKeyList.header_format_instructions_dict(),
-            header
-        )
-    return header
-
-
-def correct_kdf_options_bytes(kdf):
-    kdf_options_write_byte_stream = PascalStyleByteStream()
-    if kdf == 'bcrypt':
-        kdf_options = BCRYPT_OPTIONS_TEST
-    elif kdf == 'none':
-        kdf_options = {}
-    else:
-        raise NotImplementedError()
-    kdf_options_write_byte_stream.write_from_format_instructions_dict(
-        create_kdf(kdf).options_format_instructions_dict(),
-        kdf_options
-    )
-    kdf_options_bytes = kdf_options_write_byte_stream.getvalue()
-    return kdf_options_bytes, kdf_options
-
-
 def correct_public_key_bytes_ed25519(write_byte_stream=None):
     public_key_write_byte_stream = PascalStyleByteStream()
     public_key_header = {
@@ -320,6 +178,112 @@ def correct_private_key_bytes_rsa(decipher_byte_stream=None):
     return private_key_bytes, private_key
 
 
+def test_public_key():
+    write_byte_stream = PascalStyleByteStream()
+    header = {
+        'key_type': 'ssh-ed25519'
+    }
+    write_byte_stream.write_from_format_instructions_dict(
+        PublicKey.header_format_instructions_dict(),
+        header
+    )
+    params = ED25519_TEST_PUBLIC
+    write_byte_stream.write_from_format_instructions_dict(
+        Ed25519PublicKeyParams.public_format_instructions_dict(),
+        params
+    )
+    byte_stream = PascalStyleByteStream(write_byte_stream.getvalue())
+    key = PublicKey(byte_stream)
+    assert key.header == header
+    assert isinstance(key.params, Ed25519PublicKeyParams)
+    assert key.params == params
+    assert key.footer == {}
+
+
+def test_private_key():
+    write_byte_stream = PascalStyleByteStream()
+    header = {
+        'key_type': 'ssh-ed25519'
+    }
+    write_byte_stream.write_from_format_instructions_dict(
+        PrivateKey.header_format_instructions_dict(),
+        header
+    )
+    params = ED25519_TEST_PRIVATE
+    write_byte_stream.write_from_format_instructions_dict(
+        Ed25519PrivateKeyParams.private_format_instructions_dict(),
+        params
+    )
+    footer = {
+        'comment': 'comment'
+    }
+    write_byte_stream.write_from_format_instructions_dict(
+        PrivateKey.footer_format_instructions_dict(),
+        footer
+    )
+    byte_stream = PascalStyleByteStream(write_byte_stream.getvalue())
+    key = PrivateKey(byte_stream)
+    assert key.header == header
+    assert key.params == params
+    assert isinstance(key.params, Ed25519PrivateKeyParams)
+    assert key.footer == footer
+
+
+def test_private_key_list_header_format_instructions_dict():
+    assert PrivateKeyList.header_format_instructions_dict() == {
+        'auth_magic': '15s',
+        'cipher': PascalStyleFormatInstruction.STRING,
+        'kdf': PascalStyleFormatInstruction.STRING,
+        'kdf_options': PascalStyleFormatInstruction.BYTES,
+        'num_keys': '>i'
+    }
+
+
+def test_private_key_list_decipher_bytes_format_instructions_dict():
+    assert PrivateKeyList.decipher_bytes_header_format_instructions_dict() == {
+        'check_int_1': '>I',
+        'check_int_2': '>I'
+    }
+
+
+def correct_header(
+        cipher,
+        kdf,
+        kdf_options_bytes,
+        num_keys,
+        write_byte_stream=None
+):
+    header = {
+        'auth_magic': b'openssh-key-v1\x00',
+        'cipher': cipher,
+        'kdf': kdf,
+        'kdf_options': kdf_options_bytes,
+        'num_keys': num_keys
+    }
+    if write_byte_stream is not None:
+        write_byte_stream.write_from_format_instructions_dict(
+            PrivateKeyList.header_format_instructions_dict(),
+            header
+        )
+    return header
+
+
+def correct_kdf_options_bytes(kdf):
+    kdf_options_write_byte_stream = PascalStyleByteStream()
+    if kdf == 'bcrypt':
+        kdf_options = BCRYPT_OPTIONS_TEST
+    elif kdf == 'none':
+        kdf_options = {}
+    else:
+        raise NotImplementedError()
+    kdf_options_write_byte_stream.write_from_format_instructions_dict(
+        create_kdf(kdf).options_format_instructions_dict(),
+        kdf_options
+    )
+    kdf_options_bytes = kdf_options_write_byte_stream.getvalue()
+    return kdf_options_bytes, kdf_options
+
+
 def correct_decipher_bytes_header(decipher_byte_stream=None):
     check_int = secrets.randbits(32)
     decipher_bytes_header = {
@@ -412,6 +376,38 @@ def private_key_list_test_assertions(
     assert private_key_list.decipher_padding == padding_bytes
 
 
+def test_private_key_list_invalid_auth_magic():
+    write_byte_stream = PascalStyleByteStream()
+    header = {
+        'auth_magic': b'not_openssh_key',
+        'cipher': 'none',
+        'kdf': 'none',
+        'kdf_options': b'',
+        'num_keys': 0
+    }
+    write_byte_stream.write_from_format_instructions_dict(
+        PrivateKeyList.header_format_instructions_dict(),
+        header
+    )
+    byte_stream = PascalStyleByteStream(write_byte_stream.getvalue())
+    with pytest.raises(ValueError):
+        PrivateKeyList.from_byte_stream(byte_stream)
+
+
+def test_private_key_list_negative_num_keys():
+    write_byte_stream = PascalStyleByteStream()
+    _ = correct_header(
+        'none',
+        'none',
+        b'',
+        -1,
+        write_byte_stream
+    )
+    byte_stream = PascalStyleByteStream(write_byte_stream.getvalue())
+    with pytest.raises(ValueError):
+        PrivateKeyList.from_byte_stream(byte_stream)
+
+
 def test_private_key_list_one_key_none(mocker):
     kdf = 'none'
     cipher = 'none'
@@ -422,8 +418,8 @@ def test_private_key_list_one_key_none(mocker):
         cipher,
         kdf,
         kdf_options_bytes,
-        num_keys=1,
-        write_byte_stream=write_byte_stream
+        1,
+        write_byte_stream
     )
 
     _, public_key = correct_public_key_bytes_ed25519(write_byte_stream)
@@ -474,8 +470,8 @@ def test_private_key_list_one_key_bcrypt_aes256ctr(mocker):
         cipher,
         kdf,
         kdf_options_bytes,
-        num_keys=1,
-        write_byte_stream=write_byte_stream
+        1,
+        write_byte_stream
     )
 
     _, public_key = correct_public_key_bytes_ed25519(write_byte_stream)
@@ -526,8 +522,8 @@ def test_private_key_list_two_keys_bcrypt_aes256ctr(mocker):
         cipher,
         kdf,
         kdf_options_bytes,
-        num_keys=2,
-        write_byte_stream=write_byte_stream
+        2,
+        write_byte_stream
     )
 
     _, public_key_0 = correct_public_key_bytes_ed25519(write_byte_stream)
@@ -580,8 +576,8 @@ def test_private_key_list_one_key_none_extra_bytes_public_key(mocker):
         cipher,
         kdf,
         kdf_options_bytes,
-        num_keys=1,
-        write_byte_stream=write_byte_stream
+        1,
+        write_byte_stream
     )
 
     public_key_bytes, _ = correct_public_key_bytes_ed25519()
@@ -627,8 +623,8 @@ def test_private_key_list_one_key_none_bad_decipher_bytes_header(mocker):
         cipher,
         kdf,
         kdf_options_bytes,
-        num_keys=1,
-        write_byte_stream=write_byte_stream
+        1,
+        write_byte_stream
     )
 
     _, _ = correct_public_key_bytes_ed25519(write_byte_stream)
@@ -676,8 +672,8 @@ def test_private_key_list_one_key_bcrypt_aes256ctr_bad_passphrase(mocker):
         cipher,
         kdf,
         kdf_options_bytes,
-        num_keys=1,
-        write_byte_stream=write_byte_stream
+        1,
+        write_byte_stream
     )
 
     _, _ = correct_public_key_bytes_ed25519(write_byte_stream)
@@ -717,8 +713,8 @@ def test_private_key_list_one_key_none_inconsistent_key_types(mocker):
         cipher,
         kdf,
         kdf_options_bytes,
-        num_keys=1,
-        write_byte_stream=write_byte_stream
+        1,
+        write_byte_stream
     )
 
     _, _ = correct_public_key_bytes_ed25519(write_byte_stream)
@@ -758,8 +754,8 @@ def test_private_key_list_one_key_none_inconsistent_key_params(mocker):
         cipher,
         kdf,
         kdf_options_bytes,
-        num_keys=1,
-        write_byte_stream=write_byte_stream
+        1,
+        write_byte_stream
     )
 
     public_key_write_byte_stream = PascalStyleByteStream()
@@ -820,8 +816,8 @@ def test_private_key_list_one_key_none_unexpected_padding_bytes(mocker):
         cipher,
         kdf,
         kdf_options_bytes,
-        num_keys=1,
-        write_byte_stream=write_byte_stream
+        1,
+        write_byte_stream
     )
 
     _ = correct_public_key_bytes_ed25519(write_byte_stream)
@@ -865,8 +861,8 @@ def test_private_key_list_one_key_none_excess_padding_bytes(mocker):
         cipher,
         kdf,
         kdf_options_bytes,
-        num_keys=1,
-        write_byte_stream=write_byte_stream
+        1,
+        write_byte_stream
     )
 
     _ = correct_public_key_bytes_ed25519(write_byte_stream)
@@ -907,8 +903,8 @@ def test_private_key_list_one_key_none_no_padding_bytes(mocker):
         cipher,
         kdf,
         kdf_options_bytes,
-        num_keys=1,
-        write_byte_stream=write_byte_stream
+        1,
+        write_byte_stream
     )
 
     _ = correct_public_key_bytes_ed25519(write_byte_stream)
@@ -945,8 +941,8 @@ def test_private_key_list_one_key_none_insufficient_padding_bytes(mocker):
         cipher,
         kdf,
         kdf_options_bytes,
-        num_keys=1,
-        write_byte_stream=write_byte_stream
+        1,
+        write_byte_stream
     )
 
     _ = correct_public_key_bytes_ed25519(write_byte_stream)
