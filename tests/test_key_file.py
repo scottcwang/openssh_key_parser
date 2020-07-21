@@ -615,3 +615,52 @@ def test_private_key_list_one_key_none_extra_bytes_public_key(mocker):
 
     with pytest.warns(UserWarning):
         PrivateKeyList.from_byte_stream(byte_stream)
+
+
+def test_private_key_list_one_key_none_bad_decipher_bytes_header(mocker):
+    kdf = 'none'
+    cipher = 'none'
+
+    write_byte_stream = PascalStyleByteStream()
+    kdf_options_bytes, kdf_options = correct_kdf_options_bytes(kdf)
+    _ = correct_header(
+        cipher,
+        kdf,
+        kdf_options_bytes,
+        num_keys=1,
+        write_byte_stream=write_byte_stream
+    )
+
+    _, _ = correct_public_key_bytes_ed25519(write_byte_stream)
+
+    decipher_byte_stream = PascalStyleByteStream()
+
+    check_int = secrets.randbits(32)
+    decipher_bytes_header = {
+        'check_int_1': check_int,
+        'check_int_2': check_int ^ 1
+    }
+    decipher_byte_stream.write_from_format_instructions_dict(
+        PrivateKeyList.decipher_bytes_header_format_instructions_dict(),
+        decipher_bytes_header
+    )
+
+    _, _ = correct_private_key_bytes_ed25519(decipher_byte_stream)
+    _ = correct_decipher_bytes_padding(
+        decipher_byte_stream, cipher, write=True
+    )
+
+    passphrase = 'passphrase'
+    _ = correct_cipher_bytes(
+        passphrase,
+        kdf,
+        kdf_options,
+        cipher,
+        decipher_byte_stream,
+        write_byte_stream
+    )
+
+    byte_stream = PascalStyleByteStream(write_byte_stream.getvalue())
+
+    with pytest.warns(UserWarning):
+        PrivateKeyList.from_byte_stream(byte_stream)
