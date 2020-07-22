@@ -1,3 +1,4 @@
+import abc
 import collections
 import warnings
 import getpass
@@ -29,38 +30,51 @@ class PublicKey(Key):
     def footer_format_instructions_dict():
         return {}
 
-    def __init__(self, key_byte_stream):
-        self.header = key_byte_stream.read_from_format_instructions_dict(
-            self.header_format_instructions_dict()
-        )
-
-        params_class = create_public_key_params(self.header['key_type'])
-        self.params = params_class(
-            key_byte_stream.read_from_format_instructions_dict(
+    @staticmethod
+    def create_key_params(key_type, byte_stream):
+        params_class = create_public_key_params(key_type)
+        return params_class(
+            byte_stream.read_from_format_instructions_dict(
                 create_public_key_params(
-                    self.header['key_type']
-                ).public_format_instructions_dict()
+                    key_type).public_format_instructions_dict()
             )
         )
 
-        self.footer = key_byte_stream.read_from_format_instructions_dict(
-            self.footer_format_instructions_dict()
+    @classmethod
+    def from_byte_stream(cls, byte_stream):
+        key = cls()
+
+        key.header = \
+            byte_stream.read_from_format_instructions_dict(
+                key.header_format_instructions_dict()
+            )
+
+        key.params = cls.create_key_params(
+            key.header['key_type'],
+            byte_stream
         )
+
+        key.footer = \
+            byte_stream.read_from_format_instructions_dict(
+                key.footer_format_instructions_dict()
+            )
+
+        return key
 
     @classmethod
     def from_bytes(cls, byte_string):
         byte_stream = PascalStyleByteStream(byte_string)
 
-        public_key = cls(byte_stream)
+        key = cls.from_byte_stream(byte_stream)
 
-        public_key.bytes = byte_string
+        key.bytes = byte_string
 
         remainder = byte_stream.read()
         if len(remainder) > 0:
-            warnings.warn(f'Excess bytes in public key')
-            public_key.remainder = remainder
+            warnings.warn(f'Excess bytes in key')
+            key.remainder = remainder
 
-        return public_key
+        return key
 
     def pack_public(self):
         key_byte_stream = PascalStyleByteStream()
@@ -96,22 +110,14 @@ class PrivateKey(PublicKey):
             'comment': PascalStyleFormatInstruction.STRING
         }
 
-    def __init__(self, key_byte_stream):
-        self.header = key_byte_stream.read_from_format_instructions_dict(
-            self.header_format_instructions_dict()
-        )
-
-        params_class = create_private_key_params(self.header['key_type'])
-        self.params = params_class(
-            key_byte_stream.read_from_format_instructions_dict(
+    @staticmethod
+    def create_key_params(key_type, byte_stream):
+        params_class = create_private_key_params(key_type)
+        return params_class(
+            byte_stream.read_from_format_instructions_dict(
                 create_private_key_params(
-                    self.header['key_type']
-                ).private_format_instructions_dict()
+                    key_type).private_format_instructions_dict()
             )
-        )
-
-        self.footer = key_byte_stream.read_from_format_instructions_dict(
-            self.footer_format_instructions_dict()
         )
 
     def pack_private(self):
@@ -234,7 +240,7 @@ class PrivateKeyList(collections.UserList):
         for i in range(num_keys):
             private_key_list[i] = PublicPrivateKeyPair(
                 private_key_list[i],
-                PrivateKey(decipher_byte_stream)
+                PrivateKey.from_byte_stream(decipher_byte_stream)
             )
             if private_key_list[i].public.header['key_type'] \
                     != private_key_list[i].private.header['key_type']:

@@ -97,7 +97,7 @@ def correct_public_key_bytes_ed25519(write_byte_stream=None):
         ED25519_TEST_PUBLIC
     )
     public_key_bytes = public_key_write_byte_stream.getvalue()
-    public_key = PublicKey(PascalStyleByteStream(public_key_bytes))
+    public_key = PublicKey.from_bytes(public_key_bytes)
     if write_byte_stream is not None:
         write_byte_stream.write_from_format_instruction(
             PascalStyleFormatInstruction.BYTES,
@@ -121,7 +121,7 @@ def correct_private_key_bytes_ed25519(decipher_byte_stream=None):
         PRIVATE_TEST_FOOTER
     )
     private_key_bytes = private_key_write_byte_stream.getvalue()
-    private_key = PrivateKey(PascalStyleByteStream(private_key_bytes))
+    private_key = PrivateKey.from_bytes(private_key_bytes)
     if decipher_byte_stream is not None:
         decipher_byte_stream.write(private_key_bytes)
     return private_key_bytes, private_key
@@ -138,7 +138,7 @@ def correct_public_key_bytes_rsa(write_byte_stream=None):
         RSA_TEST_PUBLIC
     )
     public_key_bytes = public_key_write_byte_stream.getvalue()
-    public_key = PublicKey(PascalStyleByteStream(public_key_bytes))
+    public_key = PublicKey.from_bytes(public_key_bytes)
     if write_byte_stream is not None:
         write_byte_stream.write_from_format_instruction(
             PascalStyleFormatInstruction.BYTES,
@@ -162,22 +162,22 @@ def correct_private_key_bytes_rsa(decipher_byte_stream=None):
         PRIVATE_TEST_FOOTER
     )
     private_key_bytes = private_key_write_byte_stream.getvalue()
-    private_key = PrivateKey(PascalStyleByteStream(private_key_bytes))
+    private_key = PrivateKey.from_bytes(private_key_bytes)
     if decipher_byte_stream is not None:
         decipher_byte_stream.write(private_key_bytes)
     return private_key_bytes, private_key
 
 
-def test_public_key():
+def test_public_key_from_byte_stream():
     public_key_bytes, _ = correct_public_key_bytes_ed25519()
-    key = PublicKey(PascalStyleByteStream(public_key_bytes))
+    key = PublicKey.from_byte_stream(PascalStyleByteStream(public_key_bytes))
     assert key.header == ED25519_TEST_HEADER
     assert isinstance(key.params, Ed25519PublicKeyParams)
     assert key.params == ED25519_TEST_PUBLIC
     assert key.footer == {}
 
 
-def test_public_key_factory():
+def test_public_key_from_bytes():
     public_key_bytes, _ = correct_public_key_bytes_ed25519()
     key = PublicKey.from_bytes(public_key_bytes)
     assert key.header == ED25519_TEST_HEADER
@@ -187,7 +187,7 @@ def test_public_key_factory():
     assert key.bytes == public_key_bytes
 
 
-def test_public_key_factory_remainder():
+def test_public_key_from_bytes_remainder():
     public_key_bytes, _ = correct_public_key_bytes_ed25519()
     remainder = b'\x00'
     public_key_bytes += remainder
@@ -216,9 +216,18 @@ def test_public_key_pack():
     ) == {}
 
 
-def test_private_key():
+def test_private_key_from_byte_stream():
     private_key_bytes, _ = correct_private_key_bytes_ed25519()
-    key = PrivateKey(PascalStyleByteStream(private_key_bytes))
+    key = PrivateKey.from_byte_stream(PascalStyleByteStream(private_key_bytes))
+    assert key.header == ED25519_TEST_HEADER
+    assert key.params == ED25519_TEST_PRIVATE
+    assert isinstance(key.params, Ed25519PrivateKeyParams)
+    assert key.footer == PRIVATE_TEST_FOOTER
+
+
+def test_private_key_from_bytes():
+    private_key_bytes, _ = correct_private_key_bytes_ed25519()
+    key = PrivateKey.from_bytes(private_key_bytes)
     assert key.header == ED25519_TEST_HEADER
     assert key.params == ED25519_TEST_PRIVATE
     assert isinstance(key.params, Ed25519PrivateKeyParams)
