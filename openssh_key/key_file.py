@@ -61,7 +61,7 @@ class PublicKey(Key):
         return public_key
 
 
-class PrivateKey(Key):
+class PrivateKey(PublicKey):
     @staticmethod
     def header_format_instructions_dict():
         return {
