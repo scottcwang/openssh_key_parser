@@ -588,7 +588,7 @@ def test_private_key_list_two_keys_bcrypt_aes256ctr(mocker):
     )
 
 
-def test_private_key_list_one_key_none_extra_bytes_public_key(mocker):
+def test_private_key_list_one_key_none_extra_bytes_public_key():
     kdf = 'none'
     cipher = 'none'
 
@@ -638,7 +638,7 @@ def test_private_key_list_one_key_none_extra_bytes_public_key(mocker):
     assert private_key_list[0].public.remainder == remainder
 
 
-def test_private_key_list_one_key_none_bad_decipher_bytes_header(mocker):
+def test_private_key_list_one_key_none_bad_decipher_bytes_header():
     kdf = 'none'
     cipher = 'none'
 
@@ -724,7 +724,7 @@ def test_private_key_list_one_key_bcrypt_aes256ctr_bad_passphrase(mocker):
         PrivateKeyList.from_bytes(write_byte_stream.getvalue())
 
 
-def test_private_key_list_one_key_none_inconsistent_key_types(mocker):
+def test_private_key_list_one_key_none_inconsistent_key_types():
     kdf = 'none'
     cipher = 'none'
 
@@ -763,7 +763,7 @@ def test_private_key_list_one_key_none_inconsistent_key_types(mocker):
         PrivateKeyList.from_bytes(write_byte_stream.getvalue())
 
 
-def test_private_key_list_one_key_none_inconsistent_key_params(mocker):
+def test_private_key_list_one_key_none_inconsistent_key_params():
     kdf = 'none'
     cipher = 'none'
 
@@ -823,7 +823,7 @@ def test_private_key_list_one_key_none_inconsistent_key_params(mocker):
         PrivateKeyList.from_bytes(write_byte_stream.getvalue())
 
 
-def test_private_key_list_one_key_none_unexpected_padding_bytes(mocker):
+def test_private_key_list_one_key_none_unexpected_padding_bytes():
     kdf = 'none'
     cipher = 'none'
 
@@ -866,7 +866,7 @@ def test_private_key_list_one_key_none_unexpected_padding_bytes(mocker):
         PrivateKeyList.from_bytes(write_byte_stream.getvalue())
 
 
-def test_private_key_list_one_key_none_excess_padding_bytes(mocker):
+def test_private_key_list_one_key_none_excess_padding_bytes():
     kdf = 'none'
     cipher = 'none'
 
@@ -906,7 +906,7 @@ def test_private_key_list_one_key_none_excess_padding_bytes(mocker):
         PrivateKeyList.from_bytes(write_byte_stream.getvalue())
 
 
-def test_private_key_list_one_key_none_no_padding_bytes(mocker):
+def test_private_key_list_one_key_none_no_padding_bytes():
     kdf = 'none'
     cipher = 'none'
 
@@ -942,7 +942,7 @@ def test_private_key_list_one_key_none_no_padding_bytes(mocker):
         PrivateKeyList.from_bytes(write_byte_stream.getvalue())
 
 
-def test_private_key_list_one_key_none_insufficient_padding_bytes(mocker):
+def test_private_key_list_one_key_none_insufficient_padding_bytes():
     kdf = 'none'
     cipher = 'none'
 
