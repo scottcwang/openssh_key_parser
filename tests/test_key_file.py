@@ -179,7 +179,7 @@ def test_public_key():
 
 def test_public_key_factory():
     public_key_bytes, _ = correct_public_key_bytes_ed25519()
-    key = PublicKey.from_byte_stream(PascalStyleByteStream(public_key_bytes))
+    key = PublicKey.from_bytes(public_key_bytes)
     assert key.header == ED25519_TEST_HEADER
     assert isinstance(key.params, Ed25519PublicKeyParams)
     assert key.params == ED25519_TEST_PUBLIC
@@ -192,8 +192,7 @@ def test_public_key_factory_remainder():
     remainder = b'\x00'
     public_key_bytes += remainder
     with pytest.warns(UserWarning):
-        key = PublicKey.from_byte_stream(
-            PascalStyleByteStream(public_key_bytes))
+        key = PublicKey.from_bytes(public_key_bytes)
     assert key.header == ED25519_TEST_HEADER
     assert isinstance(key.params, Ed25519PublicKeyParams)
     assert key.params == ED25519_TEST_PUBLIC
@@ -370,18 +369,16 @@ def private_key_list_test_assertions(
     decipher_bytes_header,
     padding_bytes
 ):
-    byte_stream = PascalStyleByteStream(write_byte_stream.getvalue())
-
     mocker.patch.object(getpass, 'getpass', return_value=passphrase)
 
-    private_key_list = PrivateKeyList.from_byte_stream(byte_stream)
+    private_key_list = PrivateKeyList.from_bytes(write_byte_stream.getvalue())
 
     if getpass_assert_called:
         getpass.getpass.assert_called_once()
     else:
         getpass.getpass.assert_not_called()
 
-    assert private_key_list.bytes == byte_stream.getvalue()
+    assert private_key_list.bytes == write_byte_stream.getvalue()
     assert private_key_list.header == header
     assert private_key_list.cipher_bytes == cipher_bytes
 
@@ -416,9 +413,8 @@ def test_private_key_list_invalid_auth_magic():
         PrivateKeyList.header_format_instructions_dict(),
         header
     )
-    byte_stream = PascalStyleByteStream(write_byte_stream.getvalue())
     with pytest.raises(ValueError):
-        PrivateKeyList.from_byte_stream(byte_stream)
+        PrivateKeyList.from_bytes(write_byte_stream.getvalue())
 
 
 def test_private_key_list_negative_num_keys():
@@ -430,9 +426,8 @@ def test_private_key_list_negative_num_keys():
         -1,
         write_byte_stream
     )
-    byte_stream = PascalStyleByteStream(write_byte_stream.getvalue())
     with pytest.raises(ValueError):
-        PrivateKeyList.from_byte_stream(byte_stream)
+        PrivateKeyList.from_bytes(write_byte_stream.getvalue())
 
 
 def test_private_key_list_one_key_none(mocker):
@@ -635,10 +630,10 @@ def test_private_key_list_one_key_none_extra_bytes_public_key(mocker):
         write_byte_stream
     )
 
-    byte_stream = PascalStyleByteStream(write_byte_stream.getvalue())
-
     with pytest.warns(UserWarning):
-        private_key_list = PrivateKeyList.from_byte_stream(byte_stream)
+        private_key_list = PrivateKeyList.from_bytes(
+            write_byte_stream.getvalue()
+        )
 
     assert private_key_list[0].public.remainder == remainder
 
@@ -686,10 +681,8 @@ def test_private_key_list_one_key_none_bad_decipher_bytes_header(mocker):
         write_byte_stream
     )
 
-    byte_stream = PascalStyleByteStream(write_byte_stream.getvalue())
-
     with pytest.warns(UserWarning):
-        PrivateKeyList.from_byte_stream(byte_stream)
+        PrivateKeyList.from_bytes(write_byte_stream.getvalue())
 
 
 def test_private_key_list_one_key_bcrypt_aes256ctr_bad_passphrase(mocker):
@@ -726,11 +719,9 @@ def test_private_key_list_one_key_bcrypt_aes256ctr_bad_passphrase(mocker):
         write_byte_stream
     )
 
-    byte_stream = PascalStyleByteStream(write_byte_stream.getvalue())
-
     mocker.patch.object(getpass, 'getpass', return_value='wrong_passphrase')
     with pytest.raises(Exception):
-        PrivateKeyList.from_byte_stream(byte_stream)
+        PrivateKeyList.from_bytes(write_byte_stream.getvalue())
 
 
 def test_private_key_list_one_key_none_inconsistent_key_types(mocker):
@@ -768,10 +759,8 @@ def test_private_key_list_one_key_none_inconsistent_key_types(mocker):
         write_byte_stream
     )
 
-    byte_stream = PascalStyleByteStream(write_byte_stream.getvalue())
-
     with pytest.warns(UserWarning):
-        PrivateKeyList.from_byte_stream(byte_stream)
+        PrivateKeyList.from_bytes(write_byte_stream.getvalue())
 
 
 def test_private_key_list_one_key_none_inconsistent_key_params(mocker):
@@ -830,10 +819,8 @@ def test_private_key_list_one_key_none_inconsistent_key_params(mocker):
         write_byte_stream
     )
 
-    byte_stream = PascalStyleByteStream(write_byte_stream.getvalue())
-
     with pytest.warns(UserWarning):
-        PrivateKeyList.from_byte_stream(byte_stream)
+        PrivateKeyList.from_bytes(write_byte_stream.getvalue())
 
 
 def test_private_key_list_one_key_none_unexpected_padding_bytes(mocker):
@@ -875,10 +862,8 @@ def test_private_key_list_one_key_none_unexpected_padding_bytes(mocker):
         write_byte_stream
     )
 
-    byte_stream = PascalStyleByteStream(write_byte_stream.getvalue())
-
     with pytest.warns(UserWarning):
-        PrivateKeyList.from_byte_stream(byte_stream)
+        PrivateKeyList.from_bytes(write_byte_stream.getvalue())
 
 
 def test_private_key_list_one_key_none_excess_padding_bytes(mocker):
@@ -917,10 +902,8 @@ def test_private_key_list_one_key_none_excess_padding_bytes(mocker):
         write_byte_stream
     )
 
-    byte_stream = PascalStyleByteStream(write_byte_stream.getvalue())
-
     with pytest.warns(UserWarning):
-        PrivateKeyList.from_byte_stream(byte_stream)
+        PrivateKeyList.from_bytes(write_byte_stream.getvalue())
 
 
 def test_private_key_list_one_key_none_no_padding_bytes(mocker):
@@ -955,10 +938,8 @@ def test_private_key_list_one_key_none_no_padding_bytes(mocker):
         write_byte_stream
     )
 
-    byte_stream = PascalStyleByteStream(write_byte_stream.getvalue())
-
     with pytest.warns(UserWarning):
-        PrivateKeyList.from_byte_stream(byte_stream)
+        PrivateKeyList.from_bytes(write_byte_stream.getvalue())
 
 
 def test_private_key_list_one_key_none_insufficient_padding_bytes(mocker):
@@ -998,7 +979,5 @@ def test_private_key_list_one_key_none_insufficient_padding_bytes(mocker):
         write_byte_stream
     )
 
-    byte_stream = PascalStyleByteStream(write_byte_stream.getvalue())
-
     with pytest.warns(UserWarning):
-        PrivateKeyList.from_byte_stream(byte_stream)
+        PrivateKeyList.from_bytes(write_byte_stream.getvalue())

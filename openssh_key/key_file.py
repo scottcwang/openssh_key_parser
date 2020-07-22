@@ -48,10 +48,12 @@ class PublicKey(Key):
         )
 
     @classmethod
-    def from_byte_stream(cls, byte_stream: PascalStyleByteStream):
+    def from_bytes(cls, byte_string):
+        byte_stream = PascalStyleByteStream(byte_string)
+
         public_key = cls(byte_stream)
 
-        public_key.bytes = byte_stream.getvalue()
+        public_key.bytes = byte_string
 
         remainder = byte_stream.read()
         if len(remainder) > 0:
@@ -158,10 +160,12 @@ class PrivateKeyList(collections.UserList):
         }
 
     @classmethod
-    def from_byte_stream(cls, byte_stream: PascalStyleByteStream):
+    def from_bytes(cls, byte_string):
+        byte_stream = PascalStyleByteStream(byte_string)
+
         private_key_list = cls()
 
-        private_key_list.bytes = byte_stream.getvalue()
+        private_key_list.bytes = byte_string
 
         private_key_list.header = \
             byte_stream.read_from_format_instructions_dict(
@@ -177,13 +181,11 @@ class PrivateKeyList(collections.UserList):
             raise ValueError('Cannot parse negative number of keys')
 
         for i in range(num_keys):
-            public_key_byte_stream = PascalStyleByteStream(
-                byte_stream.read_from_format_instruction(
-                    PascalStyleFormatInstruction.BYTES
-                )
+            public_key_bytes = byte_stream.read_from_format_instruction(
+                PascalStyleFormatInstruction.BYTES
             )
             private_key_list.append(
-                PublicKey.from_byte_stream(public_key_byte_stream)
+                PublicKey.from_bytes(public_key_bytes)
             )
 
         private_key_list.cipher_bytes = \
