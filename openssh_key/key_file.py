@@ -47,6 +47,19 @@ class PublicKey(Key):
             self.footer_format_instructions_dict()
         )
 
+    @classmethod
+    def from_byte_stream(cls, byte_stream: PascalStyleByteStream):
+        public_key = cls(byte_stream)
+
+        public_key.bytes = byte_stream.getvalue()
+
+        remainder = byte_stream.read()
+        if len(remainder) > 0:
+            warnings.warn(f'Excess bytes in public key')
+            public_key.remainder = remainder
+
+        return public_key
+
 
 class PrivateKey(Key):
     @staticmethod

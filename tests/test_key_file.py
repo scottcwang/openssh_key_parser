@@ -177,6 +177,31 @@ def test_public_key():
     assert key.footer == {}
 
 
+def test_public_key_factory():
+    public_key_bytes, _ = correct_public_key_bytes_ed25519()
+    key = PublicKey.from_byte_stream(PascalStyleByteStream(public_key_bytes))
+    assert key.header == ED25519_TEST_HEADER
+    assert isinstance(key.params, Ed25519PublicKeyParams)
+    assert key.params == ED25519_TEST_PUBLIC
+    assert key.footer == {}
+    assert key.bytes == public_key_bytes
+
+
+def test_public_key_factory_remainder():
+    public_key_bytes, _ = correct_public_key_bytes_ed25519()
+    remainder = b'\x00'
+    public_key_bytes += remainder
+    with pytest.warns(UserWarning):
+        key = PublicKey.from_byte_stream(
+            PascalStyleByteStream(public_key_bytes))
+    assert key.header == ED25519_TEST_HEADER
+    assert isinstance(key.params, Ed25519PublicKeyParams)
+    assert key.params == ED25519_TEST_PUBLIC
+    assert key.footer == {}
+    assert key.bytes == public_key_bytes
+    assert key.remainder == remainder
+
+
 def test_private_key():
     private_key_bytes, _ = correct_private_key_bytes_ed25519()
     key = PrivateKey(PascalStyleByteStream(private_key_bytes))
