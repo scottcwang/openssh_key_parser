@@ -60,6 +60,26 @@ class PublicKey(Key):
 
         return public_key
 
+    def pack_public(self):
+        key_byte_stream = PascalStyleByteStream()
+
+        key_byte_stream.write_from_format_instructions_dict(
+            self.header_format_instructions_dict(),
+            self.header
+        )
+
+        key_byte_stream.write_from_format_instructions_dict(
+            self.params.public_format_instructions_dict(),
+            self.params
+        )
+
+        key_byte_stream.write_from_format_instructions_dict(
+            self.footer_format_instructions_dict(),
+            self.footer
+        )
+
+        return key_byte_stream.getvalue()
+
 
 class PrivateKey(PublicKey):
     @staticmethod
@@ -91,6 +111,26 @@ class PrivateKey(PublicKey):
         self.footer = key_byte_stream.read_from_format_instructions_dict(
             self.footer_format_instructions_dict()
         )
+
+    def pack_private(self):
+        key_byte_stream = PascalStyleByteStream()
+
+        key_byte_stream.write_from_format_instructions_dict(
+            self.header_format_instructions_dict(),
+            self.header
+        )
+
+        key_byte_stream.write_from_format_instructions_dict(
+            self.params.private_format_instructions_dict(),
+            self.params
+        )
+
+        key_byte_stream.write_from_format_instructions_dict(
+            self.footer_format_instructions_dict(),
+            self.footer
+        )
+
+        return key_byte_stream.getvalue()
 
 
 PublicPrivateKeyPair = collections.namedtuple(

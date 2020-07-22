@@ -202,6 +202,21 @@ def test_public_key_factory_remainder():
     assert key.remainder == remainder
 
 
+def test_public_key_pack():
+    _, public_key = correct_public_key_bytes_ed25519()
+    public_key_bytes = public_key.pack_public()
+    public_key_byte_stream = PascalStyleByteStream(public_key_bytes)
+    assert public_key_byte_stream.read_from_format_instructions_dict(
+        PublicKey.header_format_instructions_dict()
+    ) == ED25519_TEST_HEADER
+    assert public_key_byte_stream.read_from_format_instructions_dict(
+        Ed25519PublicKeyParams.public_format_instructions_dict()
+    ) == ED25519_TEST_PUBLIC
+    assert public_key_byte_stream.read_from_format_instructions_dict(
+        PublicKey.footer_format_instructions_dict()
+    ) == {}
+
+
 def test_private_key():
     private_key_bytes, _ = correct_private_key_bytes_ed25519()
     key = PrivateKey(PascalStyleByteStream(private_key_bytes))
@@ -209,6 +224,36 @@ def test_private_key():
     assert key.params == ED25519_TEST_PRIVATE
     assert isinstance(key.params, Ed25519PrivateKeyParams)
     assert key.footer == PRIVATE_TEST_FOOTER
+
+
+def test_private_key_pack_public():
+    _, private_key = correct_private_key_bytes_ed25519()
+    public_key_bytes = private_key.pack_public()
+    public_key_byte_stream = PascalStyleByteStream(public_key_bytes)
+    assert public_key_byte_stream.read_from_format_instructions_dict(
+        PublicKey.header_format_instructions_dict()
+    ) == ED25519_TEST_HEADER
+    assert public_key_byte_stream.read_from_format_instructions_dict(
+        Ed25519PublicKeyParams.public_format_instructions_dict()
+    ) == ED25519_TEST_PUBLIC
+    assert public_key_byte_stream.read_from_format_instructions_dict(
+        PublicKey.footer_format_instructions_dict()
+    ) == {}
+
+
+def test_private_key_pack_private():
+    _, private_key = correct_private_key_bytes_ed25519()
+    private_key_bytes = private_key.pack_private()
+    private_key_byte_stream = PascalStyleByteStream(private_key_bytes)
+    assert private_key_byte_stream.read_from_format_instructions_dict(
+        PrivateKey.header_format_instructions_dict()
+    ) == ED25519_TEST_HEADER
+    assert private_key_byte_stream.read_from_format_instructions_dict(
+        Ed25519PrivateKeyParams.private_format_instructions_dict()
+    ) == ED25519_TEST_PRIVATE
+    assert private_key_byte_stream.read_from_format_instructions_dict(
+        PrivateKey.footer_format_instructions_dict()
+    ) == PRIVATE_TEST_FOOTER
 
 
 def test_private_key_list_header_format_instructions_dict():
