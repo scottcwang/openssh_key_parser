@@ -563,7 +563,8 @@ def test_private_key_list_one_key_none_extra_bytes_public_key(mocker):
     )
 
     public_key_bytes, _ = correct_public_key_bytes_ed25519()
-    public_key_bytes += b'\x00'
+    remainder = b'\x00'
+    public_key_bytes += remainder
     write_byte_stream.write_from_format_instruction(
         PascalStyleFormatInstruction.BYTES,
         public_key_bytes
@@ -592,7 +593,9 @@ def test_private_key_list_one_key_none_extra_bytes_public_key(mocker):
     byte_stream = PascalStyleByteStream(write_byte_stream.getvalue())
 
     with pytest.warns(UserWarning):
-        PrivateKeyList.from_byte_stream(byte_stream)
+        private_key_list = PrivateKeyList.from_byte_stream(byte_stream)
+
+    assert private_key_list[0].public.remainder == remainder
 
 
 def test_private_key_list_one_key_none_bad_decipher_bytes_header(mocker):

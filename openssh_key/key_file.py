@@ -142,11 +142,9 @@ class PrivateKeyList(collections.UserList):
                     PascalStyleFormatInstruction.BYTES
                 )
             )
-            private_key_list.append(PublicKey(public_key_byte_stream))
-            remainder = public_key_byte_stream.read()
-            if len(remainder) > 0:
-                warnings.warn(f'Excess bytes in public key {i}')
-                private_key_list[i].remainder = remainder
+            private_key_list.append(
+                PublicKey.from_byte_stream(public_key_byte_stream)
+            )
 
         private_key_list.cipher_bytes = \
             byte_stream.read_from_format_instruction(
