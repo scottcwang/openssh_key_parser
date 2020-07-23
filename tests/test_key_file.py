@@ -168,6 +168,17 @@ def correct_private_key_bytes_rsa(decipher_byte_stream=None):
     return private_key_bytes, private_key
 
 
+def test_public_key_init():
+    key = PublicKey(
+        ED25519_TEST_HEADER,
+        Ed25519PublicKeyParams(ED25519_TEST_PUBLIC),
+        {}
+    )
+    assert key.header == ED25519_TEST_HEADER
+    assert key.params == ED25519_TEST_PUBLIC
+    assert key.footer == {}
+
+
 def test_public_key_from_byte_stream():
     public_key_bytes, _ = correct_public_key_bytes_ed25519()
     key = PublicKey.from_byte_stream(PascalStyleByteStream(public_key_bytes))
@@ -214,6 +225,17 @@ def test_public_key_pack():
     assert public_key_byte_stream.read_from_format_instructions_dict(
         PublicKey.footer_format_instructions_dict()
     ) == {}
+
+
+def test_private_key_init():
+    key = PrivateKey(
+        ED25519_TEST_HEADER,
+        Ed25519PrivateKeyParams(ED25519_TEST_PRIVATE),
+        PRIVATE_TEST_FOOTER
+    )
+    assert key.header == ED25519_TEST_HEADER
+    assert key.params == ED25519_TEST_PRIVATE
+    assert key.footer == PRIVATE_TEST_FOOTER
 
 
 def test_private_key_from_byte_stream():

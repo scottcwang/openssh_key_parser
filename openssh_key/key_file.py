@@ -40,26 +40,27 @@ class PublicKey(Key):
             )
         )
 
+    def __init__(self, header, params, footer):
+        self.header = header
+        self.params = params
+        self.footer = footer
+
     @classmethod
     def from_byte_stream(cls, byte_stream):
-        key = cls()
+        header = byte_stream.read_from_format_instructions_dict(
+            cls.header_format_instructions_dict()
+        )
 
-        key.header = \
-            byte_stream.read_from_format_instructions_dict(
-                key.header_format_instructions_dict()
-            )
-
-        key.params = cls.create_key_params(
-            key.header['key_type'],
+        params = cls.create_key_params(
+            header['key_type'],
             byte_stream
         )
 
-        key.footer = \
-            byte_stream.read_from_format_instructions_dict(
-                key.footer_format_instructions_dict()
-            )
+        footer = byte_stream.read_from_format_instructions_dict(
+            cls.footer_format_instructions_dict()
+        )
 
-        return key
+        return cls(header, params, footer)
 
     @classmethod
     def from_bytes(cls, byte_string):
