@@ -274,3 +274,29 @@ class PrivateKeyList(collections.UserList):
             warnings.warn('Incorrect padding at end of ciphertext')
 
         return private_key_list
+
+    @classmethod
+    def from_list(
+        cls,
+        key_pair_list,
+        cipher='none',
+        kdf='none',
+        kdf_options={}
+    ):
+        private_key_list = cls()
+
+        private_key_list.header = {
+            'cipher': cipher,
+            'kdf': kdf,
+            'kdf_options': kdf_options
+        }
+
+        for key_pair in key_pair_list:
+            if not isinstance(key_pair, PublicPrivateKeyPair) \
+                    or not isinstance(key_pair.public, PublicKey) \
+                    or not isinstance(key_pair.private, PrivateKey):
+                raise ValueError('Not a key pair')
+            private_key_list.append(key_pair)
+
+        return private_key_list
+

@@ -1012,3 +1012,127 @@ def test_private_key_list_one_key_none_insufficient_padding_bytes():
 
     with pytest.warns(UserWarning):
         PrivateKeyList.from_bytes(write_byte_stream.getvalue())
+
+
+def test_private_key_list_from_list_one_key():
+    key_pair_0 = PublicPrivateKeyPair(
+        PublicKey(
+            ED25519_TEST_HEADER,
+            ED25519_TEST_PUBLIC,
+            {}
+        ),
+        PrivateKey(
+            ED25519_TEST_HEADER,
+            ED25519_TEST_PRIVATE,
+            PRIVATE_TEST_FOOTER
+        )
+    )
+
+    private_key_list = PrivateKeyList.from_list([key_pair_0])
+
+    assert private_key_list.header == {
+        'cipher': 'none',
+        'kdf': 'none',
+        'kdf_options': {}
+    }
+    assert private_key_list[0] == key_pair_0
+
+
+def test_private_key_list_from_list_two_keys():
+    key_pair_0 = PublicPrivateKeyPair(
+        PublicKey(
+            ED25519_TEST_HEADER,
+            ED25519_TEST_PUBLIC,
+            {}
+        ),
+        PrivateKey(
+            ED25519_TEST_HEADER,
+            ED25519_TEST_PRIVATE,
+            PRIVATE_TEST_FOOTER
+        )
+    )
+    key_pair_1 = PublicPrivateKeyPair(
+        PublicKey(
+            RSA_TEST_HEADER,
+            RSA_TEST_PUBLIC,
+            {}
+        ),
+        PrivateKey(
+            RSA_TEST_HEADER,
+            RSA_TEST_PRIVATE,
+            PRIVATE_TEST_FOOTER
+        )
+    )
+
+    private_key_list = PrivateKeyList.from_list([key_pair_0, key_pair_1])
+
+    assert private_key_list.header == {
+        'cipher': 'none',
+        'kdf': 'none',
+        'kdf_options': {}
+    }
+    assert private_key_list[0] == key_pair_0
+    assert private_key_list[1] == key_pair_1
+
+
+def test_private_key_list_from_list_bcrypt_aes256_ctr():
+    key_pair_0 = PublicPrivateKeyPair(
+        PublicKey(
+            ED25519_TEST_HEADER,
+            ED25519_TEST_PUBLIC,
+            {}
+        ),
+        PrivateKey(
+            ED25519_TEST_HEADER,
+            ED25519_TEST_PRIVATE,
+            PRIVATE_TEST_FOOTER
+        )
+    )
+
+    private_key_list = PrivateKeyList.from_list(
+        [key_pair_0],
+        'aes256-ctr',
+        'bcrypt',
+        BCRYPT_OPTIONS_TEST
+    )
+
+    assert private_key_list.header == {
+        'cipher': 'aes256-ctr',
+        'kdf': 'bcrypt',
+        'kdf_options': BCRYPT_OPTIONS_TEST
+    }
+    assert private_key_list[0] == key_pair_0
+
+
+def test_private_key_list_from_list_invalid_private_key():
+    key_pair_0 = PublicPrivateKeyPair(
+        PublicKey(
+            ED25519_TEST_HEADER,
+            ED25519_TEST_PUBLIC,
+            {}
+        ),
+        'not a private key'
+    )
+
+    with pytest.raises(ValueError):
+        PrivateKeyList.from_list([key_pair_0])
+
+
+def test_private_key_list_from_list_invalid_public_key():
+    key_pair_0 = PublicPrivateKeyPair(
+        'not a public key',
+        PrivateKey(
+            ED25519_TEST_HEADER,
+            ED25519_TEST_PRIVATE,
+            PRIVATE_TEST_FOOTER
+        )
+    )
+
+    with pytest.raises(ValueError):
+        PrivateKeyList.from_list([key_pair_0])
+
+
+def test_private_key_list_from_list_invalid_key_pair():
+    with pytest.raises(ValueError):
+        PrivateKeyList.from_list(['not a key pair'])
+
