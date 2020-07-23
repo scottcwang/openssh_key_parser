@@ -15,11 +15,7 @@ from openssh_key.kdf import create_kdf, NoneKDF
 from openssh_key.cipher import create_cipher
 
 
-class Key():
-    pass
-
-
-class PublicKey(Key):
+class PublicKey():
     @staticmethod
     def header_format_instructions_dict():
         return {
