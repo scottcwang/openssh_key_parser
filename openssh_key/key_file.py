@@ -27,18 +27,19 @@ class PublicKey():
         return {}
 
     @staticmethod
-    def create_key_params(key_type, byte_stream):
-        params_class = create_public_key_params(key_type)
-        return params_class(
-            byte_stream.read_from_format_instructions_dict(
-                create_public_key_params(
-                    key_type).public_format_instructions_dict()
-            )
+    def create_key_params_dict(key_type, byte_stream):
+        return byte_stream.read_from_format_instructions_dict(
+            create_public_key_params(
+                key_type).public_format_instructions_dict()
         )
+
+    @staticmethod
+    def create_key_params(key_type, key_params_dict):
+        return create_public_key_params(key_type)(key_params_dict)
 
     def __init__(self, header, params, footer):
         self.header = header
-        self.params = params
+        self.params = self.create_key_params(header['key_type'], params)
         self.footer = footer
 
     @classmethod
@@ -47,7 +48,7 @@ class PublicKey():
             cls.header_format_instructions_dict()
         )
 
-        params = cls.create_key_params(
+        params = cls.create_key_params_dict(
             header['key_type'],
             byte_stream
         )
@@ -108,14 +109,15 @@ class PrivateKey(PublicKey):
         }
 
     @staticmethod
-    def create_key_params(key_type, byte_stream):
-        params_class = create_private_key_params(key_type)
-        return params_class(
-            byte_stream.read_from_format_instructions_dict(
-                create_private_key_params(
-                    key_type).private_format_instructions_dict()
-            )
+    def create_key_params_dict(key_type, byte_stream):
+        return byte_stream.read_from_format_instructions_dict(
+            create_private_key_params(
+                key_type).private_format_instructions_dict()
         )
+
+    @staticmethod
+    def create_key_params(key_type, key_params_dict):
+        return create_private_key_params(key_type)(key_params_dict)
 
     def pack_private(self):
         key_byte_stream = PascalStyleByteStream()
