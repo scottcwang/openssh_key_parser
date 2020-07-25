@@ -317,3 +317,86 @@ def test_write_from_format_instructions_dict_missing_key():
             'first': b'\x00',
             'second': 2,
         })
+
+
+def test_check_dict_str():
+    with pytest.warns(None) as warnings:
+        PascalStyleByteStream.check_dict_matches_format_instructions_dict(
+            {
+                'a': 'string'
+            },
+            {
+                'a': PascalStyleFormatInstruction.STRING
+            }
+        )
+    assert not warnings
+
+
+def test_check_dict_bytes():
+    with pytest.warns(None) as warnings:
+        PascalStyleByteStream.check_dict_matches_format_instructions_dict(
+            {
+                'a': b'\x00'
+            },
+            {
+                'a': PascalStyleFormatInstruction.BYTES
+            }
+        )
+    assert not warnings
+
+
+def test_check_dict_mpint():
+    with pytest.warns(None) as warnings:
+        PascalStyleByteStream.check_dict_matches_format_instructions_dict(
+            {
+                'a': 1
+            },
+            {
+                'a': PascalStyleFormatInstruction.MPINT
+            }
+        )
+    assert not warnings
+
+
+def test_check_dict_two_attributes():
+    with pytest.warns(None) as warnings:
+        PascalStyleByteStream.check_dict_matches_format_instructions_dict(
+            {
+                'a': 1,
+                'b': 2
+            },
+            {
+                'a': PascalStyleFormatInstruction.MPINT,
+                'b': PascalStyleFormatInstruction.MPINT
+            }
+        )
+    assert not warnings
+
+
+def test_check_dict_missing_attribute():
+    with pytest.warns(UserWarning):
+        PascalStyleByteStream.check_dict_matches_format_instructions_dict(
+            {
+                'a': 1
+            },
+            {
+                'a': PascalStyleFormatInstruction.MPINT,
+                'b': PascalStyleFormatInstruction.MPINT
+            }
+        )
+
+
+def test_check_dict_extra_attribute():
+    with pytest.warns(None) as warnings:
+        PascalStyleByteStream.check_dict_matches_format_instructions_dict(
+            {
+                'a': 1,
+                'b': 2,
+                'c': 3
+            },
+            {
+                'a': PascalStyleFormatInstruction.MPINT,
+                'b': PascalStyleFormatInstruction.MPINT
+            }
+        )
+    assert not warnings

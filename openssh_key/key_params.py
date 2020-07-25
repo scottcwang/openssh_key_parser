@@ -23,22 +23,11 @@ class PublicKeyParams(collections.UserDict, abc.ABC):
     def params(self):
         return self.data
 
-    @staticmethod
-    def check_params_match_format_instructions_dict(
-        params_dict,
-        format_instructions_dict
-    ):
-        for k, v in format_instructions_dict.items():
-            if k not in params_dict:
-                warnings.warn(k + ' missing')
-            elif type(params_dict[k]) != v.value:
-                warnings.warn(
-                    k + ' should be of class ' + str(v.value.__name__)
-                )
-
     def check_params_are_valid(self):
-        self.check_params_match_format_instructions_dict(
-            self.data, self.public_format_instructions_dict())
+        PascalStyleByteStream.check_dict_matches_format_instructions_dict(
+            self.data,
+            self.public_format_instructions_dict()
+        )
 
 
 class PrivateKeyParams(PublicKeyParams):
@@ -48,8 +37,9 @@ class PrivateKeyParams(PublicKeyParams):
         return {}
 
     def check_params_are_valid(self):
-        self.check_params_match_format_instructions_dict(
-            self.data, self.private_format_instructions_dict()
+        PascalStyleByteStream.check_dict_matches_format_instructions_dict(
+            self.data,
+            self.private_format_instructions_dict()
         )
 
 

@@ -1,6 +1,7 @@
 import enum
 import io
 import struct
+import warnings
 
 OPENSSH_DEFAULT_STRING_LENGTH_SIZE = 4
 
@@ -112,3 +113,16 @@ class PascalStyleByteStream(io.BytesIO):
                 v,
                 values_dict[k]
             )
+
+    @staticmethod
+    def check_dict_matches_format_instructions_dict(
+        target_dict,
+        format_instructions_dict
+    ):
+        for k, v in format_instructions_dict.items():
+            if k not in target_dict:
+                warnings.warn(k + ' missing')
+            elif type(target_dict[k]) != v.value:
+                warnings.warn(
+                    k + ' should be of class ' + str(v.value.__name__)
+                )
