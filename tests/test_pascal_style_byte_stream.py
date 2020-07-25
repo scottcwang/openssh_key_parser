@@ -360,6 +360,18 @@ def test_check_dict_mpint():
     assert not warnings
 
 
+def test_check_dict_incorrect_type():
+    with pytest.warns(UserWarning):
+        PascalStyleByteStream.check_dict_matches_format_instructions_dict(
+            {
+                'a': 'string'
+            },
+            {
+                'a': PascalStyleFormatInstruction.MPINT
+            }
+        )
+
+
 def test_check_dict_format_string():
     with pytest.warns(None) as warnings:
         PascalStyleByteStream.check_dict_matches_format_instructions_dict(
