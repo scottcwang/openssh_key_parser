@@ -3,7 +3,7 @@ import getpass
 
 import pytest
 
-from openssh_key.key_file import (
+from openssh_key.key_list import (
     PublicKey,
     PrivateKey,
     PublicPrivateKeyPair,
