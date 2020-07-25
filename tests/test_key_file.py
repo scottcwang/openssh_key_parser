@@ -1333,3 +1333,49 @@ def test_private_key_list_pack_two_keys_none(mocker):
         key_pairs,
         kdf_options
     )
+
+
+def test_private_key_list_pack_one_key_bcrypt_aes256_ctr(mocker):
+    cipher = 'aes256-ctr'
+    kdf = 'bcrypt'
+    kdf_options = BCRYPT_OPTIONS_TEST
+
+    passphrase = 'passphrase'
+
+    key_pairs = [
+        PublicPrivateKeyPair(
+            PublicKey(
+                ED25519_TEST_HEADER,
+                ED25519_TEST_PUBLIC,
+                {}
+            ),
+            PrivateKey(
+                ED25519_TEST_HEADER,
+                ED25519_TEST_PRIVATE,
+                PRIVATE_TEST_FOOTER
+            )
+        )
+    ]
+
+    private_key_list = PrivateKeyList.from_list(
+        key_pairs,
+        cipher,
+        kdf,
+        kdf_options
+    )
+
+    mocker.patch.object(getpass, 'getpass', return_value=passphrase)
+
+    pack_bytes = private_key_list.pack()
+
+    private_key_list_pack_test_assertions(
+        pack_bytes,
+        mocker,
+        passphrase,
+        True,
+        cipher,
+        kdf,
+        key_pairs,
+        kdf_options
+    )
+
