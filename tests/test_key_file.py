@@ -1136,3 +1136,240 @@ def test_private_key_list_from_list_invalid_key_pair():
     with pytest.raises(ValueError):
         PrivateKeyList.from_list(['not a key pair'])
 
+
+def test_private_key_list_pack_one_key_none(mocker):
+    cipher = 'none'
+    kdf = 'none'
+    kdf_options = {}
+
+    kdf_options_byte_stream = PascalStyleByteStream()
+    kdf_options_byte_stream.write_from_format_instructions_dict(
+        create_kdf(kdf).options_format_instructions_dict(),
+        kdf_options
+    )
+    kdf_options_bytes = kdf_options_byte_stream.getvalue()
+
+    passphrase = 'passphrase'
+
+    key_pair_0 = PublicPrivateKeyPair(
+        PublicKey(
+            ED25519_TEST_HEADER,
+            ED25519_TEST_PUBLIC,
+            {}
+        ),
+        PrivateKey(
+            ED25519_TEST_HEADER,
+            ED25519_TEST_PRIVATE,
+            PRIVATE_TEST_FOOTER
+        )
+    )
+
+    private_key_list = PrivateKeyList.from_list(
+        [key_pair_0],
+        cipher,
+        kdf,
+        kdf_options
+    )
+
+    mocker.patch.object(getpass, 'getpass', return_value=passphrase)
+
+    pack_bytes = private_key_list.pack()
+    pack_byte_stream = PascalStyleByteStream(pack_bytes)
+
+    assert pack_byte_stream.read_from_format_instructions_dict(
+        PrivateKeyList.header_format_instructions_dict()
+    ) == {
+        'auth_magic': b'openssh-key-v1\x00',
+        'cipher': 'none',
+        'kdf': 'none',
+        'kdf_options': kdf_options_bytes,
+        'num_keys': 1
+    }
+
+    public_key_0_byte_stream = \
+        PascalStyleByteStream(
+            pack_byte_stream.read_from_format_instruction(
+                PascalStyleFormatInstruction.BYTES
+            )
+        )
+    assert public_key_0_byte_stream.read_from_format_instructions_dict(
+        PublicKey.header_format_instructions_dict()
+    ) == ED25519_TEST_HEADER
+    assert public_key_0_byte_stream.read_from_format_instructions_dict(
+        Ed25519PublicKeyParams.public_format_instructions_dict()
+    ) == ED25519_TEST_PUBLIC
+    assert public_key_0_byte_stream.read_from_format_instructions_dict(
+        PublicKey.footer_format_instructions_dict()
+    ) == {}
+    assert public_key_0_byte_stream.read() == b''
+
+    cipher_bytes = pack_byte_stream.read_from_format_instruction(
+        PascalStyleFormatInstruction.BYTES
+    )
+    kdf_result = create_kdf(kdf).derive_key(kdf_options, passphrase)
+    decipher_bytes = create_cipher(cipher).decrypt(
+        kdf_result['cipher_key'],
+        kdf_result['initialization_vector'],
+        cipher_bytes
+    )
+    decipher_byte_stream = PascalStyleByteStream(decipher_bytes)
+
+    check_int_1 = decipher_byte_stream.read_from_format_instruction('>I')
+    check_int_2 = decipher_byte_stream.read_from_format_instruction('>I')
+    assert check_int_1 == check_int_2
+
+    assert decipher_byte_stream.read_from_format_instructions_dict(
+        PrivateKey.header_format_instructions_dict()
+    ) == ED25519_TEST_HEADER
+    assert decipher_byte_stream.read_from_format_instructions_dict(
+        Ed25519PrivateKeyParams.private_format_instructions_dict()
+    ) == ED25519_TEST_PRIVATE
+    assert decipher_byte_stream.read_from_format_instructions_dict(
+        PrivateKey.footer_format_instructions_dict()
+    ) == PRIVATE_TEST_FOOTER
+
+    assert len(decipher_byte_stream.getvalue()) \
+        % create_cipher(cipher).block_size() == 0
+    assert bytes(
+        range(1, 1 + create_cipher(cipher).block_size())
+    ).startswith(decipher_byte_stream.read())
+
+    assert pack_byte_stream.read() == b''
+
+
+def test_private_key_list_pack_two_keys_none(mocker):
+    cipher = 'none'
+    kdf = 'none'
+    kdf_options = {}
+
+    kdf_options_byte_stream = PascalStyleByteStream()
+    kdf_options_byte_stream.write_from_format_instructions_dict(
+        create_kdf(kdf).options_format_instructions_dict(),
+        kdf_options
+    )
+    kdf_options_bytes = kdf_options_byte_stream.getvalue()
+
+    passphrase = 'passphrase'
+
+    key_pair_0 = PublicPrivateKeyPair(
+        PublicKey(
+            ED25519_TEST_HEADER,
+            ED25519_TEST_PUBLIC,
+            {}
+        ),
+        PrivateKey(
+            ED25519_TEST_HEADER,
+            ED25519_TEST_PRIVATE,
+            PRIVATE_TEST_FOOTER
+        )
+    )
+    key_pair_1 = PublicPrivateKeyPair(
+        PublicKey(
+            RSA_TEST_HEADER,
+            RSA_TEST_PUBLIC,
+            {}
+        ),
+        PrivateKey(
+            RSA_TEST_HEADER,
+            RSA_TEST_PRIVATE,
+            PRIVATE_TEST_FOOTER
+        )
+    )
+
+    private_key_list = PrivateKeyList.from_list(
+        [key_pair_0, key_pair_1],
+        cipher,
+        kdf,
+        kdf_options
+    )
+
+    mocker.patch.object(getpass, 'getpass', return_value=passphrase)
+
+    pack_bytes = private_key_list.pack()
+    pack_byte_stream = PascalStyleByteStream(pack_bytes)
+
+    assert pack_byte_stream.read_from_format_instructions_dict(
+        PrivateKeyList.header_format_instructions_dict()
+    ) == {
+        'auth_magic': b'openssh-key-v1\x00',
+        'cipher': 'none',
+        'kdf': 'none',
+        'kdf_options': kdf_options_bytes,
+        'num_keys': 2
+    }
+
+    public_key_0_byte_stream = \
+        PascalStyleByteStream(
+            pack_byte_stream.read_from_format_instruction(
+                PascalStyleFormatInstruction.BYTES
+            )
+        )
+    assert public_key_0_byte_stream.read_from_format_instructions_dict(
+        PublicKey.header_format_instructions_dict()
+    ) == ED25519_TEST_HEADER
+    assert public_key_0_byte_stream.read_from_format_instructions_dict(
+        Ed25519PublicKeyParams.public_format_instructions_dict()
+    ) == ED25519_TEST_PUBLIC
+    assert public_key_0_byte_stream.read_from_format_instructions_dict(
+        PublicKey.footer_format_instructions_dict()
+    ) == {}
+    assert public_key_0_byte_stream.read() == b''
+
+    public_key_1_byte_stream = \
+        PascalStyleByteStream(
+            pack_byte_stream.read_from_format_instruction(
+                PascalStyleFormatInstruction.BYTES
+            )
+        )
+    assert public_key_1_byte_stream.read_from_format_instructions_dict(
+        PublicKey.header_format_instructions_dict()
+    ) == RSA_TEST_HEADER
+    assert public_key_1_byte_stream.read_from_format_instructions_dict(
+        RSAPublicKeyParams.public_format_instructions_dict()
+    ) == RSA_TEST_PUBLIC
+    assert public_key_1_byte_stream.read_from_format_instructions_dict(
+        PublicKey.footer_format_instructions_dict()
+    ) == {}
+    assert public_key_1_byte_stream.read() == b''
+
+    cipher_bytes = pack_byte_stream.read_from_format_instruction(
+        PascalStyleFormatInstruction.BYTES
+    )
+    kdf_result = create_kdf(kdf).derive_key(kdf_options, passphrase)
+    decipher_bytes = create_cipher(cipher).decrypt(
+        kdf_result['cipher_key'],
+        kdf_result['initialization_vector'],
+        cipher_bytes
+    )
+    decipher_byte_stream = PascalStyleByteStream(decipher_bytes)
+
+    check_int_1 = decipher_byte_stream.read_from_format_instruction('>I')
+    check_int_2 = decipher_byte_stream.read_from_format_instruction('>I')
+    assert check_int_1 == check_int_2
+
+    assert decipher_byte_stream.read_from_format_instructions_dict(
+        PrivateKey.header_format_instructions_dict()
+    ) == ED25519_TEST_HEADER
+    assert decipher_byte_stream.read_from_format_instructions_dict(
+        Ed25519PrivateKeyParams.private_format_instructions_dict()
+    ) == ED25519_TEST_PRIVATE
+    assert decipher_byte_stream.read_from_format_instructions_dict(
+        PrivateKey.footer_format_instructions_dict()
+    ) == PRIVATE_TEST_FOOTER
+    assert decipher_byte_stream.read_from_format_instructions_dict(
+        PrivateKey.header_format_instructions_dict()
+    ) == RSA_TEST_HEADER
+    assert decipher_byte_stream.read_from_format_instructions_dict(
+        RSAPrivateKeyParams.private_format_instructions_dict()
+    ) == RSA_TEST_PRIVATE
+    assert decipher_byte_stream.read_from_format_instructions_dict(
+        PrivateKey.footer_format_instructions_dict()
+    ) == PRIVATE_TEST_FOOTER
+
+    assert len(decipher_byte_stream.getvalue()) \
+        % create_cipher(cipher).block_size() == 0
+    assert bytes(
+        range(1, 1 + create_cipher(cipher).block_size())
+    ).startswith(decipher_byte_stream.read())
+
+    assert pack_byte_stream.read() == b''
