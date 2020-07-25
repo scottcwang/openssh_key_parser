@@ -122,7 +122,17 @@ class PascalStyleByteStream(io.BytesIO):
         for k, v in format_instructions_dict.items():
             if k not in target_dict:
                 warnings.warn(k + ' missing')
-            elif type(target_dict[k]) != v.value:
-                warnings.warn(
-                    k + ' should be of class ' + str(v.value.__name__)
-                )
+            elif isinstance(v, str):
+                try:
+                    struct.pack(v, target_dict[k])
+                except struct.error:
+                    warnings.warn(
+                        k + ' should be formatted as ' + v
+                    )
+            elif isinstance(v, PascalStyleFormatInstruction):
+                if type(target_dict[k]) != v.value:
+                    warnings.warn(
+                        k + ' should be of class ' + str(v.value.__name__)
+                    )
+            else:
+                raise NotImplementedError()

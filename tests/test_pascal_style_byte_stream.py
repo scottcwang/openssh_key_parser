@@ -1,3 +1,5 @@
+import struct
+
 import pytest
 
 from openssh_key.pascal_style_byte_stream import (
@@ -356,6 +358,31 @@ def test_check_dict_mpint():
             }
         )
     assert not warnings
+
+
+def test_check_dict_format_string():
+    with pytest.warns(None) as warnings:
+        PascalStyleByteStream.check_dict_matches_format_instructions_dict(
+            {
+                'a': 1
+            },
+            {
+                'a': '>i'
+            }
+        )
+    assert not warnings
+
+
+def test_check_dict_format_string_too_large():
+    with pytest.warns(UserWarning):
+        PascalStyleByteStream.check_dict_matches_format_instructions_dict(
+            {
+                'a': 2 ** 33
+            },
+            {
+                'a': '>i'
+            }
+        )
 
 
 def test_check_dict_two_attributes():
