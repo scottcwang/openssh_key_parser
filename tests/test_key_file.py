@@ -1379,3 +1379,82 @@ def test_private_key_list_pack_one_key_bcrypt_aes256_ctr(mocker):
         kdf_options
     )
 
+
+def test_private_key_list_pack_two_keys_include_indices(mocker):
+    cipher = 'none'
+    kdf = 'none'
+    kdf_options = {}
+
+    passphrase = 'passphrase'
+
+    key_pairs = [
+        PublicPrivateKeyPair(
+            PublicKey(
+                ED25519_TEST_HEADER,
+                ED25519_TEST_PUBLIC,
+                {}
+            ),
+            PrivateKey(
+                ED25519_TEST_HEADER,
+                ED25519_TEST_PRIVATE,
+                PRIVATE_TEST_FOOTER
+            )
+        )
+    ]
+
+    private_key_list = PrivateKeyList.from_list(
+        key_pairs,
+        cipher,
+        kdf,
+        kdf_options
+    )
+
+    mocker.patch.object(getpass, 'getpass', return_value=passphrase)
+
+    pack_bytes = private_key_list.pack(include_indices=[0])
+
+    private_key_list_pack_test_assertions(
+        pack_bytes,
+        mocker,
+        passphrase,
+        False,
+        cipher,
+        kdf,
+        [key_pairs[0]],
+        kdf_options
+    )
+
+
+def test_private_key_list_pack_two_keys_invalid_include_indices(mocker):
+    cipher = 'none'
+    kdf = 'none'
+    kdf_options = {}
+
+    passphrase = 'passphrase'
+
+    key_pairs = [
+        PublicPrivateKeyPair(
+            PublicKey(
+                ED25519_TEST_HEADER,
+                ED25519_TEST_PUBLIC,
+                {}
+            ),
+            PrivateKey(
+                ED25519_TEST_HEADER,
+                ED25519_TEST_PRIVATE,
+                PRIVATE_TEST_FOOTER
+            )
+        )
+    ]
+
+    private_key_list = PrivateKeyList.from_list(
+        key_pairs,
+        cipher,
+        kdf,
+        kdf_options
+    )
+
+    mocker.patch.object(getpass, 'getpass', return_value=passphrase)
+
+    with pytest.raises(IndexError):
+        private_key_list.pack(include_indices=[2])
