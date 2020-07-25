@@ -289,9 +289,10 @@ class PrivateKeyList(collections.UserList):
 
         private_key_list.header = {
             'cipher': cipher,
-            'kdf': kdf,
-            'kdf_options': kdf_options
+            'kdf': kdf
         }
+
+        private_key_list.kdf_options = kdf_options
 
         for key_pair in key_pair_list:
             if not isinstance(key_pair, PublicPrivateKeyPair) \

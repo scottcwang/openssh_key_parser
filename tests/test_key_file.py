@@ -1032,9 +1032,9 @@ def test_private_key_list_from_list_one_key():
 
     assert private_key_list.header == {
         'cipher': 'none',
-        'kdf': 'none',
-        'kdf_options': {}
+        'kdf': 'none'
     }
+    assert private_key_list.kdf_options == {}
     assert private_key_list[0] == key_pair_0
 
 
@@ -1068,9 +1068,9 @@ def test_private_key_list_from_list_two_keys():
 
     assert private_key_list.header == {
         'cipher': 'none',
-        'kdf': 'none',
-        'kdf_options': {}
+        'kdf': 'none'
     }
+    assert private_key_list.kdf_options == {}
     assert private_key_list[0] == key_pair_0
     assert private_key_list[1] == key_pair_1
 
@@ -1098,9 +1098,9 @@ def test_private_key_list_from_list_bcrypt_aes256_ctr():
 
     assert private_key_list.header == {
         'cipher': 'aes256-ctr',
-        'kdf': 'bcrypt',
-        'kdf_options': BCRYPT_OPTIONS_TEST
+        'kdf': 'bcrypt'
     }
+    assert private_key_list.kdf_options == BCRYPT_OPTIONS_TEST
     assert private_key_list[0] == key_pair_0
 
 
