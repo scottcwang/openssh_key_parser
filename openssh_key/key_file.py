@@ -78,7 +78,7 @@ class PublicKey():
         key_byte_stream = PascalStyleByteStream()
 
         key_byte_stream.write_from_format_instructions_dict(
-            self.header_format_instructions_dict(),
+            PublicKey.header_format_instructions_dict(),
             self.header
         )
 
@@ -88,7 +88,7 @@ class PublicKey():
         )
 
         key_byte_stream.write_from_format_instructions_dict(
-            self.footer_format_instructions_dict(),
+            PublicKey.footer_format_instructions_dict(),
             self.footer
         )
 
@@ -123,7 +123,7 @@ class PrivateKey(PublicKey):
         key_byte_stream = PascalStyleByteStream()
 
         key_byte_stream.write_from_format_instructions_dict(
-            self.header_format_instructions_dict(),
+            PrivateKey.header_format_instructions_dict(),
             self.header
         )
 
@@ -133,7 +133,7 @@ class PrivateKey(PublicKey):
         )
 
         key_byte_stream.write_from_format_instructions_dict(
-            self.footer_format_instructions_dict(),
+            PrivateKey.footer_format_instructions_dict(),
             self.footer
         )
 
