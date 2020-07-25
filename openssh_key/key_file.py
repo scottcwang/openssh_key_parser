@@ -40,8 +40,19 @@ class PublicKey():
 
     def __init__(self, header, params, footer):
         self.header = header
+        PascalStyleByteStream.check_dict_matches_format_instructions_dict(
+            self.header,
+            self.header_format_instructions_dict()
+        )
+
         self.params = self.create_key_params(header['key_type'], params)
+
         self.footer = footer
+
+        PascalStyleByteStream.check_dict_matches_format_instructions_dict(
+            self.footer,
+            self.footer_format_instructions_dict()
+        )
 
     @classmethod
     def from_byte_stream(cls, byte_stream):

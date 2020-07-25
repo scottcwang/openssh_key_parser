@@ -240,6 +240,15 @@ def test_private_key_init():
     assert key.footer == PRIVATE_TEST_FOOTER
 
 
+def test_private_key_init_invalid_footer():
+    with pytest.warns(UserWarning):
+        PrivateKey(
+            ED25519_TEST_HEADER,
+            Ed25519PrivateKeyParams(ED25519_TEST_PRIVATE),
+            {}
+        )
+
+
 def test_private_key_from_byte_stream():
     private_key_bytes, _ = correct_private_key_bytes_ed25519()
     key = PrivateKey.from_byte_stream(PascalStyleByteStream(private_key_bytes))
