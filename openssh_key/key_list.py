@@ -261,11 +261,11 @@ class PrivateKeyList(collections.UserList):
                 )
             if not all([
                 (
-                    private_key_list[i].public.params[k]
-                    == private_key_list[i].private.params[k]
+                    private_key_list[i].public.params[k] ==
+                    private_key_list[i].private.params[k]
                 ) for k in (
-                    private_key_list[i].public.params.keys()
-                    & private_key_list[i].private.params.keys()
+                    private_key_list[i].public.params.keys() &
+                    private_key_list[i].private.params.keys()
                 )
             ]):
                 warnings.warn(
@@ -276,8 +276,8 @@ class PrivateKeyList(collections.UserList):
         private_key_list.decipher_padding = decipher_byte_stream.read()
 
         if (
-            len(decipher_byte_stream.getvalue()) % cipher_class.block_size()
-            != 0
+            len(decipher_byte_stream.getvalue()) %
+                cipher_class.block_size() != 0
         ) or not (
             bytes(
                 range(1, 1 + cipher_class.block_size())
