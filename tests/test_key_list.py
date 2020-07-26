@@ -1,3 +1,4 @@
+import warnings
 import secrets
 import getpass
 
@@ -820,8 +821,11 @@ def test_private_key_list_one_key_bcrypt_aes256ctr_bad_passphrase(mocker):
     )
 
     mocker.patch.object(getpass, 'getpass', return_value='wrong_passphrase')
-    with pytest.raises(Exception):
-        PrivateKeyList.from_bytes(write_byte_stream.getvalue())
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        with pytest.raises(Exception):
+            PrivateKeyList.from_bytes(write_byte_stream.getvalue())
 
 
 def test_private_key_list_one_key_none_inconsistent_key_types():

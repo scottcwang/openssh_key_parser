@@ -1,3 +1,4 @@
+import warnings
 import secrets
 
 import pytest
@@ -70,18 +71,22 @@ def test_rsa_public_check_extra_params_are_valid():
 
 
 def test_rsa_public_missing_params_are_not_valid():
-    rsa_public = RSAPublicKeyParams({
-        'e': 1
-    })
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        rsa_public = RSAPublicKeyParams({
+            'e': 1
+        })
     with pytest.warns(UserWarning):
         rsa_public.check_params_are_valid()
 
 
 def test_rsa_public_bad_type_params_are_not_valid():
-    rsa_public = RSAPublicKeyParams({
-        'e': 1,
-        'n': b'bad'
-    })
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        rsa_public = RSAPublicKeyParams({
+            'e': 1,
+            'n': b'bad'
+        })
     with pytest.warns(UserWarning):
         rsa_public.check_params_are_valid()
 
@@ -116,26 +121,30 @@ def test_rsa_private_check_extra_params_are_valid():
 
 
 def test_rsa_private_missing_params_are_not_valid():
-    rsa_private = RSAPrivateKeyParams({
-        'n': 1,
-        'e': 2,
-        'd': 3,
-        'iqmp': 4,
-        'p': 5
-    })
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        rsa_private = RSAPrivateKeyParams({
+            'n': 1,
+            'e': 2,
+            'd': 3,
+            'iqmp': 4,
+            'p': 5
+        })
     with pytest.warns(UserWarning):
         rsa_private.check_params_are_valid()
 
 
 def test_rsa_private_bad_type_params_are_not_valid():
-    rsa_private = RSAPrivateKeyParams({
-        'n': 1,
-        'e': 2,
-        'd': 3,
-        'iqmp': 4,
-        'p': 5,
-        'q': b'bad'
-    })
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        rsa_private = RSAPrivateKeyParams({
+            'n': 1,
+            'e': 2,
+            'd': 3,
+            'iqmp': 4,
+            'p': 5,
+            'q': b'bad'
+        })
     with pytest.warns(UserWarning):
         rsa_private.check_params_are_valid()
 
@@ -242,15 +251,19 @@ def test_ed25519_public_check_extra_params_are_valid():
 
 
 def test_ed25519_public_missing_params_are_not_valid():
-    ed25519_public = Ed25519PublicKeyParams({})
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        ed25519_public = Ed25519PublicKeyParams({})
     with pytest.warns(UserWarning):
         ed25519_public.check_params_are_valid()
 
 
 def test_ed25519_public_bad_type_params_are_not_valid():
-    ed25519_public = Ed25519PublicKeyParams({
-        'public': 'bad'
-    })
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        ed25519_public = Ed25519PublicKeyParams({
+            'public': 'bad'
+        })
     with pytest.warns(UserWarning):
         ed25519_public.check_params_are_valid()
 
@@ -279,18 +292,22 @@ def test_ed25519_private_check_extra_params_are_valid():
 
 
 def test_ed25519_private_missing_params_are_not_valid():
-    ed25519_private = Ed25519PrivateKeyParams({
-        'public': secrets.token_bytes(ED25519_KEY_SIZE)
-    })
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        ed25519_private = Ed25519PrivateKeyParams({
+            'public': secrets.token_bytes(ED25519_KEY_SIZE)
+        })
     with pytest.warns(UserWarning):
         ed25519_private.check_params_are_valid()
 
 
 def test_ed25519_private_bad_type_params_are_not_valid():
-    ed25519_private = Ed25519PrivateKeyParams({
-        'public': secrets.token_bytes(ED25519_KEY_SIZE),
-        'private_public': 'bad'
-    })
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        ed25519_private = Ed25519PrivateKeyParams({
+            'public': secrets.token_bytes(ED25519_KEY_SIZE),
+            'private_public': 'bad'
+        })
     with pytest.warns(UserWarning):
         ed25519_private.check_params_are_valid()
 
