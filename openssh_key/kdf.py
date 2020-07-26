@@ -1,3 +1,4 @@
+import warnings
 import abc
 
 import bcrypt
@@ -36,13 +37,15 @@ class BcryptKDF(KDF):
 
     @staticmethod
     def derive_key(options, passphrase):
-        bcrypt_result = bcrypt.kdf(
-            password=passphrase.encode(),
-            salt=options['salt'],
-            # https://blog.rebased.pl/2020/03/24/basic-key-security.html
-            desired_key_bytes=BcryptKDF.KEY_LENGTH + BcryptKDF.IV_LENGTH,
-            rounds=options['rounds']
-        )
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            bcrypt_result = bcrypt.kdf(
+                password=passphrase.encode(),
+                salt=options['salt'],
+                # https://blog.rebased.pl/2020/03/24/basic-key-security.html
+                desired_key_bytes=BcryptKDF.KEY_LENGTH + BcryptKDF.IV_LENGTH,
+                rounds=options['rounds']
+            )
         return {
             'cipher_key': bcrypt_result[:BcryptKDF.KEY_LENGTH],
             'initialization_vector': bcrypt_result[-BcryptKDF.IV_LENGTH:]
