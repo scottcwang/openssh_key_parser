@@ -81,7 +81,7 @@ class PublicKey():
 
         remainder = byte_stream.read()
         if len(remainder) > 0:
-            warnings.warn(f'Excess bytes in key')
+            warnings.warn('Excess bytes in key')
             key.remainder = remainder
 
         return key
