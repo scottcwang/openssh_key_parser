@@ -46,7 +46,10 @@ def test_read_pascal_bytes():
 def test_read_negative_pascal_bytes():
     pascal_bytes = b'\x00\x00\x00\x01' + b'\x02'
     byte_stream = PascalStyleByteStream(pascal_bytes)
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        ValueError,
+        match='string_length_size must be positive'
+    ):
         byte_stream.read_pascal_bytes(-1)
 
 
@@ -361,7 +364,7 @@ def test_check_dict_mpint():
 
 
 def test_check_dict_incorrect_type():
-    with pytest.warns(UserWarning):
+    with pytest.warns(UserWarning, match='a should be of class int'):
         PascalStyleByteStream.check_dict_matches_format_instructions_dict(
             {
                 'a': 'string'
@@ -386,7 +389,7 @@ def test_check_dict_format_string():
 
 
 def test_check_dict_format_string_too_large():
-    with pytest.warns(UserWarning):
+    with pytest.warns(UserWarning, match='a should be formatted as >i'):
         PascalStyleByteStream.check_dict_matches_format_instructions_dict(
             {
                 'a': 2 ** 33
@@ -413,7 +416,7 @@ def test_check_dict_two_attributes():
 
 
 def test_check_dict_missing_attribute():
-    with pytest.warns(UserWarning):
+    with pytest.warns(UserWarning, match='b missing'):
         PascalStyleByteStream.check_dict_matches_format_instructions_dict(
             {
                 'a': 1

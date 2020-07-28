@@ -263,7 +263,7 @@ def test_public_key_from_bytes_remainder():
     public_key_bytes, _ = correct_public_key_bytes_ed25519()
     remainder = b'\x00'
     public_key_bytes += remainder
-    with pytest.warns(UserWarning):
+    with pytest.warns(UserWarning, match='Excess bytes in key'):
         key = PublicKey.from_bytes(public_key_bytes)
     assert key.header == ED25519_TEST_HEADER
     assert isinstance(key.params, Ed25519PublicKeyParams)
@@ -300,7 +300,7 @@ def test_private_key_init():
 
 
 def test_private_key_init_invalid_footer():
-    with pytest.warns(UserWarning):
+    with pytest.warns(UserWarning, match='comment missing'):
         PrivateKey(
             ED25519_TEST_HEADER,
             Ed25519PrivateKeyParams(ED25519_TEST_PRIVATE),
@@ -514,7 +514,7 @@ def test_private_key_list_invalid_auth_magic():
         PrivateKeyList.header_format_instructions_dict(),
         header
     )
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Not an openssh-key-v1 key'):
         PrivateKeyList.from_bytes(write_byte_stream.getvalue())
 
 
@@ -527,7 +527,10 @@ def test_private_key_list_negative_num_keys():
         -1,
         write_byte_stream
     )
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        ValueError,
+        match='Cannot parse negative number of keys'
+    ):
         PrivateKeyList.from_bytes(write_byte_stream.getvalue())
 
 
@@ -731,7 +734,7 @@ def test_private_key_list_one_key_none_extra_bytes_public_key():
         write_byte_stream
     )
 
-    with pytest.warns(UserWarning):
+    with pytest.warns(UserWarning, match='Excess bytes in key'):
         private_key_list = PrivateKeyList.from_bytes(
             write_byte_stream.getvalue()
         )
@@ -782,7 +785,10 @@ def test_private_key_list_one_key_none_bad_decipher_bytes_header():
         write_byte_stream
     )
 
-    with pytest.warns(UserWarning):
+    with pytest.warns(
+        UserWarning,
+        match='Cipher header check numbers do not match'
+    ):
         PrivateKeyList.from_bytes(write_byte_stream.getvalue())
 
 
@@ -863,7 +869,10 @@ def test_private_key_list_one_key_none_inconsistent_key_types():
         write_byte_stream
     )
 
-    with pytest.warns(UserWarning):
+    with pytest.warns(
+        UserWarning,
+        match='Inconsistency between private and public key types for key 0'
+    ):
         PrivateKeyList.from_bytes(write_byte_stream.getvalue())
 
 
@@ -923,7 +932,10 @@ def test_private_key_list_one_key_none_inconsistent_key_params():
         write_byte_stream
     )
 
-    with pytest.warns(UserWarning):
+    with pytest.warns(
+        UserWarning,
+        match='Inconsistency between private and public values for key 0'
+    ):
         PrivateKeyList.from_bytes(write_byte_stream.getvalue())
 
 
@@ -966,7 +978,10 @@ def test_private_key_list_one_key_none_unexpected_padding_bytes():
         write_byte_stream
     )
 
-    with pytest.warns(UserWarning):
+    with pytest.warns(
+        UserWarning,
+        match='Incorrect padding at end of ciphertext'
+    ):
         PrivateKeyList.from_bytes(write_byte_stream.getvalue())
 
 
@@ -1006,7 +1021,10 @@ def test_private_key_list_one_key_none_excess_padding_bytes():
         write_byte_stream
     )
 
-    with pytest.warns(UserWarning):
+    with pytest.warns(
+        UserWarning,
+        match='Incorrect padding at end of ciphertext'
+    ):
         PrivateKeyList.from_bytes(write_byte_stream.getvalue())
 
 
@@ -1042,7 +1060,10 @@ def test_private_key_list_one_key_none_no_padding_bytes():
         write_byte_stream
     )
 
-    with pytest.warns(UserWarning):
+    with pytest.warns(
+        UserWarning,
+        match='Incorrect padding at end of ciphertext'
+    ):
         PrivateKeyList.from_bytes(write_byte_stream.getvalue())
 
 
@@ -1083,7 +1104,10 @@ def test_private_key_list_one_key_none_insufficient_padding_bytes():
         write_byte_stream
     )
 
-    with pytest.warns(UserWarning):
+    with pytest.warns(
+        UserWarning,
+        match='Incorrect padding at end of ciphertext'
+    ):
         PrivateKeyList.from_bytes(write_byte_stream.getvalue())
 
 
@@ -1187,7 +1211,7 @@ def test_private_key_list_from_list_invalid_private_key():
         'not a private key'
     )
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Not a key pair'):
         PrivateKeyList.from_list([key_pair_0])
 
 
@@ -1201,12 +1225,12 @@ def test_private_key_list_from_list_invalid_public_key():
         )
     )
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Not a key pair'):
         PrivateKeyList.from_list([key_pair_0])
 
 
 def test_private_key_list_from_list_invalid_key_pair():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Not a key pair'):
         PrivateKeyList.from_list(['not a key pair'])
 
 

@@ -76,7 +76,7 @@ def test_rsa_public_missing_params_are_not_valid():
         rsa_public = RSAPublicKeyParams({
             'e': 1
         })
-    with pytest.warns(UserWarning):
+    with pytest.warns(UserWarning, match='n missing'):
         rsa_public.check_params_are_valid()
 
 
@@ -87,7 +87,7 @@ def test_rsa_public_bad_type_params_are_not_valid():
             'e': 1,
             'n': b'bad'
         })
-    with pytest.warns(UserWarning):
+    with pytest.warns(UserWarning, match='n should be of class int'):
         rsa_public.check_params_are_valid()
 
 
@@ -130,7 +130,7 @@ def test_rsa_private_missing_params_are_not_valid():
             'iqmp': 4,
             'p': 5
         })
-    with pytest.warns(UserWarning):
+    with pytest.warns(UserWarning, match='q missing'):
         rsa_private.check_params_are_valid()
 
 
@@ -145,7 +145,7 @@ def test_rsa_private_bad_type_params_are_not_valid():
             'p': 5,
             'q': b'bad'
         })
-    with pytest.warns(UserWarning):
+    with pytest.warns(UserWarning, match='q should be of class int'):
         rsa_private.check_params_are_valid()
 
 
@@ -159,7 +159,7 @@ def test_rsa_public():
 
 
 def test_rsa_public_missing_params():
-    with pytest.warns(UserWarning):
+    with pytest.warns(UserWarning, match='n missing'):
         RSAPublicKeyParams({
             'e': 1
         })
@@ -179,7 +179,7 @@ def test_rsa_private():
 
 
 def test_rsa_private_missing_params():
-    with pytest.warns(UserWarning):
+    with pytest.warns(UserWarning, match='q missing'):
         RSAPrivateKeyParams({
             'n': 1,
             'e': 2,
@@ -190,7 +190,7 @@ def test_rsa_private_missing_params():
 
 
 def test_rsa_private_bad_type_params():
-    with pytest.warns(UserWarning):
+    with pytest.warns(UserWarning, match='q should be of class int'):
         RSAPrivateKeyParams({
             'n': 1,
             'e': 2,
@@ -254,7 +254,7 @@ def test_ed25519_public_missing_params_are_not_valid():
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         ed25519_public = Ed25519PublicKeyParams({})
-    with pytest.warns(UserWarning):
+    with pytest.warns(UserWarning, match='public missing'):
         ed25519_public.check_params_are_valid()
 
 
@@ -264,7 +264,7 @@ def test_ed25519_public_bad_type_params_are_not_valid():
         ed25519_public = Ed25519PublicKeyParams({
             'public': 'bad'
         })
-    with pytest.warns(UserWarning):
+    with pytest.warns(UserWarning, match='public should be of class bytes'):
         ed25519_public.check_params_are_valid()
 
 
@@ -297,7 +297,7 @@ def test_ed25519_private_missing_params_are_not_valid():
         ed25519_private = Ed25519PrivateKeyParams({
             'public': secrets.token_bytes(ED25519_KEY_SIZE)
         })
-    with pytest.warns(UserWarning):
+    with pytest.warns(UserWarning, match='private_public missing'):
         ed25519_private.check_params_are_valid()
 
 
@@ -308,7 +308,10 @@ def test_ed25519_private_bad_type_params_are_not_valid():
             'public': secrets.token_bytes(ED25519_KEY_SIZE),
             'private_public': 'bad'
         })
-    with pytest.warns(UserWarning):
+    with pytest.warns(
+        UserWarning,
+        match='private_public should be of class bytes'
+    ):
         ed25519_private.check_params_are_valid()
 
 
@@ -321,7 +324,7 @@ def test_ed25519_public():
 
 
 def test_ed25519_public_missing_params():
-    with pytest.warns(UserWarning):
+    with pytest.warns(UserWarning, match='public missing'):
         Ed25519PublicKeyParams({})
 
 
@@ -336,14 +339,17 @@ def test_ed25519_private():
 
 
 def test_ed25519_private_missing_params():
-    with pytest.warns(UserWarning):
+    with pytest.warns(UserWarning, match='private_public missing'):
         Ed25519PrivateKeyParams({
             'public': secrets.token_bytes(ED25519_KEY_SIZE)
         })
 
 
 def test_ed25519_private_bad_type_params():
-    with pytest.warns(UserWarning):
+    with pytest.warns(
+        UserWarning,
+        match='private_public should be of class bytes'
+    ):
         Ed25519PrivateKeyParams({
             'public': secrets.token_bytes(ED25519_KEY_SIZE),
             'private_public': 'bad'
