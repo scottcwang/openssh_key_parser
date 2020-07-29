@@ -1,5 +1,7 @@
 import base64
 
+import pytest
+
 import openssh_key.key_file as kf
 from tests.test_key_list import (
     PublicKey,
@@ -94,3 +96,20 @@ def test_parse_key_container_public_two_keys():
         assert key_container[i].key_type_clear == \
             public_key_parsed.header['key_type']
         assert key_container[i].comment_clear == f'comment_{i}'
+
+
+def test_parse_key_container_public_inconsistent_key_type():
+    comment = 'comment'
+    public_key_bytes = PUBLIC_KEY_TEST[0].pack_public()
+    public_key_b64 = base64.b64encode(public_key_bytes).decode()
+    public_key_string = 'ssh-rsa ' + \
+        public_key_b64 + ' ' + \
+        comment + '\n'
+    with pytest.warns(
+        UserWarning,
+        match='Inconsistency between clear and encoded key types for key 0'
+    ):
+        key_container = kf.parse_key_container(public_key_string)
+    assert key_container[0] == PUBLIC_KEY_TEST[0]
+    assert key_container[0].key_type_clear == 'ssh-rsa'
+    assert key_container[0].comment_clear == comment
