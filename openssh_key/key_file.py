@@ -24,18 +24,23 @@ def parse_key_container(key_container):
     else:
         keys = []
         for i, key_line in enumerate(key_lines):
-            key_type_clear, key_b64, comment_clear = key_line.split(
-                ' ',
-                maxsplit=2
-            )
-            key_bytes = base64.b64decode(key_b64)
-            public_key = PublicKey.from_bytes(key_bytes)
-            public_key.key_type_clear = key_type_clear
-            public_key.comment_clear = comment_clear
-            if public_key.header['key_type'] != key_type_clear:
-                warnings.warn(
-                    f'Inconsistency between clear and encoded '
-                    f'key types for key {i}'
+            try:
+                key_type_clear, key_b64, comment_clear = key_line.split(
+                    ' ',
+                    maxsplit=2
                 )
-            keys.append(public_key)
+                key_bytes = base64.b64decode(key_b64)
+                public_key = PublicKey.from_bytes(key_bytes)
+                public_key.key_type_clear = key_type_clear
+                public_key.comment_clear = comment_clear
+                if public_key.header['key_type'] != key_type_clear:
+                    warnings.warn(
+                        f'Inconsistency between clear and encoded '
+                        f'key types for key {i}'
+                    )
+                keys.append(public_key)
+            except:
+                warnings.warn(
+                    f'Could not parse line {i}; skipping'
+                )
         return keys
