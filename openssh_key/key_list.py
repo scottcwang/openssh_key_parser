@@ -106,6 +106,14 @@ class PublicKey():
 
         return key_byte_stream.getvalue()
 
+    def __eq__(self, other):
+        return (
+            type(self) is type(other) and
+            self.header == other.header and
+            self.params == other.params and
+            self.footer == other.footer
+        )
+
 
 class PrivateKey(PublicKey):
     @staticmethod
