@@ -1,7 +1,6 @@
 import collections
 import abc
 import warnings
-import enum
 
 from openssh_key.pascal_style_byte_stream import (
     PascalStyleByteStream,
