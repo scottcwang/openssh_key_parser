@@ -3,7 +3,7 @@ import base64
 import pytest
 
 import openssh_key.key_file as kf
-from tests.test_key_list import (
+from tests.test_private_key_list import (
     PublicKey,
     PrivateKey,
     PublicPrivateKeyPair,

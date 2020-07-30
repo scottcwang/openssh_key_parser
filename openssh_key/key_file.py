@@ -1,7 +1,7 @@
 import base64
 import warnings
 
-from openssh_key.key_list import (
+from openssh_key.private_key_list import (
     PublicKey,
     PrivateKeyList
 )

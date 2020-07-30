@@ -8,7 +8,7 @@ from openssh_key.key import (
     PublicKey,
     PrivateKey
 )
-from openssh_key.key_list import (
+from openssh_key.private_key_list import (
     PublicPrivateKeyPair,
     PrivateKeyList
 )
