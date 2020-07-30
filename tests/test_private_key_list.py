@@ -1,6 +1,7 @@
 import warnings
 import secrets
 import getpass
+import base64
 
 import pytest
 
@@ -10,7 +11,10 @@ from openssh_key.key import (
 )
 from openssh_key.private_key_list import (
     PublicPrivateKeyPair,
-    PrivateKeyList
+    PrivateKeyList,
+    OPENSSH_PRIVATE_KEY_HEADER,
+    OPENSSH_PRIVATE_KEY_FOOTER,
+    WRAP_COL
 )
 from openssh_key.pascal_style_byte_stream import (
     PascalStyleByteStream,
@@ -801,6 +805,37 @@ def test_private_key_list_one_key_none_insufficient_padding_bytes():
         match='Incorrect padding at end of ciphertext'
     ):
         PrivateKeyList.from_bytes(write_byte_stream.getvalue())
+
+
+def test_private_key_list_from_string():
+    private_key_list = PrivateKeyList.from_list([
+        PublicPrivateKeyPair(
+            PublicKey(
+                ED25519_TEST_HEADER,
+                ED25519_TEST_PUBLIC,
+                {}
+            ),
+            PrivateKey(
+                ED25519_TEST_HEADER,
+                ED25519_TEST_PRIVATE,
+                PRIVATE_TEST_FOOTER
+            )
+        )
+    ])
+    private_keys_bytes = private_key_list.pack()
+    private_keys_b64 = base64.b64encode(private_keys_bytes).decode()
+    private_keys_wrapped = ''.join([
+        (
+            private_keys_b64[
+                i:min(i + WRAP_COL, len(private_keys_b64))
+            ] + '\n'
+        )
+        for i in range(0, len(private_keys_b64), WRAP_COL)
+    ])
+    private_keys_string = OPENSSH_PRIVATE_KEY_HEADER + '\n' + \
+        private_keys_wrapped + '\n' + \
+        OPENSSH_PRIVATE_KEY_FOOTER
+    assert PrivateKeyList.from_string(private_keys_string) == private_key_list
 
 
 def test_private_key_list_from_list_one_key():

@@ -3,6 +3,7 @@ import collections
 import warnings
 import getpass
 import secrets
+import base64
 
 from openssh_key.key import (
     PublicKey,
@@ -20,6 +21,11 @@ PublicPrivateKeyPair = collections.namedtuple(
     'PublicPrivateKeyPair',
     ['public', 'private']
 )
+
+OPENSSH_PRIVATE_KEY_HEADER = '-----BEGIN OPENSSH PRIVATE KEY-----'
+OPENSSH_PRIVATE_KEY_FOOTER = '-----END OPENSSH PRIVATE KEY-----'
+
+WRAP_COL = 70
 
 
 class PrivateKeyList(collections.UserList):
@@ -152,6 +158,17 @@ class PrivateKeyList(collections.UserList):
             warnings.warn('Incorrect padding at end of ciphertext')
 
         return private_key_list
+
+    @classmethod
+    def from_string(cls, string):
+        key_lines = string.splitlines()
+
+        if key_lines[0] != OPENSSH_PRIVATE_KEY_HEADER or \
+                key_lines[-1] != OPENSSH_PRIVATE_KEY_FOOTER:
+            raise ValueError('Not an openssh private key')
+        key_b64 = ''.join(key_lines[1:-1])
+        key_bytes = base64.b64decode(key_b64)
+        return cls.from_bytes(key_bytes)
 
     @classmethod
     def from_list(
