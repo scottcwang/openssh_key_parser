@@ -269,7 +269,7 @@ PUBLIC_KEY_TEST = PublicKey(
 
 def test_public_key_from_string():
     comment = 'comment with multiple words'
-    public_key_bytes = PUBLIC_KEY_TEST.pack_public()
+    public_key_bytes = PUBLIC_KEY_TEST.pack_public_bytes()
     public_key_b64 = base64.b64encode(public_key_bytes).decode()
     public_key_string = PUBLIC_KEY_TEST.header['key_type'] + ' ' + \
         public_key_b64 + ' ' + \
@@ -283,7 +283,7 @@ def test_public_key_from_string():
 
 def test_public_key_from_string_inconsistent_key_type():
     comment = 'comment'
-    public_key_bytes = PUBLIC_KEY_TEST.pack_public()
+    public_key_bytes = PUBLIC_KEY_TEST.pack_public_bytes()
     public_key_b64 = base64.b64encode(public_key_bytes).decode()
     public_key_string = 'ssh-rsa ' + \
         public_key_b64 + ' ' + \
@@ -305,7 +305,7 @@ def test_public_key_from_string_not_a_key():
 
 def test_public_key_pack():
     _, public_key = correct_public_key_bytes_ed25519()
-    public_key_bytes = public_key.pack_public()
+    public_key_bytes = public_key.pack_public_bytes()
     public_key_byte_stream = PascalStyleByteStream(public_key_bytes)
     assert public_key_byte_stream.read_from_format_instructions_dict(
         PublicKey.header_format_instructions_dict()
@@ -358,7 +358,7 @@ def test_private_key_from_bytes():
 
 def test_private_key_pack_public():
     _, private_key = correct_private_key_bytes_ed25519()
-    public_key_bytes = private_key.pack_public()
+    public_key_bytes = private_key.pack_public_bytes()
     public_key_byte_stream = PascalStyleByteStream(public_key_bytes)
     assert public_key_byte_stream.read_from_format_instructions_dict(
         PublicKey.header_format_instructions_dict()
@@ -373,7 +373,7 @@ def test_private_key_pack_public():
 
 def test_private_key_pack_private():
     _, private_key = correct_private_key_bytes_ed25519()
-    private_key_bytes = private_key.pack_private()
+    private_key_bytes = private_key.pack_private_bytes()
     private_key_byte_stream = PascalStyleByteStream(private_key_bytes)
     assert private_key_byte_stream.read_from_format_instructions_dict(
         PrivateKey.header_format_instructions_dict()

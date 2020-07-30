@@ -232,9 +232,9 @@ class PrivateKeyList(collections.UserList):
             write_byte_stream.write_from_format_instruction(
                 PascalStyleFormatInstruction.BYTES,
                 (
-                    self[i].private.pack_public()
+                    self[i].private.pack_public_bytes()
                     if override_public_with_private
-                    else self[i].public.pack_public()
+                    else self[i].public.pack_public_bytes()
                 )
             )
 
@@ -252,7 +252,7 @@ class PrivateKeyList(collections.UserList):
 
         for i in include_indices:
             decipher_byte_stream.write(
-                self[i].private.pack_private()
+                self[i].private.pack_private_bytes()
             )
 
         padding_length = (-len(decipher_byte_stream.getvalue())) \

@@ -94,7 +94,7 @@ class PublicKey():
             )
         return public_key
 
-    def pack_public(self):
+    def pack_public_bytes(self):
         key_byte_stream = PascalStyleByteStream()
 
         key_byte_stream.write_from_format_instructions_dict(
@@ -147,7 +147,7 @@ class PrivateKey(PublicKey):
     def create_key_params(key_type, key_params_dict):
         return create_private_key_params(key_type)(key_params_dict)
 
-    def pack_private(self):
+    def pack_private_bytes(self):
         key_byte_stream = PascalStyleByteStream()
 
         key_byte_stream.write_from_format_instructions_dict(
