@@ -1,3 +1,5 @@
+import base64
+
 import pytest
 
 from openssh_key.pascal_style_byte_stream import (
@@ -256,6 +258,49 @@ def test_public_key_from_bytes_remainder():
     assert key.footer == {}
     assert key.bytes == public_key_bytes
     assert key.remainder == remainder
+
+
+PUBLIC_KEY_TEST = PublicKey(
+    ED25519_TEST_HEADER,
+    ED25519_TEST_PUBLIC,
+    {}
+)
+
+
+def test_public_key_from_string():
+    comment = 'comment with multiple words'
+    public_key_bytes = PUBLIC_KEY_TEST.pack_public()
+    public_key_b64 = base64.b64encode(public_key_bytes).decode()
+    public_key_string = PUBLIC_KEY_TEST.header['key_type'] + ' ' + \
+        public_key_b64 + ' ' + \
+        comment
+    public_key = PublicKey.from_string(public_key_string)
+    assert public_key == PUBLIC_KEY_TEST
+    assert public_key.key_type_clear == \
+        PUBLIC_KEY_TEST.header['key_type']
+    assert public_key.comment_clear == comment
+
+
+def test_public_key_from_string_inconsistent_key_type():
+    comment = 'comment'
+    public_key_bytes = PUBLIC_KEY_TEST.pack_public()
+    public_key_b64 = base64.b64encode(public_key_bytes).decode()
+    public_key_string = 'ssh-rsa ' + \
+        public_key_b64 + ' ' + \
+        comment
+    with pytest.warns(
+        UserWarning,
+        match='Inconsistency between clear and encoded key types'
+    ):
+        public_key = PublicKey.from_string(public_key_string)
+    assert public_key == PUBLIC_KEY_TEST
+    assert public_key.key_type_clear == 'ssh-rsa'
+    assert public_key.comment_clear == comment
+
+
+def test_public_key_from_string_not_a_key():
+    with pytest.raises(ValueError):
+        PublicKey.from_string('insufficient tokens')
 
 
 def test_public_key_pack():

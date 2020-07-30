@@ -1,4 +1,5 @@
 import warnings
+import base64
 
 from openssh_key.pascal_style_byte_stream import (
     PascalStyleFormatInstruction,
@@ -79,6 +80,19 @@ class PublicKey():
             key.remainder = remainder
 
         return key
+
+    @classmethod
+    def from_string(cls, string):
+        key_type_clear, key_b64, comment_clear = string.split(' ', maxsplit=2)
+        key_bytes = base64.b64decode(key_b64)
+        public_key = cls.from_bytes(key_bytes)
+        public_key.key_type_clear = key_type_clear
+        public_key.comment_clear = comment_clear
+        if public_key.header['key_type'] != key_type_clear:
+            warnings.warn(
+                f'Inconsistency between clear and encoded key types'
+            )
+        return public_key
 
     def pack_public(self):
         key_byte_stream = PascalStyleByteStream()
