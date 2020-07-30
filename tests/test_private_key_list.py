@@ -838,6 +838,20 @@ def test_private_key_list_from_string():
     assert PrivateKeyList.from_string(private_keys_string) == private_key_list
 
 
+def test_private_key_list_from_string_incorrect_header():
+    with pytest.raises(ValueError, match='Not an openssh private key'):
+        PrivateKeyList.from_string(
+            'not an openssh private key\n' + OPENSSH_PRIVATE_KEY_FOOTER
+        )
+
+
+def test_private_key_list_from_string_incorrect_footer():
+    with pytest.raises(ValueError, match='Not an openssh private key'):
+        PrivateKeyList.from_string(
+            OPENSSH_PRIVATE_KEY_HEADER + '\nnot an openssh private key'
+        )
+
+
 def test_private_key_list_from_list_one_key():
     key_pair_0 = PublicPrivateKeyPair(
         PublicKey(
