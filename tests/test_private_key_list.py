@@ -975,7 +975,7 @@ def test_private_key_list_from_list_invalid_key_pair():
         PrivateKeyList.from_list(['not a key pair'])
 
 
-def private_key_list_pack_test_assertions(
+def private_key_list_pack_bytes_test_assertions(
     pack_bytes,
     mocker,
     passphrase,
@@ -1069,7 +1069,7 @@ def private_key_list_pack_test_assertions(
     assert pack_byte_stream.read() == b''
 
 
-def test_private_key_list_pack_one_key_none(mocker):
+def test_private_key_list_pack_bytes_one_key_none(mocker):
     cipher = 'none'
     kdf = 'none'
     kdf_options = {}
@@ -1102,7 +1102,7 @@ def test_private_key_list_pack_one_key_none(mocker):
 
     pack_bytes = private_key_list.pack_bytes()
 
-    private_key_list_pack_test_assertions(
+    private_key_list_pack_bytes_test_assertions(
         pack_bytes,
         mocker,
         passphrase,
@@ -1114,7 +1114,7 @@ def test_private_key_list_pack_one_key_none(mocker):
     )
 
 
-def test_private_key_list_pack_two_keys_none(mocker):
+def test_private_key_list_pack_bytes_two_keys_none(mocker):
     cipher = 'none'
     kdf = 'none'
     kdf_options = {}
@@ -1159,7 +1159,7 @@ def test_private_key_list_pack_two_keys_none(mocker):
 
     pack_bytes = private_key_list.pack_bytes()
 
-    private_key_list_pack_test_assertions(
+    private_key_list_pack_bytes_test_assertions(
         pack_bytes,
         mocker,
         passphrase,
@@ -1171,7 +1171,7 @@ def test_private_key_list_pack_two_keys_none(mocker):
     )
 
 
-def test_private_key_list_pack_one_key_bcrypt_aes256_ctr(mocker):
+def test_private_key_list_pack_bytes_one_key_bcrypt_aes256_ctr(mocker):
     cipher = 'aes256-ctr'
     kdf = 'bcrypt'
     kdf_options = BCRYPT_OPTIONS_TEST
@@ -1204,7 +1204,7 @@ def test_private_key_list_pack_one_key_bcrypt_aes256_ctr(mocker):
 
     pack_bytes = private_key_list.pack_bytes()
 
-    private_key_list_pack_test_assertions(
+    private_key_list_pack_bytes_test_assertions(
         pack_bytes,
         mocker,
         passphrase,
@@ -1216,7 +1216,7 @@ def test_private_key_list_pack_one_key_bcrypt_aes256_ctr(mocker):
     )
 
 
-def test_private_key_list_pack_two_keys_include_indices(mocker):
+def test_private_key_list_pack_bytes_two_keys_include_indices(mocker):
     cipher = 'none'
     kdf = 'none'
     kdf_options = {}
@@ -1249,7 +1249,7 @@ def test_private_key_list_pack_two_keys_include_indices(mocker):
 
     pack_bytes = private_key_list.pack_bytes(include_indices=[0])
 
-    private_key_list_pack_test_assertions(
+    private_key_list_pack_bytes_test_assertions(
         pack_bytes,
         mocker,
         passphrase,
@@ -1261,7 +1261,7 @@ def test_private_key_list_pack_two_keys_include_indices(mocker):
     )
 
 
-def test_private_key_list_pack_two_keys_invalid_include_indices(mocker):
+def test_private_key_list_pack_bytes_two_keys_invalid_include_indices(mocker):
     cipher = 'none'
     kdf = 'none'
     kdf_options = {}
@@ -1296,7 +1296,7 @@ def test_private_key_list_pack_two_keys_invalid_include_indices(mocker):
         private_key_list.pack_bytes(include_indices=[2])
 
 
-def test_private_key_list_pack_override_public_with_private(mocker):
+def test_private_key_list_pack_bytes_override_public_with_private(mocker):
     cipher = 'none'
     kdf = 'none'
     kdf_options = {}
@@ -1329,7 +1329,7 @@ def test_private_key_list_pack_override_public_with_private(mocker):
 
     pack_bytes = private_key_list.pack_bytes(override_public_with_private=True)
 
-    private_key_list_pack_test_assertions(
+    private_key_list_pack_bytes_test_assertions(
         pack_bytes,
         mocker,
         passphrase,
@@ -1354,7 +1354,7 @@ def test_private_key_list_pack_override_public_with_private(mocker):
     )
 
 
-def test_private_key_list_pack_no_override_public_with_private(mocker):
+def test_private_key_list_pack_bytes_no_override_public_with_private(mocker):
     cipher = 'none'
     kdf = 'none'
     kdf_options = {}
@@ -1388,7 +1388,7 @@ def test_private_key_list_pack_no_override_public_with_private(mocker):
     pack_bytes = private_key_list.pack_bytes(
         override_public_with_private=False)
 
-    private_key_list_pack_test_assertions(
+    private_key_list_pack_bytes_test_assertions(
         pack_bytes,
         mocker,
         passphrase,
