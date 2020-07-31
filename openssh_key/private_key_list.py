@@ -196,7 +196,11 @@ class PrivateKeyList(collections.UserList):
 
         return private_key_list
 
-    def pack(self, include_indices=None, override_public_with_private=True):
+    def pack_bytes(
+        self,
+        include_indices=None,
+        override_public_with_private=True
+    ):
         cipher = self.header['cipher']
 
         kdf = self.header['kdf']

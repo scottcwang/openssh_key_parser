@@ -822,7 +822,7 @@ def test_private_key_list_from_string():
             )
         )
     ])
-    private_keys_bytes = private_key_list.pack()
+    private_keys_bytes = private_key_list.pack_bytes()
     private_keys_b64 = base64.b64encode(private_keys_bytes).decode()
     private_keys_wrapped = ''.join([
         (
@@ -1100,7 +1100,7 @@ def test_private_key_list_pack_one_key_none(mocker):
 
     mocker.patch.object(getpass, 'getpass', return_value=passphrase)
 
-    pack_bytes = private_key_list.pack()
+    pack_bytes = private_key_list.pack_bytes()
 
     private_key_list_pack_test_assertions(
         pack_bytes,
@@ -1157,7 +1157,7 @@ def test_private_key_list_pack_two_keys_none(mocker):
 
     mocker.patch.object(getpass, 'getpass', return_value=passphrase)
 
-    pack_bytes = private_key_list.pack()
+    pack_bytes = private_key_list.pack_bytes()
 
     private_key_list_pack_test_assertions(
         pack_bytes,
@@ -1202,7 +1202,7 @@ def test_private_key_list_pack_one_key_bcrypt_aes256_ctr(mocker):
 
     mocker.patch.object(getpass, 'getpass', return_value=passphrase)
 
-    pack_bytes = private_key_list.pack()
+    pack_bytes = private_key_list.pack_bytes()
 
     private_key_list_pack_test_assertions(
         pack_bytes,
@@ -1247,7 +1247,7 @@ def test_private_key_list_pack_two_keys_include_indices(mocker):
 
     mocker.patch.object(getpass, 'getpass', return_value=passphrase)
 
-    pack_bytes = private_key_list.pack(include_indices=[0])
+    pack_bytes = private_key_list.pack_bytes(include_indices=[0])
 
     private_key_list_pack_test_assertions(
         pack_bytes,
@@ -1293,7 +1293,7 @@ def test_private_key_list_pack_two_keys_invalid_include_indices(mocker):
     mocker.patch.object(getpass, 'getpass', return_value=passphrase)
 
     with pytest.raises(IndexError):
-        private_key_list.pack(include_indices=[2])
+        private_key_list.pack_bytes(include_indices=[2])
 
 
 def test_private_key_list_pack_override_public_with_private(mocker):
@@ -1327,7 +1327,7 @@ def test_private_key_list_pack_override_public_with_private(mocker):
 
     mocker.patch.object(getpass, 'getpass', return_value=passphrase)
 
-    pack_bytes = private_key_list.pack(override_public_with_private=True)
+    pack_bytes = private_key_list.pack_bytes(override_public_with_private=True)
 
     private_key_list_pack_test_assertions(
         pack_bytes,
@@ -1385,7 +1385,8 @@ def test_private_key_list_pack_no_override_public_with_private(mocker):
 
     mocker.patch.object(getpass, 'getpass', return_value=passphrase)
 
-    pack_bytes = private_key_list.pack(override_public_with_private=False)
+    pack_bytes = private_key_list.pack_bytes(
+        override_public_with_private=False)
 
     private_key_list_pack_test_assertions(
         pack_bytes,
