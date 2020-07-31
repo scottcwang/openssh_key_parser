@@ -1398,3 +1398,352 @@ def test_private_key_list_pack_bytes_no_override_public_with_private(mocker):
         key_pairs,
         kdf_options
     )
+
+
+def private_key_list_pack_string_test_assertions(
+    pack_string,
+    *args
+):
+    pack_string_lines = pack_string.splitlines()
+    assert pack_string_lines[0] == OPENSSH_PRIVATE_KEY_HEADER
+    assert pack_string_lines[-1] == OPENSSH_PRIVATE_KEY_FOOTER
+    pack_bytes = base64.b64decode(
+        ''.join(pack_string_lines[1:-1])
+    )
+    private_key_list_pack_bytes_test_assertions(pack_bytes, *args)
+
+
+def test_private_key_list_pack_string_one_key_none(mocker):
+    cipher = 'none'
+    kdf = 'none'
+    kdf_options = {}
+
+    passphrase = 'passphrase'
+
+    key_pairs = [
+        PublicPrivateKeyPair(
+            PublicKey(
+                ED25519_TEST_HEADER,
+                ED25519_TEST_PUBLIC,
+                {}
+            ),
+            PrivateKey(
+                ED25519_TEST_HEADER,
+                ED25519_TEST_PRIVATE,
+                PRIVATE_TEST_FOOTER
+            )
+        )
+    ]
+
+    private_key_list = PrivateKeyList.from_list(
+        key_pairs,
+        cipher,
+        kdf,
+        kdf_options
+    )
+
+    mocker.patch.object(getpass, 'getpass', return_value=passphrase)
+
+    pack_string = private_key_list.pack_string()
+
+    private_key_list_pack_string_test_assertions(
+        pack_string,
+        mocker,
+        passphrase,
+        False,
+        cipher,
+        kdf,
+        key_pairs,
+        kdf_options
+    )
+
+
+def test_private_key_list_pack_string_two_keys_none(mocker):
+    cipher = 'none'
+    kdf = 'none'
+    kdf_options = {}
+
+    passphrase = 'passphrase'
+
+    key_pairs = [
+        PublicPrivateKeyPair(
+            PublicKey(
+                ED25519_TEST_HEADER,
+                ED25519_TEST_PUBLIC,
+                {}
+            ),
+            PrivateKey(
+                ED25519_TEST_HEADER,
+                ED25519_TEST_PRIVATE,
+                PRIVATE_TEST_FOOTER
+            )
+        ),
+        PublicPrivateKeyPair(
+            PublicKey(
+                RSA_TEST_HEADER,
+                RSA_TEST_PUBLIC,
+                {}
+            ),
+            PrivateKey(
+                RSA_TEST_HEADER,
+                RSA_TEST_PRIVATE,
+                PRIVATE_TEST_FOOTER
+            )
+        )
+    ]
+
+    private_key_list = PrivateKeyList.from_list(
+        key_pairs,
+        cipher,
+        kdf,
+        kdf_options
+    )
+
+    mocker.patch.object(getpass, 'getpass', return_value=passphrase)
+
+    pack_string = private_key_list.pack_string()
+
+    private_key_list_pack_string_test_assertions(
+        pack_string,
+        mocker,
+        passphrase,
+        False,
+        cipher,
+        kdf,
+        key_pairs,
+        kdf_options
+    )
+
+
+def test_private_key_list_pack_string_one_key_bcrypt_aes256_ctr(mocker):
+    cipher = 'aes256-ctr'
+    kdf = 'bcrypt'
+    kdf_options = BCRYPT_OPTIONS_TEST
+
+    passphrase = 'passphrase'
+
+    key_pairs = [
+        PublicPrivateKeyPair(
+            PublicKey(
+                ED25519_TEST_HEADER,
+                ED25519_TEST_PUBLIC,
+                {}
+            ),
+            PrivateKey(
+                ED25519_TEST_HEADER,
+                ED25519_TEST_PRIVATE,
+                PRIVATE_TEST_FOOTER
+            )
+        )
+    ]
+
+    private_key_list = PrivateKeyList.from_list(
+        key_pairs,
+        cipher,
+        kdf,
+        kdf_options
+    )
+
+    mocker.patch.object(getpass, 'getpass', return_value=passphrase)
+
+    pack_string = private_key_list.pack_string()
+
+    private_key_list_pack_string_test_assertions(
+        pack_string,
+        mocker,
+        passphrase,
+        True,
+        cipher,
+        kdf,
+        key_pairs,
+        kdf_options
+    )
+
+
+def test_private_key_list_pack_string_two_keys_include_indices(mocker):
+    cipher = 'none'
+    kdf = 'none'
+    kdf_options = {}
+
+    passphrase = 'passphrase'
+
+    key_pairs = [
+        PublicPrivateKeyPair(
+            PublicKey(
+                ED25519_TEST_HEADER,
+                ED25519_TEST_PUBLIC,
+                {}
+            ),
+            PrivateKey(
+                ED25519_TEST_HEADER,
+                ED25519_TEST_PRIVATE,
+                PRIVATE_TEST_FOOTER
+            )
+        )
+    ]
+
+    private_key_list = PrivateKeyList.from_list(
+        key_pairs,
+        cipher,
+        kdf,
+        kdf_options
+    )
+
+    mocker.patch.object(getpass, 'getpass', return_value=passphrase)
+
+    pack_string = private_key_list.pack_string()
+
+    private_key_list_pack_string_test_assertions(
+        pack_string,
+        mocker,
+        passphrase,
+        False,
+        cipher,
+        kdf,
+        [key_pairs[0]],
+        kdf_options
+    )
+
+
+def test_private_key_list_pack_string_two_keys_invalid_include_indices(
+    mocker
+):
+    cipher = 'none'
+    kdf = 'none'
+    kdf_options = {}
+
+    passphrase = 'passphrase'
+
+    key_pairs = [
+        PublicPrivateKeyPair(
+            PublicKey(
+                ED25519_TEST_HEADER,
+                ED25519_TEST_PUBLIC,
+                {}
+            ),
+            PrivateKey(
+                ED25519_TEST_HEADER,
+                ED25519_TEST_PRIVATE,
+                PRIVATE_TEST_FOOTER
+            )
+        )
+    ]
+
+    private_key_list = PrivateKeyList.from_list(
+        key_pairs,
+        cipher,
+        kdf,
+        kdf_options
+    )
+
+    mocker.patch.object(getpass, 'getpass', return_value=passphrase)
+
+    with pytest.raises(IndexError):
+        private_key_list.pack_string(include_indices=[2])
+
+
+def test_private_key_list_pack_string_override_public_with_private(mocker):
+    cipher = 'none'
+    kdf = 'none'
+    kdf_options = {}
+
+    passphrase = 'passphrase'
+
+    key_pairs = [
+        PublicPrivateKeyPair(
+            PublicKey(
+                RSA_TEST_HEADER,
+                RSA_TEST_PUBLIC,
+                {}
+            ),
+            PrivateKey(
+                ED25519_TEST_HEADER,
+                ED25519_TEST_PRIVATE,
+                PRIVATE_TEST_FOOTER
+            )
+        )
+    ]
+
+    private_key_list = PrivateKeyList.from_list(
+        key_pairs,
+        cipher,
+        kdf,
+        kdf_options
+    )
+
+    mocker.patch.object(getpass, 'getpass', return_value=passphrase)
+
+    pack_string = private_key_list.pack_string(
+        override_public_with_private=True
+    )
+
+    private_key_list_pack_string_test_assertions(
+        pack_string,
+        mocker,
+        passphrase,
+        False,
+        cipher,
+        kdf,
+        [
+            PublicPrivateKeyPair(
+                PublicKey(
+                    ED25519_TEST_HEADER,
+                    ED25519_TEST_PUBLIC,
+                    {}
+                ),
+                PrivateKey(
+                    ED25519_TEST_HEADER,
+                    ED25519_TEST_PRIVATE,
+                    PRIVATE_TEST_FOOTER
+                )
+            )
+        ],
+        kdf_options
+    )
+
+
+def test_private_key_list_pack_string_no_override_public_with_private(mocker):
+    cipher = 'none'
+    kdf = 'none'
+    kdf_options = {}
+
+    passphrase = 'passphrase'
+
+    key_pairs = [
+        PublicPrivateKeyPair(
+            PublicKey(
+                RSA_TEST_HEADER,
+                RSA_TEST_PUBLIC,
+                {}
+            ),
+            PrivateKey(
+                ED25519_TEST_HEADER,
+                ED25519_TEST_PRIVATE,
+                PRIVATE_TEST_FOOTER
+            )
+        )
+    ]
+
+    private_key_list = PrivateKeyList.from_list(
+        key_pairs,
+        cipher,
+        kdf,
+        kdf_options
+    )
+
+    mocker.patch.object(getpass, 'getpass', return_value=passphrase)
+
+    pack_string = private_key_list.pack_string(
+        override_public_with_private=False
+    )
+
+    private_key_list_pack_string_test_assertions(
+        pack_string,
+        mocker,
+        passphrase,
+        False,
+        cipher,
+        kdf,
+        key_pairs,
+        kdf_options
+    )

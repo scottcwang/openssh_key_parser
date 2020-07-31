@@ -281,3 +281,28 @@ class PrivateKeyList(collections.UserList):
         )
 
         return write_byte_stream.getvalue()
+
+    def pack_string(
+        self,
+        include_indices=None,
+        override_public_with_private=True
+    ):
+        text = OPENSSH_PRIVATE_KEY_HEADER + '\n'
+        private_keys_bytes = self.pack_bytes(
+            include_indices,
+            override_public_with_private
+        )
+        private_keys_b64 = base64.b64encode(private_keys_bytes).decode()
+        private_keys_wrapped = '\n'.join([
+            (
+                private_keys_b64[
+                    i:
+                    min(i + WRAP_COL, len(private_keys_b64))
+                ]
+            )
+            for i in range(0, len(private_keys_b64), WRAP_COL)
+        ])
+        text += private_keys_wrapped
+        text += '\n' + OPENSSH_PRIVATE_KEY_FOOTER
+
+        return text
