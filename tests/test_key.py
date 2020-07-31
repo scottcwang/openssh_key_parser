@@ -303,7 +303,7 @@ def test_public_key_from_string_not_a_key():
         PublicKey.from_string('insufficient tokens')
 
 
-def test_public_key_pack():
+def test_public_key_pack_public_bytes():
     _, public_key = correct_public_key_bytes_ed25519()
     public_key_bytes = public_key.pack_public_bytes()
     public_key_byte_stream = PascalStyleByteStream(public_key_bytes)
@@ -316,6 +316,46 @@ def test_public_key_pack():
     assert public_key_byte_stream.read_from_format_instructions_dict(
         PublicKey.footer_format_instructions_dict()
     ) == {}
+
+
+def test_public_key_pack_public_string():
+    _, public_key = correct_public_key_bytes_ed25519()
+    public_key_string = public_key.pack_public_string()
+    assert public_key_string == (
+        public_key.header['key_type'] + ' ' +
+        base64.b64encode(public_key.pack_public_bytes()).decode() + '\n'
+    )
+
+
+def test_public_key_pack_public_string_clear_comment():
+    comment = 'comment with multiple words'
+    public_key_bytes = PUBLIC_KEY_TEST.pack_public_bytes()
+    public_key_b64 = base64.b64encode(public_key_bytes).decode()
+    public_key_string = PUBLIC_KEY_TEST.header['key_type'] + ' ' + \
+        public_key_b64 + ' ' + \
+        comment
+    public_key = PublicKey.from_string(public_key_string)
+    public_key_string = public_key.pack_public_string(use_clear_comment=True)
+    assert public_key_string == (
+        public_key.header['key_type'] + ' ' +
+        base64.b64encode(public_key.pack_public_bytes()).decode() + ' ' +
+        comment + '\n'
+    )
+
+
+def test_public_key_pack_public_string_no_clear_comment():
+    comment = 'comment with multiple words'
+    public_key_bytes = PUBLIC_KEY_TEST.pack_public_bytes()
+    public_key_b64 = base64.b64encode(public_key_bytes).decode()
+    public_key_string = PUBLIC_KEY_TEST.header['key_type'] + ' ' + \
+        public_key_b64 + ' ' + \
+        comment
+    public_key = PublicKey.from_string(public_key_string)
+    public_key_string = public_key.pack_public_string(use_clear_comment=False)
+    assert public_key_string == (
+        public_key.header['key_type'] + ' ' +
+        base64.b64encode(public_key.pack_public_bytes()).decode() + '\n'
+    )
 
 
 def test_private_key_init():
@@ -371,7 +411,7 @@ def test_private_key_pack_public():
     ) == {}
 
 
-def test_private_key_pack_private():
+def test_private_key_pack_private_bytes():
     _, private_key = correct_private_key_bytes_ed25519()
     private_key_bytes = private_key.pack_private_bytes()
     private_key_byte_stream = PascalStyleByteStream(private_key_bytes)
@@ -384,3 +424,36 @@ def test_private_key_pack_private():
     assert private_key_byte_stream.read_from_format_instructions_dict(
         PrivateKey.footer_format_instructions_dict()
     ) == PRIVATE_TEST_FOOTER
+
+
+def test_private_key_pack_public_string():
+    _, private_key = correct_private_key_bytes_ed25519()
+    public_key_string = private_key.pack_public_string()
+    assert public_key_string == (
+        private_key.header['key_type'] + ' ' +
+        base64.b64encode(private_key.pack_public_bytes()).decode() + ' ' +
+        private_key.footer['comment'] + '\n'
+    )
+
+
+def test_private_key_pack_public_string_footer_comment():
+    _, private_key = correct_private_key_bytes_ed25519()
+    public_key_string = private_key.pack_public_string(
+        use_footer_comment=True
+    )
+    assert public_key_string == (
+        private_key.header['key_type'] + ' ' +
+        base64.b64encode(private_key.pack_public_bytes()).decode() + ' ' +
+        private_key.footer['comment'] + '\n'
+    )
+
+
+def test_private_key_pack_public_string_no_footer_comment():
+    _, private_key = correct_private_key_bytes_ed25519()
+    public_key_string = private_key.pack_public_string(
+        use_footer_comment=False
+    )
+    assert public_key_string == (
+        private_key.header['key_type'] + ' ' +
+        base64.b64encode(private_key.pack_public_bytes()).decode() + '\n'
+    )

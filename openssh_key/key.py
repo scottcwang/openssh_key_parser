@@ -1,5 +1,6 @@
 import warnings
 import base64
+import io
 
 from openssh_key.pascal_style_byte_stream import (
     PascalStyleFormatInstruction,
@@ -113,6 +114,26 @@ class PublicKey():
         )
 
         return key_byte_stream.getvalue()
+
+    def pack_public_string(
+        self,
+        use_footer_comment=True,
+        use_clear_comment=True
+    ):
+        text_stream = io.StringIO()
+        text_stream.write(self.header['key_type'] + ' ')
+
+        public_key_bytes = self.pack_public_bytes()
+        public_keys_b64 = base64.b64encode(public_key_bytes).decode()
+        text_stream.write(public_keys_b64)
+
+        if use_footer_comment and 'comment' in self.footer:
+            text_stream.write(' ' + self.footer['comment'])
+        if use_clear_comment and hasattr(self, 'comment_clear'):
+            text_stream.write(' ' + self.comment_clear)
+
+        text_stream.write('\n')
+        return text_stream.getvalue()
 
     def __eq__(self, other):
         return (
