@@ -54,96 +54,106 @@ class PrivateKeyList(collections.UserList):
             'check_int_2': '>I'
         }
 
+    def __init__(
+        self,
+        initlist,
+        byte_string=None,
+        header=None,
+        cipher_bytes=None,
+        kdf_options=None,
+        decipher_bytes=None,
+        decipher_bytes_header=None,
+        decipher_padding=None
+    ):
+        super().__init__(initlist)
+        self.byte_string = byte_string
+        self.header = header
+        self.cipher_bytes = cipher_bytes
+        self.kdf_options = kdf_options
+        self.decipher_bytes = decipher_bytes
+        self.decipher_bytes_header = decipher_bytes_header
+        self.decipher_padding = decipher_padding
+
     @classmethod
     def from_bytes(cls, byte_string):
         byte_stream = PascalStyleByteStream(byte_string)
 
-        private_key_list = cls()
+        header = byte_stream.read_from_format_instructions_dict(
+            cls.header_format_instructions_dict()
+        )
 
-        private_key_list.bytes = byte_string
-
-        private_key_list.header = \
-            byte_stream.read_from_format_instructions_dict(
-                private_key_list.header_format_instructions_dict()
-            )
-
-        if private_key_list.header['auth_magic'] != b'openssh-key-v1\x00':
+        if header['auth_magic'] != b'openssh-key-v1\x00':
             raise ValueError('Not an openssh-key-v1 key')
 
-        num_keys = private_key_list.header['num_keys']
+        num_keys = header['num_keys']
 
         if num_keys < 0:
             raise ValueError('Cannot parse negative number of keys')
 
+        initlist = []
         for i in range(num_keys):
             public_key_bytes = byte_stream.read_from_format_instruction(
                 PascalStyleFormatInstruction.BYTES
             )
-            private_key_list.append(
+            initlist.append(
                 PublicKey.from_bytes(public_key_bytes)
             )
 
-        private_key_list.cipher_bytes = \
-            byte_stream.read_from_format_instruction(
-                PascalStyleFormatInstruction.BYTES
-            )
+        cipher_bytes = byte_stream.read_from_format_instruction(
+            PascalStyleFormatInstruction.BYTES
+        )
 
-        kdf_class = create_kdf(private_key_list.header['kdf'])
-        private_key_list.kdf_options = PascalStyleByteStream(
-            private_key_list.header['kdf_options']
+        kdf_class = create_kdf(header['kdf'])
+        kdf_options = PascalStyleByteStream(
+            header['kdf_options']
         ).read_from_format_instructions_dict(
             kdf_class.options_format_instructions_dict()
         )
 
-        cipher_class = create_cipher(private_key_list.header['cipher'])
+        cipher_class = create_cipher(header['cipher'])
 
         if kdf_class != NoneKDF:
             passphrase = getpass.getpass('Key passphrase: ')
         else:
             passphrase = ''
 
-        kdf_result = kdf_class.derive_key(
-            private_key_list.kdf_options, passphrase
-        )
+        kdf_result = kdf_class.derive_key(kdf_options, passphrase)
 
-        private_key_list.decipher_bytes = cipher_class.decrypt(
+        decipher_bytes = cipher_class.decrypt(
             kdf_result['cipher_key'],
             kdf_result['initialization_vector'],
-            private_key_list.cipher_bytes
+            cipher_bytes
         )
 
-        decipher_byte_stream = PascalStyleByteStream(
-            private_key_list.decipher_bytes
-        )
+        decipher_byte_stream = PascalStyleByteStream(decipher_bytes)
 
-        private_key_list.decipher_bytes_header = \
+        decipher_bytes_header = \
             decipher_byte_stream.read_from_format_instructions_dict(
-                private_key_list.
-                decipher_bytes_header_format_instructions_dict()
+                cls.decipher_bytes_header_format_instructions_dict()
             )
 
-        if private_key_list.decipher_bytes_header['check_int_1'] \
-                != private_key_list.decipher_bytes_header['check_int_2']:
+        if decipher_bytes_header['check_int_1'] \
+                != decipher_bytes_header['check_int_2']:
             warnings.warn('Cipher header check numbers do not match')
 
         for i in range(num_keys):
-            private_key_list[i] = PublicPrivateKeyPair(
-                private_key_list[i],
+            initlist[i] = PublicPrivateKeyPair(
+                initlist[i],
                 PrivateKey.from_byte_stream(decipher_byte_stream)
             )
-            if private_key_list[i].public.header['key_type'] \
-                    != private_key_list[i].private.header['key_type']:
+            if initlist[i].public.header['key_type'] \
+                    != initlist[i].private.header['key_type']:
                 warnings.warn(
                     f'Inconsistency between private and public '
                     f'key types for key {i}'
                 )
             if not all([
                 (
-                    private_key_list[i].public.params[k] ==
-                    private_key_list[i].private.params[k]
+                    initlist[i].public.params[k] ==
+                    initlist[i].private.params[k]
                 ) for k in (
-                    private_key_list[i].public.params.keys() &
-                    private_key_list[i].private.params.keys()
+                    initlist[i].public.params.keys() &
+                    initlist[i].private.params.keys()
                 )
             ]):
                 warnings.warn(
@@ -151,7 +161,7 @@ class PrivateKeyList(collections.UserList):
                     f'values for key {i}'
                 )
 
-        private_key_list.decipher_padding = decipher_byte_stream.read()
+        decipher_padding = decipher_byte_stream.read()
 
         if (
             len(decipher_byte_stream.getvalue()) %
@@ -159,13 +169,20 @@ class PrivateKeyList(collections.UserList):
         ) or not (
             bytes(
                 range(1, 1 + cipher_class.block_size())
-            ).startswith(
-                private_key_list.decipher_padding
-            )
+            ).startswith(decipher_padding)
         ):
             warnings.warn('Incorrect padding at end of ciphertext')
 
-        return private_key_list
+        return cls(
+            initlist,
+            byte_string,
+            header,
+            cipher_bytes,
+            kdf_options,
+            decipher_bytes,
+            decipher_bytes_header,
+            decipher_padding
+        )
 
     @classmethod
     def from_string(cls, string):
@@ -186,23 +203,24 @@ class PrivateKeyList(collections.UserList):
         kdf='none',
         kdf_options={}
     ):
-        private_key_list = cls()
-
-        private_key_list.header = {
+        header = {
             'cipher': cipher,
             'kdf': kdf
         }
 
-        private_key_list.kdf_options = kdf_options
-
+        initlist = []
         for key_pair in key_pair_list:
             if not isinstance(key_pair, PublicPrivateKeyPair) \
                     or not isinstance(key_pair.public, PublicKey) \
                     or not isinstance(key_pair.private, PrivateKey):
                 raise ValueError('Not a key pair')
-            private_key_list.append(key_pair)
+            initlist.append(key_pair)
 
-        return private_key_list
+        return cls(
+            initlist,
+            header=header,
+            kdf_options=kdf_options
+        )
 
     def pack_bytes(
         self,

@@ -175,7 +175,7 @@ def private_key_list_from_bytes_test_assertions(
     else:
         getpass.getpass.assert_not_called()
 
-    assert private_key_list.bytes == write_byte_stream.getvalue()
+    assert private_key_list.byte_string == write_byte_stream.getvalue()
     assert private_key_list.header == header
     assert private_key_list.cipher_bytes == cipher_bytes
 
