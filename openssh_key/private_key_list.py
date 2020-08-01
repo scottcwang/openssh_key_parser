@@ -17,15 +17,23 @@ from openssh_key.kdf import create_kdf, NoneKDF
 from openssh_key.cipher import create_cipher
 
 
-PublicPrivateKeyPair = collections.namedtuple(
-    'PublicPrivateKeyPair',
-    ['public', 'private']
-)
-
 OPENSSH_PRIVATE_KEY_HEADER = '-----BEGIN OPENSSH PRIVATE KEY-----'
 OPENSSH_PRIVATE_KEY_FOOTER = '-----END OPENSSH PRIVATE KEY-----'
 
 WRAP_COL = 70
+
+
+class PublicPrivateKeyPair:
+    def __init__(self, public, private):
+        self.public = public
+        self.private = private
+
+    def __eq__(self, other):
+        return (
+            type(self) is type(other) and
+            self.public == other.public and
+            self.private == other.private
+        )
 
 
 class PrivateKeyList(collections.UserList):
