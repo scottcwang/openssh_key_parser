@@ -1,22 +1,20 @@
 #!/usr/bin/env python3
 
-import argparse
-import warnings
-import json
-
-from openssh_key.private_key_list import (
-    OPENSSH_PRIVATE_KEY_HEADER,
-    PrivateKeyList
-)
-from openssh_key.key import (
-    PublicKey
-)
-
-
-JSON_INDENT = 4
-
-
 if __name__ == "__main__":
+    import argparse
+    import warnings
+    import json
+
+    from openssh_key.private_key_list import (
+        OPENSSH_PRIVATE_KEY_HEADER,
+        PrivateKeyList
+    )
+    from openssh_key.key import (
+        PublicKey
+    )
+
+    JSON_INDENT = 4
+
     parser = argparse.ArgumentParser()
     parser.add_argument('filename')
     args = parser.parse_args()
