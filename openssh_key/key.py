@@ -72,14 +72,18 @@ class PublicKey():
     def from_bytes(cls, byte_string, clear={}):
         byte_stream = PascalStyleByteStream(byte_string)
 
-        key = cls.from_byte_stream(byte_stream, clear)
-
-        key.bytes = byte_string
+        key = cls.from_byte_stream(
+            byte_stream,
+            {
+                **clear,
+                'bytes': byte_string
+            }
+        )
 
         remainder = byte_stream.read()
         if len(remainder) > 0:
             warnings.warn('Excess bytes in key')
-            key.remainder = remainder
+            key.clear['remainder'] = remainder
 
         return key
 

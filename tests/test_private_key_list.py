@@ -435,7 +435,7 @@ def test_private_key_list_one_key_none_extra_bytes_public_key():
             write_byte_stream.getvalue()
         )
 
-    assert private_key_list[0].public.remainder == remainder
+    assert private_key_list[0].public.clear['remainder'] == remainder
 
 
 def test_private_key_list_one_key_none_bad_decipher_bytes_header():
@@ -808,17 +808,24 @@ def test_private_key_list_one_key_none_insufficient_padding_bytes():
 
 
 def test_private_key_list_from_string():
+    public_key_bytes = PublicKey(
+        ED25519_TEST_HEADER,
+        ED25519_TEST_PUBLIC,
+        {}
+    ).pack_public_bytes()
     private_key_list = PrivateKeyList.from_list([
         PublicPrivateKeyPair(
             PublicKey(
                 ED25519_TEST_HEADER,
                 ED25519_TEST_PUBLIC,
-                {}
+                {},
+                {'bytes': public_key_bytes}
             ),
             PrivateKey(
                 ED25519_TEST_HEADER,
                 ED25519_TEST_PRIVATE,
-                PRIVATE_TEST_FOOTER
+                PRIVATE_TEST_FOOTER,
+                {}
             )
         )
     ])
