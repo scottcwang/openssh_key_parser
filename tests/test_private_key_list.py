@@ -808,18 +808,13 @@ def test_private_key_list_one_key_none_insufficient_padding_bytes():
 
 
 def test_private_key_list_from_string():
-    public_key_bytes = PublicKey(
-        ED25519_TEST_HEADER,
-        ED25519_TEST_PUBLIC,
-        {}
-    ).pack_public_bytes()
     private_key_list = PrivateKeyList.from_list([
         PublicPrivateKeyPair(
             PublicKey(
                 ED25519_TEST_HEADER,
                 ED25519_TEST_PUBLIC,
                 {},
-                {'bytes': public_key_bytes}
+                {}
             ),
             PrivateKey(
                 ED25519_TEST_HEADER,
