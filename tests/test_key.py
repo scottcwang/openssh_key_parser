@@ -243,7 +243,7 @@ def test_public_key_from_bytes():
     assert isinstance(key.params, Ed25519PublicKeyParams)
     assert key.params == ED25519_TEST_PUBLIC
     assert key.footer == {}
-    assert key.bytes == public_key_bytes
+    assert key.clear['bytes'] == public_key_bytes
 
 
 def test_public_key_from_bytes_remainder():
@@ -256,8 +256,10 @@ def test_public_key_from_bytes_remainder():
     assert isinstance(key.params, Ed25519PublicKeyParams)
     assert key.params == ED25519_TEST_PUBLIC
     assert key.footer == {}
-    assert key.bytes == public_key_bytes
-    assert key.remainder == remainder
+    assert key.clear == {
+        'bytes': public_key_bytes,
+        'remainder': remainder
+    }
 
 
 PUBLIC_KEY_TEST = PublicKey(
@@ -275,10 +277,14 @@ def test_public_key_from_string():
         public_key_b64 + ' ' + \
         comment
     public_key = PublicKey.from_string(public_key_string)
-    assert public_key == PUBLIC_KEY_TEST
-    assert public_key.clear['key_type'] == \
-        PUBLIC_KEY_TEST.header['key_type']
-    assert public_key.clear['comment'] == comment
+    assert public_key.__dict__ == {
+        **PUBLIC_KEY_TEST.__dict__,
+        'clear': {
+            'key_type': PUBLIC_KEY_TEST.header['key_type'],
+            'comment': comment,
+            'bytes': public_key_bytes
+        }
+    }
 
 
 def test_public_key_from_string_inconsistent_key_type():
@@ -293,9 +299,14 @@ def test_public_key_from_string_inconsistent_key_type():
         match='Inconsistency between clear and encoded key types'
     ):
         public_key = PublicKey.from_string(public_key_string)
-    assert public_key == PUBLIC_KEY_TEST
-    assert public_key.clear['key_type'] == 'ssh-rsa'
-    assert public_key.clear['comment'] == comment
+    assert public_key.__dict__ == {
+        **PUBLIC_KEY_TEST.__dict__,
+        'clear': {
+            'key_type': 'ssh-rsa',
+            'comment': comment,
+            'bytes': public_key_bytes
+        }
+    }
 
 
 def test_public_key_from_string_not_a_key():
