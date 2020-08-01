@@ -33,7 +33,7 @@ class PublicKey():
     def create_key_params(key_type, key_params_dict):
         return create_public_key_params(key_type)(key_params_dict)
 
-    def __init__(self, header, params, footer):
+    def __init__(self, header, params, footer, clear={}):
         self.header = header
         PascalStyleByteStream.check_dict_matches_format_instructions_dict(
             self.header,
@@ -49,8 +49,10 @@ class PublicKey():
             self.footer_format_instructions_dict()
         )
 
+        self.clear = clear
+
     @classmethod
-    def from_byte_stream(cls, byte_stream):
+    def from_byte_stream(cls, byte_stream, clear={}):
         header = byte_stream.read_from_format_instructions_dict(
             cls.header_format_instructions_dict()
         )
@@ -64,13 +66,13 @@ class PublicKey():
             cls.footer_format_instructions_dict()
         )
 
-        return cls(header, params, footer)
+        return cls(header, params, footer, clear)
 
     @classmethod
-    def from_bytes(cls, byte_string):
+    def from_bytes(cls, byte_string, clear={}):
         byte_stream = PascalStyleByteStream(byte_string)
 
-        key = cls.from_byte_stream(byte_stream)
+        key = cls.from_byte_stream(byte_stream, clear)
 
         key.bytes = byte_string
 
@@ -85,9 +87,13 @@ class PublicKey():
     def from_string(cls, string):
         key_type_clear, key_b64, comment_clear = string.split(' ', maxsplit=2)
         key_bytes = base64.b64decode(key_b64)
-        public_key = cls.from_bytes(key_bytes)
-        public_key.key_type_clear = key_type_clear
-        public_key.comment_clear = comment_clear
+        public_key = cls.from_bytes(
+            key_bytes,
+            {
+                'key_type': key_type_clear,
+                'comment': comment_clear
+            }
+        )
         if public_key.header['key_type'] != key_type_clear:
             warnings.warn(
                 f'Inconsistency between clear and encoded key types'
@@ -127,8 +133,8 @@ class PublicKey():
 
         if use_footer_comment and 'comment' in self.footer:
             text += ' ' + self.footer['comment']
-        if use_clear_comment and hasattr(self, 'comment_clear'):
-            text += ' ' + self.comment_clear
+        if use_clear_comment and 'comment' in self.clear:
+            text += ' ' + self.clear['comment']
 
         text += '\n'
         return text
@@ -138,7 +144,8 @@ class PublicKey():
             type(self) is type(other) and
             self.header == other.header and
             self.params == other.params and
-            self.footer == other.footer
+            self.footer == other.footer and
+            self.clear == other.clear
         )
 
 

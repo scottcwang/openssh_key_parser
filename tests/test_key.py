@@ -276,9 +276,9 @@ def test_public_key_from_string():
         comment
     public_key = PublicKey.from_string(public_key_string)
     assert public_key == PUBLIC_KEY_TEST
-    assert public_key.key_type_clear == \
+    assert public_key.clear['key_type'] == \
         PUBLIC_KEY_TEST.header['key_type']
-    assert public_key.comment_clear == comment
+    assert public_key.clear['comment'] == comment
 
 
 def test_public_key_from_string_inconsistent_key_type():
@@ -294,8 +294,8 @@ def test_public_key_from_string_inconsistent_key_type():
     ):
         public_key = PublicKey.from_string(public_key_string)
     assert public_key == PUBLIC_KEY_TEST
-    assert public_key.key_type_clear == 'ssh-rsa'
-    assert public_key.comment_clear == comment
+    assert public_key.clear['key_type'] == 'ssh-rsa'
+    assert public_key.clear['comment'] == comment
 
 
 def test_public_key_from_string_not_a_key():
