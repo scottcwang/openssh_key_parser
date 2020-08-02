@@ -4,7 +4,10 @@ import pytest
 import bcrypt
 
 from openssh_key.kdf import create_kdf, NoneKDF, BcryptKDF
-from openssh_key.pascal_style_byte_stream import PascalStyleFormatInstruction
+from openssh_key.pascal_style_byte_stream import (
+    PascalStyleFormatInstruction,
+    PascalStyleByteStream
+)
 
 
 def test_factory_none():
@@ -19,11 +22,53 @@ def test_none_options_format_instructions_dict():
     assert NoneKDF.options_format_instructions_dict() == {}
 
 
+def test_none_generate_options():
+    assert NoneKDF.generate_options() == {}
+
+
 def test_bcrypt_options_format_instructions_dict():
     assert BcryptKDF.options_format_instructions_dict() == {
         'salt': PascalStyleFormatInstruction.BYTES,
         'rounds': '>I'
     }
+
+
+def test_bcrypt_generate_options():
+    options = BcryptKDF.generate_options()
+    with pytest.warns(None) as warnings:
+        PascalStyleByteStream.check_dict_matches_format_instructions_dict(
+            options,
+            BcryptKDF.options_format_instructions_dict()
+        )
+    assert not warnings
+    assert len(options['salt']) == BcryptKDF.SALT_LENGTH
+    assert options['rounds'] == BcryptKDF.ROUNDS
+
+
+def test_bcrypt_generate_options_salt_length():
+    salt_length = 32
+    options = BcryptKDF.generate_options(salt_length=salt_length)
+    with pytest.warns(None) as warnings:
+        PascalStyleByteStream.check_dict_matches_format_instructions_dict(
+            options,
+            BcryptKDF.options_format_instructions_dict()
+        )
+    assert not warnings
+    assert len(options['salt']) == salt_length
+    assert options['rounds'] == BcryptKDF.ROUNDS
+
+
+def test_bcrypt_generate_options_rounds():
+    rounds = 32
+    options = BcryptKDF.generate_options(rounds=rounds)
+    with pytest.warns(None) as warnings:
+        PascalStyleByteStream.check_dict_matches_format_instructions_dict(
+            options,
+            BcryptKDF.options_format_instructions_dict()
+        )
+    assert not warnings
+    assert len(options['salt']) == BcryptKDF.SALT_LENGTH
+    assert options['rounds'] == rounds
 
 
 def test_none():

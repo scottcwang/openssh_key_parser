@@ -1,5 +1,6 @@
 import warnings
 import abc
+import secrets
 
 import bcrypt
 
@@ -17,6 +18,11 @@ class KDF(abc.ABC):
     def options_format_instructions_dict():
         return {}
 
+    @classmethod
+    @abc.abstractmethod
+    def generate_options(cls, **kwargs):
+        return {}
+
 
 class NoneKDF(KDF):
     @staticmethod
@@ -30,10 +36,16 @@ class NoneKDF(KDF):
     def options_format_instructions_dict():
         return {}
 
+    @classmethod
+    def generate_options(cls, **kwargs):
+        return {}
+
 
 class BcryptKDF(KDF):
     KEY_LENGTH = 32
     IV_LENGTH = 16
+    SALT_LENGTH = 16
+    ROUNDS = 16
 
     @staticmethod
     def derive_key(options, passphrase):
@@ -56,6 +68,17 @@ class BcryptKDF(KDF):
         return {
             'salt': PascalStyleFormatInstruction.BYTES,
             'rounds': '>I'
+        }
+
+    @classmethod
+    def generate_options(cls, salt_length=None, rounds=None, **kwargs):
+        if salt_length is None:
+            salt_length = cls.SALT_LENGTH
+        if rounds is None:
+            rounds = cls.ROUNDS
+        return {
+            'salt': secrets.token_bytes(salt_length),
+            'rounds': rounds
         }
 
 
