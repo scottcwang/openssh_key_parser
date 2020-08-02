@@ -341,6 +341,12 @@ def test_rsa_private_convert_cryptography_public():
     )
 
 
+def test_rsa_public_convert_not_implemented():
+    rsa_private = RSAPrivateKeyParams.generate_private_params()
+    with pytest.raises(NotImplementedError):
+        assert rsa_private.convert_to(type)
+
+
 def test_factory_ed25519_public():
     assert isinstance(
         create_public_key_params('ssh-ed25519'),
@@ -541,6 +547,12 @@ def test_ed25519_private_convert_cryptography_public():
     ) == ed25519_private['public']
 
 
+def test_ed25519_public_convert_not_implemented():
+    ed25519_private = Ed25519PrivateKeyParams.generate_private_params()
+    with pytest.raises(NotImplementedError):
+        assert ed25519_private.convert_to(type)
+
+
 def test_str():
     public_bytes = secrets.token_bytes(Ed25519PublicKeyParams.KEY_SIZE)
     ed25519_private_dict = {
@@ -551,3 +563,9 @@ def test_str():
     }
     ed25519_private = Ed25519PrivateKeyParams(ed25519_private_dict)
     assert str(ed25519_private) == str(ed25519_private_dict)
+
+
+def test_convert_to_not_class():
+    rsa_private = RSAPrivateKeyParams.generate_private_params()
+    with pytest.raises(ValueError):
+        assert rsa_private.convert_to('not class')
