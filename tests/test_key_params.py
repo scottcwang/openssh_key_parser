@@ -322,12 +322,9 @@ def test_ed25519_private_format_instructions_dict():
     }
 
 
-ED25519_KEY_SIZE = 32
-
-
 def test_ed25519_public_check_params_are_valid():
     ed25519_public = Ed25519PublicKeyParams({
-        'public': secrets.token_bytes(ED25519_KEY_SIZE)
+        'public': secrets.token_bytes(Ed25519PublicKeyParams.KEY_SIZE)
     })
     with pytest.warns(None) as warnings:
         ed25519_public.check_params_are_valid()
@@ -336,7 +333,7 @@ def test_ed25519_public_check_params_are_valid():
 
 def test_ed25519_public_check_extra_params_are_valid():
     ed25519_public = Ed25519PublicKeyParams({
-        'public': secrets.token_bytes(ED25519_KEY_SIZE),
+        'public': secrets.token_bytes(Ed25519PublicKeyParams.KEY_SIZE),
         'random': b'\x02'
     })
     with pytest.warns(None) as warnings:
@@ -363,23 +360,23 @@ def test_ed25519_public_bad_type_params_are_not_valid():
 
 
 def test_ed25519_private_check_params_are_valid():
-    public_bytes = secrets.token_bytes(ED25519_KEY_SIZE)
+    public_bytes = secrets.token_bytes(Ed25519PublicKeyParams.KEY_SIZE)
     with pytest.warns(None) as warnings:
         Ed25519PrivateKeyParams({
             'public': public_bytes,
             'private_public': secrets.token_bytes(
-                ED25519_KEY_SIZE) + public_bytes
+                Ed25519PublicKeyParams.KEY_SIZE) + public_bytes
         })
     assert not warnings
 
 
 def test_ed25519_private_check_extra_params_are_valid():
-    public_bytes = secrets.token_bytes(ED25519_KEY_SIZE)
+    public_bytes = secrets.token_bytes(Ed25519PublicKeyParams.KEY_SIZE)
     with pytest.warns(None) as warnings:
         Ed25519PrivateKeyParams({
             'public': public_bytes,
             'private_public': secrets.token_bytes(
-                ED25519_KEY_SIZE) + public_bytes,
+                Ed25519PublicKeyParams.KEY_SIZE) + public_bytes,
             'random': b'\x03'
         })
     assert not warnings
@@ -389,7 +386,7 @@ def test_ed25519_private_missing_params_are_not_valid():
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         ed25519_private = Ed25519PrivateKeyParams({
-            'public': secrets.token_bytes(ED25519_KEY_SIZE)
+            'public': secrets.token_bytes(Ed25519PublicKeyParams.KEY_SIZE)
         })
     with pytest.warns(UserWarning, match='private_public missing'):
         ed25519_private.check_params_are_valid()
@@ -399,7 +396,7 @@ def test_ed25519_private_bad_type_params_are_not_valid():
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         ed25519_private = Ed25519PrivateKeyParams({
-            'public': secrets.token_bytes(ED25519_KEY_SIZE),
+            'public': secrets.token_bytes(Ed25519PublicKeyParams.KEY_SIZE),
             'private_public': 'bad'
         })
     with pytest.warns(
@@ -411,7 +408,7 @@ def test_ed25519_private_bad_type_params_are_not_valid():
 
 def test_ed25519_public():
     ed25519_public_dict = {
-        'public': secrets.token_bytes(ED25519_KEY_SIZE)
+        'public': secrets.token_bytes(Ed25519PublicKeyParams.KEY_SIZE)
     }
     ed25519_public = Ed25519PublicKeyParams(ed25519_public_dict)
     assert ed25519_public.params == ed25519_public_dict
@@ -423,10 +420,12 @@ def test_ed25519_public_missing_params():
 
 
 def test_ed25519_private():
-    public_bytes = secrets.token_bytes(ED25519_KEY_SIZE)
+    public_bytes = secrets.token_bytes(Ed25519PublicKeyParams.KEY_SIZE)
     ed25519_private_dict = {
         'public': public_bytes,
-        'private_public': secrets.token_bytes(ED25519_KEY_SIZE) + public_bytes
+        'private_public': secrets.token_bytes(
+            Ed25519PublicKeyParams.KEY_SIZE
+        ) + public_bytes
     }
     ed25519_private = Ed25519PrivateKeyParams(ed25519_private_dict)
     assert ed25519_private.params == ed25519_private_dict
@@ -435,7 +434,7 @@ def test_ed25519_private():
 def test_ed25519_private_missing_params():
     with pytest.warns(UserWarning, match='private_public missing'):
         Ed25519PrivateKeyParams({
-            'public': secrets.token_bytes(ED25519_KEY_SIZE)
+            'public': secrets.token_bytes(Ed25519PublicKeyParams.KEY_SIZE)
         })
 
 
@@ -445,16 +444,18 @@ def test_ed25519_private_bad_type_params():
         match='private_public should be of class bytes'
     ):
         Ed25519PrivateKeyParams({
-            'public': secrets.token_bytes(ED25519_KEY_SIZE),
+            'public': secrets.token_bytes(Ed25519PublicKeyParams.KEY_SIZE),
             'private_public': 'bad'
         })
 
 
 def test_str():
-    public_bytes = secrets.token_bytes(ED25519_KEY_SIZE)
+    public_bytes = secrets.token_bytes(Ed25519PublicKeyParams.KEY_SIZE)
     ed25519_private_dict = {
         'public': public_bytes,
-        'private_public': secrets.token_bytes(ED25519_KEY_SIZE) + public_bytes
+        'private_public': secrets.token_bytes(
+            Ed25519PublicKeyParams.KEY_SIZE
+        ) + public_bytes
     }
     ed25519_private = Ed25519PrivateKeyParams(ed25519_private_dict)
     assert str(ed25519_private) == str(ed25519_private_dict)
