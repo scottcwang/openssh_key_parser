@@ -3,7 +3,11 @@ import abc
 import warnings
 
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import (
+    rsa,
+    ed25519
+)
 
 from openssh_key.pascal_style_byte_stream import (
     PascalStyleByteStream,
@@ -143,7 +147,24 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
 
     @classmethod
     def generate_private_params(cls, **kwargs):
-        raise NotImplementedError()
+        private_key = ed25519.Ed25519PrivateKey.generate()
+
+        private_bytes = private_key.private_bytes(
+            encoding=serialization.Encoding.Raw,
+            format=serialization.PrivateFormat.Raw,
+            encryption_algorithm=serialization.NoEncryption()
+        )
+
+        public_key = private_key.public_key()
+        public_bytes = public_key.public_bytes(
+            encoding=serialization.Encoding.Raw,
+            format=serialization.PublicFormat.Raw
+        )
+
+        return cls({
+            'public': public_bytes,
+            'private_public': private_bytes + public_bytes
+        })
 
 
 PublicPrivateKeyParamsClasses = collections.namedtuple(

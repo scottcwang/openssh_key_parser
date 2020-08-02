@@ -3,7 +3,10 @@ import secrets
 
 import pytest
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives.asymmetric import (
+    rsa,
+    ed25519
+)
 
 from openssh_key.key_params import (
     create_public_key_params,
@@ -447,6 +450,18 @@ def test_ed25519_private_bad_type_params():
             'public': secrets.token_bytes(Ed25519PublicKeyParams.KEY_SIZE),
             'private_public': 'bad'
         })
+
+
+def test_ed25519_private_generate_private_params():
+    with pytest.warns(None) as warnings:
+        ed25519_private_params = \
+            Ed25519PrivateKeyParams.generate_private_params()
+    assert not warnings
+    assert isinstance(ed25519_private_params, Ed25519PrivateKeyParams)
+
+    with pytest.warns(None) as warnings:
+        ed25519_private_params.check_params_are_valid()
+    assert not warnings
 
 
 def test_str():
