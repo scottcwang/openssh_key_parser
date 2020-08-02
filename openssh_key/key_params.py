@@ -153,6 +153,11 @@ class Ed25519PublicKeyParams(PublicKeyParams):
                 and len(self.data['public']) != self.KEY_SIZE:
             warnings.warn('Public key not of length ' + str(self.KEY_SIZE))
 
+    def convert_to(self, destination_class):
+        if destination_class == ed25519.Ed25519PublicKey:
+            return ed25519.Ed25519PublicKey.from_public_bytes(self['public'])
+        return super().convert_to(destination_class)
+
 
 class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
     @staticmethod
@@ -195,6 +200,13 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
             'public': public_bytes,
             'private_public': private_bytes + public_bytes
         })
+
+    def convert_to(self, destination_class):
+        if destination_class == ed25519.Ed25519PrivateKey:
+            return ed25519.Ed25519PrivateKey.from_private_bytes(
+                self['private_public'][:self.KEY_SIZE]
+            )
+        return super().convert_to(destination_class)
 
 
 PublicPrivateKeyParamsClasses = collections.namedtuple(

@@ -3,6 +3,7 @@ import secrets
 
 import pytest
 from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import (
     rsa,
     ed25519
@@ -464,6 +465,19 @@ def test_ed25519_public_missing_params():
         Ed25519PublicKeyParams({})
 
 
+def test_ed25519_public_convert_cryptography_public():
+    ed25519_private = Ed25519PrivateKeyParams.generate_private_params()
+    ed25519_public = Ed25519PrivateKeyParams({
+        'public': ed25519_private['public']
+    })
+    assert ed25519_public.convert_to(
+        ed25519.Ed25519PublicKey
+    ).public_bytes(
+        encoding=serialization.Encoding.Raw,
+        format=serialization.PublicFormat.Raw
+    ) == ed25519_public['public']
+
+
 def test_ed25519_private():
     public_bytes = secrets.token_bytes(Ed25519PublicKeyParams.KEY_SIZE)
     ed25519_private_dict = {
@@ -504,6 +518,27 @@ def test_ed25519_private_generate_private_params():
     with pytest.warns(None) as warnings:
         ed25519_private_params.check_params_are_valid()
     assert not warnings
+
+
+def test_ed25519_private_convert_cryptography_private():
+    ed25519_private = Ed25519PrivateKeyParams.generate_private_params()
+    assert ed25519_private.convert_to(
+        ed25519.Ed25519PrivateKey
+    ).private_bytes(
+        encoding=serialization.Encoding.Raw,
+        format=serialization.PrivateFormat.Raw,
+        encryption_algorithm=serialization.NoEncryption()
+    ) == ed25519_private['private_public'][:Ed25519PublicKeyParams.KEY_SIZE]
+
+
+def test_ed25519_private_convert_cryptography_public():
+    ed25519_private = Ed25519PrivateKeyParams.generate_private_params()
+    assert ed25519_private.convert_to(
+        ed25519.Ed25519PublicKey
+    ).public_bytes(
+        encoding=serialization.Encoding.Raw,
+        format=serialization.PublicFormat.Raw
+    ) == ed25519_private['public']
 
 
 def test_str():
