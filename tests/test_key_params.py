@@ -177,9 +177,9 @@ def test_rsa_public_convert_cryptography_public():
         'e': rsa_private['e'],
         'n': rsa_private['n']
     })
-    assert rsa_public.convert_to(
-        rsa.RSAPublicKey
-    ).public_numbers() == rsa.RSAPublicNumbers(
+    converted = rsa_public.convert_to(rsa.RSAPublicKey)
+    assert isinstance(converted, rsa.RSAPublicKey)
+    assert converted.public_numbers() == rsa.RSAPublicNumbers(
         rsa_public['e'],
         rsa_public['n']
     )
@@ -315,9 +315,9 @@ def test_rsa_private_generate_private_params_invalid_key_size():
 
 def test_rsa_private_convert_cryptography_private():
     rsa_private = RSAPrivateKeyParams.generate_private_params()
-    assert rsa_private.convert_to(
-        rsa.RSAPrivateKey
-    ).private_numbers() == rsa.RSAPrivateNumbers(
+    converted = rsa_private.convert_to(rsa.RSAPrivateKey)
+    assert isinstance(converted, rsa.RSAPrivateKey)
+    assert converted.private_numbers() == rsa.RSAPrivateNumbers(
         rsa_private['p'],
         rsa_private['q'],
         rsa_private['d'],
@@ -333,9 +333,9 @@ def test_rsa_private_convert_cryptography_private():
 
 def test_rsa_private_convert_cryptography_public():
     rsa_private = RSAPrivateKeyParams.generate_private_params()
-    assert rsa_private.convert_to(
-        rsa.RSAPublicKey
-    ).public_numbers() == rsa.RSAPublicNumbers(
+    converted = rsa_private.convert_to(rsa.RSAPublicKey)
+    assert isinstance(converted, rsa.RSAPublicKey)
+    assert converted.public_numbers() == rsa.RSAPublicNumbers(
         rsa_private['e'],
         rsa_private['n']
     )
@@ -476,9 +476,9 @@ def test_ed25519_public_convert_cryptography_public():
     ed25519_public = Ed25519PrivateKeyParams({
         'public': ed25519_private['public']
     })
-    assert ed25519_public.convert_to(
-        ed25519.Ed25519PublicKey
-    ).public_bytes(
+    converted = ed25519_public.convert_to(ed25519.Ed25519PublicKey)
+    assert isinstance(converted, ed25519.Ed25519PublicKey)
+    assert converted.public_bytes(
         encoding=serialization.Encoding.Raw,
         format=serialization.PublicFormat.Raw
     ) == ed25519_public['public']
@@ -528,9 +528,9 @@ def test_ed25519_private_generate_private_params():
 
 def test_ed25519_private_convert_cryptography_private():
     ed25519_private = Ed25519PrivateKeyParams.generate_private_params()
-    assert ed25519_private.convert_to(
-        ed25519.Ed25519PrivateKey
-    ).private_bytes(
+    converted = ed25519_private.convert_to(ed25519.Ed25519PrivateKey)
+    assert isinstance(converted, ed25519.Ed25519PrivateKey)
+    assert converted.private_bytes(
         encoding=serialization.Encoding.Raw,
         format=serialization.PrivateFormat.Raw,
         encryption_algorithm=serialization.NoEncryption()
@@ -539,9 +539,9 @@ def test_ed25519_private_convert_cryptography_private():
 
 def test_ed25519_private_convert_cryptography_public():
     ed25519_private = Ed25519PrivateKeyParams.generate_private_params()
-    assert ed25519_private.convert_to(
-        ed25519.Ed25519PublicKey
-    ).public_bytes(
+    converted = ed25519_private.convert_to(ed25519.Ed25519PublicKey)
+    assert isinstance(converted, ed25519.Ed25519PublicKey)
+    assert converted.public_bytes(
         encoding=serialization.Encoding.Raw,
         format=serialization.PublicFormat.Raw
     ) == ed25519_private['public']
