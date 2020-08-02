@@ -2,6 +2,8 @@ import warnings
 import secrets
 
 import pytest
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.asymmetric import rsa
 
 from openssh_key.key_params import (
     create_public_key_params,
@@ -199,6 +201,98 @@ def test_rsa_private_bad_type_params():
             'p': 5,
             'q': b'bad'
         })
+
+
+def test_rsa_private_generate_private_params():
+    with pytest.warns(None) as warnings:
+        rsa_private_params = RSAPrivateKeyParams.generate_private_params()
+    assert not warnings
+    assert isinstance(rsa_private_params, RSAPrivateKeyParams)
+
+    private_numbers = rsa.RSAPrivateNumbers(
+        rsa_private_params['p'],
+        rsa_private_params['q'],
+        rsa_private_params['d'],
+        rsa.rsa_crt_dmp1(rsa_private_params['d'], rsa_private_params['p']),
+        rsa.rsa_crt_dmp1(rsa_private_params['d'], rsa_private_params['q']),
+        rsa_private_params['iqmp'],
+        rsa.RSAPublicNumbers(
+            RSAPrivateKeyParams.PUBLIC_EXPONENT,
+            rsa_private_params['n']
+        )
+    )
+    try:
+        private_key = private_numbers.private_key(backend=default_backend())
+    except Exception as e:
+        pytest.fail(e)
+
+    assert private_key.key_size == RSAPrivateKeyParams.KEY_SIZE
+
+
+def test_rsa_private_generate_private_params_valid_public_exponent():
+    e = 3
+    with pytest.warns(None) as warnings:
+        rsa_private_params = RSAPrivateKeyParams.generate_private_params(e=e)
+    assert not warnings
+    assert isinstance(rsa_private_params, RSAPrivateKeyParams)
+
+    private_numbers = rsa.RSAPrivateNumbers(
+        rsa_private_params['p'],
+        rsa_private_params['q'],
+        rsa_private_params['d'],
+        rsa.rsa_crt_dmp1(rsa_private_params['d'], rsa_private_params['p']),
+        rsa.rsa_crt_dmp1(rsa_private_params['d'], rsa_private_params['q']),
+        rsa_private_params['iqmp'],
+        rsa.RSAPublicNumbers(
+            e,
+            rsa_private_params['n']
+        )
+    )
+    try:
+        private_key = private_numbers.private_key(backend=default_backend())
+    except Exception as e:
+        pytest.fail(e)
+    assert private_key.key_size == RSAPrivateKeyParams.KEY_SIZE
+
+
+def test_rsa_private_generate_private_params_invalid_public_exponent():
+    e = 1
+    with pytest.raises(ValueError):
+        RSAPrivateKeyParams.generate_private_params(e=e)
+
+
+def test_rsa_private_generate_private_params_valid_key_size():
+    key_size = 1024
+    with pytest.warns(None) as warnings:
+        rsa_private_params = RSAPrivateKeyParams.generate_private_params(
+            key_size=key_size
+        )
+    assert not warnings
+    assert isinstance(rsa_private_params, RSAPrivateKeyParams)
+
+    private_numbers = rsa.RSAPrivateNumbers(
+        rsa_private_params['p'],
+        rsa_private_params['q'],
+        rsa_private_params['d'],
+        rsa.rsa_crt_dmp1(rsa_private_params['d'], rsa_private_params['p']),
+        rsa.rsa_crt_dmp1(rsa_private_params['d'], rsa_private_params['q']),
+        rsa_private_params['iqmp'],
+        rsa.RSAPublicNumbers(
+            RSAPrivateKeyParams.PUBLIC_EXPONENT,
+            rsa_private_params['n']
+        )
+    )
+    try:
+        private_key = private_numbers.private_key(backend=default_backend())
+    except Exception as e:
+        pytest.fail(e)
+    assert private_key.key_size == key_size
+
+
+def test_rsa_private_generate_private_params_invalid_key_size():
+    key_size = 1
+    with pytest.raises(ValueError):
+        RSAPrivateKeyParams.generate_private_params(key_size=key_size)
 
 
 def test_factory_ed25519_public():

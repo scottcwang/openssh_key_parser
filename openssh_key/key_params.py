@@ -2,6 +2,9 @@ import collections
 import abc
 import warnings
 
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.asymmetric import rsa
+
 from openssh_key.pascal_style_byte_stream import (
     PascalStyleByteStream,
     PascalStyleFormatInstruction
@@ -41,6 +44,11 @@ class PrivateKeyParams(PublicKeyParams):
             self.private_format_instructions_dict()
         )
 
+    @classmethod
+    @abc.abstractmethod
+    def generate_private_params(cls, **kwargs):
+        return {}
+
 
 class RSAPublicKeyParams(PublicKeyParams):
     @staticmethod
@@ -62,6 +70,38 @@ class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
             'p': PascalStyleFormatInstruction.MPINT,
             'q': PascalStyleFormatInstruction.MPINT
         }
+
+    PUBLIC_EXPONENT = 65537
+    KEY_SIZE = 4096
+
+    @classmethod
+    def generate_private_params(
+        cls,
+        e=None,
+        key_size=None,
+        **kwargs
+    ):
+        if e is None:
+            e = cls.PUBLIC_EXPONENT
+        if key_size is None:
+            key_size = cls.KEY_SIZE
+
+        private_key = rsa.generate_private_key(
+            public_exponent=e,
+            key_size=key_size,
+            backend=default_backend()
+        )
+        private_key_numbers = private_key.private_numbers()
+        return cls(
+            {
+                'n': private_key_numbers.public_numbers.n,
+                'e': private_key_numbers.public_numbers.e,
+                'd': private_key_numbers.d,
+                'iqmp': private_key_numbers.iqmp,
+                'p': private_key_numbers.p,
+                'q': private_key_numbers.q
+            }
+        )
 
 
 ED25519_KEY_SIZE = 32
@@ -102,6 +142,10 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
             warnings.warn(
                 'Private key not of length ' + str(ED25519_KEY_SIZE)
             )
+
+    @classmethod
+    def generate_private_params(cls, **kwargs):
+        raise NotImplementedError()
 
 
 PublicPrivateKeyParamsClasses = collections.namedtuple(
