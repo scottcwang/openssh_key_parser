@@ -35,6 +35,11 @@ class PublicKeyParams(collections.UserDict, abc.ABC):
             self.public_format_instructions_dict()
         )
 
+    def convert_to(self, destination_class):
+        if not isinstance(destination_class, type):
+            raise ValueError('destination_class must be a class')
+        raise NotImplementedError()
+
 
 class PrivateKeyParams(PublicKeyParams):
     @staticmethod
@@ -61,6 +66,13 @@ class RSAPublicKeyParams(PublicKeyParams):
             'e': PascalStyleFormatInstruction.MPINT,
             'n': PascalStyleFormatInstruction.MPINT,
         }
+
+    def convert_to(self, destination_class):
+        if destination_class == rsa.RSAPublicKey:
+            return rsa.RSAPublicNumbers(
+                self['e'], self['n']
+            ).public_key(default_backend())
+        return super().convert_to(destination_class)
 
 
 class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
@@ -106,6 +118,24 @@ class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
                 'q': private_key_numbers.q
             }
         )
+
+    def convert_to(self, destination_class):
+        if destination_class == rsa.RSAPrivateKey:
+            return rsa.RSAPrivateNumbers(
+                self['p'],
+                self['q'],
+                self['d'],
+                rsa.rsa_crt_dmp1(
+                    self['d'], self['p']),
+                rsa.rsa_crt_dmp1(
+                    self['d'], self['q']),
+                self['iqmp'],
+                rsa.RSAPublicNumbers(
+                    self['e'],
+                    self['n']
+                )
+            ).private_key(default_backend())
+        return super().convert_to(destination_class)
 
 
 class Ed25519PublicKeyParams(PublicKeyParams):

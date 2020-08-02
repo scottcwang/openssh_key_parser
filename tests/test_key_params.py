@@ -170,6 +170,20 @@ def test_rsa_public_missing_params():
         })
 
 
+def test_rsa_public_convert_cryptography_public():
+    rsa_private = RSAPrivateKeyParams.generate_private_params()
+    rsa_public = RSAPublicKeyParams({
+        'e': rsa_private['e'],
+        'n': rsa_private['n']
+    })
+    assert rsa_public.convert_to(
+        rsa.RSAPublicKey
+    ).public_numbers() == rsa.RSAPublicNumbers(
+        rsa_public['e'],
+        rsa_public['n']
+    )
+
+
 def test_rsa_private():
     rsa_private_dict = {
         'n': 1,
@@ -296,6 +310,34 @@ def test_rsa_private_generate_private_params_invalid_key_size():
     key_size = 1
     with pytest.raises(ValueError):
         RSAPrivateKeyParams.generate_private_params(key_size=key_size)
+
+
+def test_rsa_private_convert_cryptography_private():
+    rsa_private = RSAPrivateKeyParams.generate_private_params()
+    assert rsa_private.convert_to(
+        rsa.RSAPrivateKey
+    ).private_numbers() == rsa.RSAPrivateNumbers(
+        rsa_private['p'],
+        rsa_private['q'],
+        rsa_private['d'],
+        rsa.rsa_crt_dmp1(rsa_private['d'], rsa_private['p']),
+        rsa.rsa_crt_dmp1(rsa_private['d'], rsa_private['q']),
+        rsa_private['iqmp'],
+        rsa.RSAPublicNumbers(
+            rsa_private['e'],
+            rsa_private['n']
+        )
+    )
+
+
+def test_rsa_private_convert_cryptography_public():
+    rsa_private = RSAPrivateKeyParams.generate_private_params()
+    assert rsa_private.convert_to(
+        rsa.RSAPublicKey
+    ).public_numbers() == rsa.RSAPublicNumbers(
+        rsa_private['e'],
+        rsa_private['n']
+    )
 
 
 def test_factory_ed25519_public():
