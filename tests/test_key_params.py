@@ -8,6 +8,7 @@ from cryptography.hazmat.primitives.asymmetric import (
     rsa,
     ed25519
 )
+import nacl.public
 
 from openssh_key.key_params import (
     create_public_key_params,
@@ -473,7 +474,7 @@ def test_ed25519_public_missing_params():
 
 def test_ed25519_public_convert_cryptography_public():
     ed25519_private = Ed25519PrivateKeyParams.generate_private_params()
-    ed25519_public = Ed25519PrivateKeyParams({
+    ed25519_public = Ed25519PublicKeyParams({
         'public': ed25519_private['public']
     })
     converted = ed25519_public.convert_to(ed25519.Ed25519PublicKey)
@@ -482,6 +483,16 @@ def test_ed25519_public_convert_cryptography_public():
         encoding=serialization.Encoding.Raw,
         format=serialization.PublicFormat.Raw
     ) == ed25519_public['public']
+
+
+def test_ed25519_public_convert_pynacl_public():
+    ed25519_private = Ed25519PrivateKeyParams.generate_private_params()
+    ed25519_public = Ed25519PublicKeyParams({
+        'public': ed25519_private['public']
+    })
+    converted = ed25519_public.convert_to(nacl.public.PublicKey)
+    assert isinstance(converted, nacl.public.PublicKey)
+    assert bytes(converted) == ed25519_public['public']
 
 
 def test_ed25519_private():
@@ -545,6 +556,21 @@ def test_ed25519_private_convert_cryptography_public():
         encoding=serialization.Encoding.Raw,
         format=serialization.PublicFormat.Raw
     ) == ed25519_private['public']
+
+
+def test_ed25519_private_convert_pynacl_private():
+    ed25519_private = Ed25519PrivateKeyParams.generate_private_params()
+    converted = ed25519_private.convert_to(nacl.public.PrivateKey)
+    assert isinstance(converted, nacl.public.PrivateKey)
+    assert bytes(converted) == \
+        ed25519_private['private_public'][:Ed25519PublicKeyParams.KEY_SIZE]
+
+
+def test_ed25519_private_convert_pynacl_public():
+    ed25519_private = Ed25519PrivateKeyParams.generate_private_params()
+    converted = ed25519_private.convert_to(nacl.public.PublicKey)
+    assert isinstance(converted, nacl.public.PublicKey)
+    assert bytes(converted) == ed25519_private['public']
 
 
 def test_ed25519_public_convert_not_implemented():
