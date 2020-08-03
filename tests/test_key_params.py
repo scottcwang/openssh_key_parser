@@ -485,6 +485,16 @@ def test_ed25519_public_convert_cryptography_public():
     ) == ed25519_public['public']
 
 
+def test_ed25519_public_convert_bytes_public():
+    ed25519_private = Ed25519PrivateKeyParams.generate_private_params()
+    ed25519_public = Ed25519PublicKeyParams({
+        'public': ed25519_private['public']
+    })
+    converted = ed25519_public.convert_to(bytes)
+    assert isinstance(converted, bytes)
+    assert converted == ed25519_public['public']
+
+
 def test_ed25519_public_convert_pynacl_public():
     ed25519_private = Ed25519PrivateKeyParams.generate_private_params()
     ed25519_public = Ed25519PublicKeyParams({
@@ -556,6 +566,14 @@ def test_ed25519_private_convert_cryptography_public():
         encoding=serialization.Encoding.Raw,
         format=serialization.PublicFormat.Raw
     ) == ed25519_private['public']
+
+
+def test_ed25519_private_convert_bytes_private():
+    ed25519_private = Ed25519PrivateKeyParams.generate_private_params()
+    converted = ed25519_private.convert_to(bytes)
+    assert isinstance(converted, bytes)
+    assert converted == \
+        ed25519_private['private_public'][:Ed25519PublicKeyParams.KEY_SIZE]
 
 
 def test_ed25519_private_convert_pynacl_private():

@@ -156,6 +156,8 @@ class Ed25519PublicKeyParams(PublicKeyParams):
     def convert_to(self, destination_class):
         if destination_class == ed25519.Ed25519PublicKey:
             return ed25519.Ed25519PublicKey.from_public_bytes(self['public'])
+        if destination_class == bytes:
+            return self['public']
         try:
             import nacl
             if destination_class == nacl.public.PublicKey:
@@ -212,6 +214,8 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
             return ed25519.Ed25519PrivateKey.from_private_bytes(
                 self['private_public'][:self.KEY_SIZE]
             )
+        if destination_class == bytes:
+            return self['private_public'][:self.KEY_SIZE]
         try:
             import nacl
             if destination_class == nacl.public.PrivateKey:
