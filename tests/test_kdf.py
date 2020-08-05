@@ -95,7 +95,7 @@ def test_bcrypt_calls_lib(mocker):
 
 
 def test_bcrypt_returns_key_iv(mocker):
-    def mock_bcrypt_kdf(password, salt, desired_key_bytes, rounds):
+    def mock_bcrypt_kdf(**_):
         return b'\x00' * BcryptKDF.KEY_LENGTH + b'\x01' * BcryptKDF.IV_LENGTH
     mocker.patch('bcrypt.kdf', mock_bcrypt_kdf)
 
