@@ -200,7 +200,7 @@ class PrivateKeyList(collections.UserList):
         key_pair_list,
         cipher='none',
         kdf='none',
-        kdf_options={}
+        kdf_options=None
     ):
         header = {
             'cipher': cipher,
@@ -214,6 +214,9 @@ class PrivateKeyList(collections.UserList):
                     or not isinstance(key_pair.private, PrivateKey):
                 raise ValueError('Not a key pair')
             initlist.append(key_pair)
+
+        if kdf_options is None:
+            kdf_options = {}
 
         return cls(
             initlist,
