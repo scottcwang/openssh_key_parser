@@ -323,7 +323,7 @@ def test_write_from_format_instructions_dict_missing_key():
 
 
 def test_check_dict_str():
-    with pytest.warns(None) as warnings:
+    with pytest.warns(None) as warnings_list:
         PascalStyleByteStream.check_dict_matches_format_instructions_dict(
             {
                 'a': 'string'
@@ -332,11 +332,11 @@ def test_check_dict_str():
                 'a': PascalStyleFormatInstruction.STRING
             }
         )
-    assert not warnings
+    assert not warnings_list
 
 
 def test_check_dict_bytes():
-    with pytest.warns(None) as warnings:
+    with pytest.warns(None) as warnings_list:
         PascalStyleByteStream.check_dict_matches_format_instructions_dict(
             {
                 'a': b'\x00'
@@ -345,11 +345,11 @@ def test_check_dict_bytes():
                 'a': PascalStyleFormatInstruction.BYTES
             }
         )
-    assert not warnings
+    assert not warnings_list
 
 
 def test_check_dict_mpint():
-    with pytest.warns(None) as warnings:
+    with pytest.warns(None) as warnings_list:
         PascalStyleByteStream.check_dict_matches_format_instructions_dict(
             {
                 'a': 1
@@ -358,7 +358,7 @@ def test_check_dict_mpint():
                 'a': PascalStyleFormatInstruction.MPINT
             }
         )
-    assert not warnings
+    assert not warnings_list
 
 
 def test_check_dict_incorrect_type():
@@ -374,7 +374,7 @@ def test_check_dict_incorrect_type():
 
 
 def test_check_dict_format_string():
-    with pytest.warns(None) as warnings:
+    with pytest.warns(None) as warnings_list:
         PascalStyleByteStream.check_dict_matches_format_instructions_dict(
             {
                 'a': 1
@@ -383,7 +383,7 @@ def test_check_dict_format_string():
                 'a': '>i'
             }
         )
-    assert not warnings
+    assert not warnings_list
 
 
 def test_check_dict_format_string_too_large():
@@ -399,7 +399,7 @@ def test_check_dict_format_string_too_large():
 
 
 def test_check_dict_two_attributes():
-    with pytest.warns(None) as warnings:
+    with pytest.warns(None) as warnings_list:
         PascalStyleByteStream.check_dict_matches_format_instructions_dict(
             {
                 'a': 1,
@@ -410,7 +410,7 @@ def test_check_dict_two_attributes():
                 'b': PascalStyleFormatInstruction.MPINT
             }
         )
-    assert not warnings
+    assert not warnings_list
 
 
 def test_check_dict_missing_attribute():
@@ -427,7 +427,7 @@ def test_check_dict_missing_attribute():
 
 
 def test_check_dict_extra_attribute():
-    with pytest.warns(None) as warnings:
+    with pytest.warns(None) as warnings_list:
         PascalStyleByteStream.check_dict_matches_format_instructions_dict(
             {
                 'a': 1,
@@ -439,4 +439,4 @@ def test_check_dict_extra_attribute():
                 'b': PascalStyleFormatInstruction.MPINT
             }
         )
-    assert not warnings
+    assert not warnings_list

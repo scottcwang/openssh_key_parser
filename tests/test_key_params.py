@@ -58,9 +58,9 @@ def test_rsa_public_check_params_are_valid():
         'e': 1,
         'n': 2
     })
-    with pytest.warns(None) as warnings:
+    with pytest.warns(None) as warnings_list:
         rsa_public.check_params_are_valid()
-    assert not warnings
+    assert not warnings_list
 
 
 def test_rsa_public_check_extra_params_are_valid():
@@ -69,9 +69,9 @@ def test_rsa_public_check_extra_params_are_valid():
         'n': 2,
         'random': 3
     })
-    with pytest.warns(None) as warnings:
+    with pytest.warns(None) as warnings_list:
         rsa_public.check_params_are_valid()
-    assert not warnings
+    assert not warnings_list
 
 
 def test_rsa_public_missing_params_are_not_valid():
@@ -104,9 +104,9 @@ def test_rsa_private_check_params_are_valid():
         'p': 5,
         'q': 6
     })
-    with pytest.warns(None) as warnings:
+    with pytest.warns(None) as warnings_list:
         rsa_private.check_params_are_valid()
-    assert not warnings
+    assert not warnings_list
 
 
 def test_rsa_private_check_extra_params_are_valid():
@@ -119,9 +119,9 @@ def test_rsa_private_check_extra_params_are_valid():
         'q': 6,
         'random': 7
     })
-    with pytest.warns(None) as warnings:
+    with pytest.warns(None) as warnings_list:
         rsa_private.check_params_are_valid()
-    assert not warnings
+    assert not warnings_list
 
 
 def test_rsa_private_missing_params_are_not_valid():
@@ -220,9 +220,9 @@ def test_rsa_private_bad_type_params():
 
 
 def test_rsa_private_generate_private_params():
-    with pytest.warns(None) as warnings:
+    with pytest.warns(None) as warnings_list:
         rsa_private_params = RSAPrivateKeyParams.generate_private_params()
-    assert not warnings
+    assert not warnings_list
     assert isinstance(rsa_private_params, RSAPrivateKeyParams)
 
     private_numbers = rsa.RSAPrivateNumbers(
@@ -247,9 +247,9 @@ def test_rsa_private_generate_private_params():
 
 def test_rsa_private_generate_private_params_valid_public_exponent():
     e = 3
-    with pytest.warns(None) as warnings:
+    with pytest.warns(None) as warnings_list:
         rsa_private_params = RSAPrivateKeyParams.generate_private_params(e=e)
-    assert not warnings
+    assert not warnings_list
     assert isinstance(rsa_private_params, RSAPrivateKeyParams)
 
     private_numbers = rsa.RSAPrivateNumbers(
@@ -279,11 +279,11 @@ def test_rsa_private_generate_private_params_invalid_public_exponent():
 
 def test_rsa_private_generate_private_params_valid_key_size():
     key_size = 1024
-    with pytest.warns(None) as warnings:
+    with pytest.warns(None) as warnings_list:
         rsa_private_params = RSAPrivateKeyParams.generate_private_params(
             key_size=key_size
         )
-    assert not warnings
+    assert not warnings_list
     assert isinstance(rsa_private_params, RSAPrivateKeyParams)
 
     private_numbers = rsa.RSAPrivateNumbers(
@@ -376,9 +376,9 @@ def test_ed25519_public_check_params_are_valid():
     ed25519_public = Ed25519PublicKeyParams({
         'public': secrets.token_bytes(Ed25519PublicKeyParams.KEY_SIZE)
     })
-    with pytest.warns(None) as warnings:
+    with pytest.warns(None) as warnings_list:
         ed25519_public.check_params_are_valid()
-    assert not warnings
+    assert not warnings_list
 
 
 def test_ed25519_public_check_extra_params_are_valid():
@@ -386,9 +386,9 @@ def test_ed25519_public_check_extra_params_are_valid():
         'public': secrets.token_bytes(Ed25519PublicKeyParams.KEY_SIZE),
         'random': b'\x02'
     })
-    with pytest.warns(None) as warnings:
+    with pytest.warns(None) as warnings_list:
         ed25519_public.check_params_are_valid()
-    assert not warnings
+    assert not warnings_list
 
 
 def test_ed25519_public_missing_params_are_not_valid():
@@ -411,25 +411,25 @@ def test_ed25519_public_bad_type_params_are_not_valid():
 
 def test_ed25519_private_check_params_are_valid():
     public_bytes = secrets.token_bytes(Ed25519PublicKeyParams.KEY_SIZE)
-    with pytest.warns(None) as warnings:
+    with pytest.warns(None) as warnings_list:
         Ed25519PrivateKeyParams({
             'public': public_bytes,
             'private_public': secrets.token_bytes(
                 Ed25519PublicKeyParams.KEY_SIZE) + public_bytes
         })
-    assert not warnings
+    assert not warnings_list
 
 
 def test_ed25519_private_check_extra_params_are_valid():
     public_bytes = secrets.token_bytes(Ed25519PublicKeyParams.KEY_SIZE)
-    with pytest.warns(None) as warnings:
+    with pytest.warns(None) as warnings_list:
         Ed25519PrivateKeyParams({
             'public': public_bytes,
             'private_public': secrets.token_bytes(
                 Ed25519PublicKeyParams.KEY_SIZE) + public_bytes,
             'random': b'\x03'
         })
-    assert not warnings
+    assert not warnings_list
 
 
 def test_ed25519_private_missing_params_are_not_valid():
@@ -533,15 +533,15 @@ def test_ed25519_private_bad_type_params():
 
 
 def test_ed25519_private_generate_private_params():
-    with pytest.warns(None) as warnings:
+    with pytest.warns(None) as warnings_list:
         ed25519_private_params = \
             Ed25519PrivateKeyParams.generate_private_params()
-    assert not warnings
+    assert not warnings_list
     assert isinstance(ed25519_private_params, Ed25519PrivateKeyParams)
 
-    with pytest.warns(None) as warnings:
+    with pytest.warns(None) as warnings_list:
         ed25519_private_params.check_params_are_valid()
-    assert not warnings
+    assert not warnings_list
 
 
 def test_ed25519_private_convert_cryptography_private():
