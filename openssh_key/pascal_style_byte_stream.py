@@ -129,7 +129,7 @@ class PascalStyleByteStream(io.BytesIO):
                         k + ' should be formatted as ' + v
                     )
             elif isinstance(v, PascalStyleFormatInstruction):
-                if type(target_dict[k]) != v.value:
+                if not isinstance(target_dict[k], v.value):
                     warnings.warn(
                         k + ' should be of class ' + str(v.value.__name__)
                     )
