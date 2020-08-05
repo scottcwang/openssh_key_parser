@@ -17,7 +17,7 @@ from openssh_key.pascal_style_byte_stream import (
 
 class PublicKeyParams(collections.UserDict, abc.ABC):
     def __init__(self, params: dict):
-        self.data = params
+        super().__init__(params)
         self.check_params_are_valid()
 
     @staticmethod
