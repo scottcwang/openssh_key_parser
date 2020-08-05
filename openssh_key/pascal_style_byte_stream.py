@@ -101,7 +101,6 @@ class PascalStyleByteStream(io.BytesIO):
         else:
             raise NotImplementedError()
         self.write(write_bytes)
-        return
 
     def write_from_format_instructions_dict(
         self,
