@@ -1,5 +1,5 @@
 pytest
 pytest-cov
-pytest-pep8
+pytest-pylint
 pytest-mock
 pynacl
