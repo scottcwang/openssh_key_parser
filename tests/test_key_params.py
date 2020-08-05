@@ -18,10 +18,7 @@ from openssh_key.key_params import (
     Ed25519PublicKeyParams,
     Ed25519PrivateKeyParams
 )
-from openssh_key.pascal_style_byte_stream import (
-    PascalStyleFormatInstruction,
-    PascalStyleByteStream
-)
+from openssh_key.pascal_style_byte_stream import PascalStyleFormatInstruction
 
 
 def test_factory_rsa_public():

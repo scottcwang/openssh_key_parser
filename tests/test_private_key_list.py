@@ -22,9 +22,6 @@ from openssh_key.pascal_style_byte_stream import (
 )
 from openssh_key.key_params import (
     Ed25519PublicKeyParams,
-    Ed25519PrivateKeyParams,
-    RSAPublicKeyParams,
-    RSAPrivateKeyParams,
     create_public_key_params,
     create_private_key_params
 )

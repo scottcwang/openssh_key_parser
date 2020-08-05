@@ -1,5 +1,3 @@
-import struct
-
 import pytest
 
 from openssh_key.pascal_style_byte_stream import (

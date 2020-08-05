@@ -1,5 +1,3 @@
-import pytest
-
 from openssh_key.cipher import create_cipher, NoneCipher, AES256_CTRCipher
 
 
