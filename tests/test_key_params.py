@@ -1,5 +1,6 @@
 import warnings
 import secrets
+import sys
 
 import pytest
 from cryptography.hazmat.backends import default_backend
@@ -502,6 +503,16 @@ def test_ed25519_public_convert_pynacl_public():
     assert bytes(converted) == ed25519_public['public']
 
 
+def test_ed25519_public_convert_missing_pynacl(mocker):
+    mocker.patch.dict(sys.modules, {'nacl': None})
+    ed25519_private = Ed25519PrivateKeyParams.generate_private_params()
+    ed25519_public = Ed25519PublicKeyParams({
+        'public': ed25519_private['public']
+    })
+    with pytest.raises(NotImplementedError):
+        ed25519_public.convert_to(nacl.public.PublicKey)
+
+
 def test_ed25519_private():
     public_bytes = secrets.token_bytes(Ed25519PublicKeyParams.KEY_SIZE)
     ed25519_private_dict = {
@@ -586,6 +597,13 @@ def test_ed25519_private_convert_pynacl_public():
     converted = ed25519_private.convert_to(nacl.public.PublicKey)
     assert isinstance(converted, nacl.public.PublicKey)
     assert bytes(converted) == ed25519_private['public']
+
+
+def test_ed25519_private_convert_missing_pynacl(mocker):
+    mocker.patch.dict(sys.modules, {'nacl': None})
+    ed25519_private = Ed25519PrivateKeyParams.generate_private_params()
+    with pytest.raises(NotImplementedError):
+        ed25519_private.convert_to(nacl.public.PublicKey)
 
 
 def test_ed25519_public_convert_not_implemented():
