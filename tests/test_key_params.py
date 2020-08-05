@@ -238,11 +238,7 @@ def test_rsa_private_generate_private_params():
             rsa_private_params['n']
         )
     )
-    try:
-        private_key = private_numbers.private_key(backend=default_backend())
-    except Exception as e:
-        pytest.fail(e)
-
+    private_key = private_numbers.private_key(backend=default_backend())
     assert private_key.key_size == RSAPrivateKeyParams.KEY_SIZE
 
 
@@ -265,10 +261,7 @@ def test_rsa_private_generate_private_params_valid_public_exponent():
             rsa_private_params['n']
         )
     )
-    try:
-        private_key = private_numbers.private_key(backend=default_backend())
-    except Exception as e:
-        pytest.fail(e)
+    private_key = private_numbers.private_key(backend=default_backend())
     assert private_key.key_size == RSAPrivateKeyParams.KEY_SIZE
 
 
@@ -299,10 +292,7 @@ def test_rsa_private_generate_private_params_valid_key_size():
             rsa_private_params['n']
         )
     )
-    try:
-        private_key = private_numbers.private_key(backend=default_backend())
-    except Exception as e:
-        pytest.fail(e)
+    private_key = private_numbers.private_key(backend=default_backend())
     assert private_key.key_size == key_size
 
 
