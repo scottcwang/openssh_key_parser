@@ -88,5 +88,5 @@ _KDF_MAPPING = {
 }
 
 
-def create_kdf(type):
-    return _KDF_MAPPING[type]
+def create_kdf(kdf_type):
+    return _KDF_MAPPING[kdf_type]

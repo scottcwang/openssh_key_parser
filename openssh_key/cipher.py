@@ -69,5 +69,5 @@ _CIPHER_MAPPING = {
 }
 
 
-def create_cipher(type):
-    return _CIPHER_MAPPING[type]
+def create_cipher(cipher_type):
+    return _CIPHER_MAPPING[cipher_type]
