@@ -162,7 +162,7 @@ class Ed25519PublicKeyParams(PublicKeyParams):
             import nacl
             if destination_class == nacl.public.PublicKey:
                 return nacl.public.PublicKey(self['public'])
-        except:
+        except ImportError:
             pass
         return super().convert_to(destination_class)
 
@@ -222,7 +222,7 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
                 return nacl.public.PrivateKey(
                     self['private_public'][:self.KEY_SIZE]
                 )
-        except:
+        except ImportError:
             pass
         return super().convert_to(destination_class)
 
