@@ -94,7 +94,7 @@ class PublicKey():
         )
         if public_key.header['key_type'] != key_type_clear:
             warnings.warn(
-                f'Inconsistency between clear and encoded key types'
+                'Inconsistency between clear and encoded key types'
             )
         return public_key
 
