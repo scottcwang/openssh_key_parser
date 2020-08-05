@@ -33,7 +33,7 @@ class PublicKey():
     def create_key_params(key_type, key_params_dict):
         return create_public_key_params(key_type)(key_params_dict)
 
-    def __init__(self, header, params, footer, clear={}):
+    def __init__(self, header, params, footer, clear=None):
         self.header = header
         PascalStyleByteStream.check_dict_matches_format_instructions_dict(
             self.header,
@@ -49,10 +49,10 @@ class PublicKey():
             self.footer_format_instructions_dict()
         )
 
-        self.clear = clear
+        self.clear = clear if clear is not None else {}
 
     @classmethod
-    def from_byte_stream(cls, byte_stream, clear={}):
+    def from_byte_stream(cls, byte_stream, clear=None):
         header = byte_stream.read_from_format_instructions_dict(
             cls.header_format_instructions_dict()
         )
@@ -69,10 +69,10 @@ class PublicKey():
         return cls(header, params, footer, clear)
 
     @classmethod
-    def from_bytes(cls, byte_string, clear={}):
+    def from_bytes(cls, byte_string, clear=None):
         byte_stream = PascalStyleByteStream(byte_string)
 
-        key = cls.from_byte_stream(byte_stream, {**clear})
+        key = cls.from_byte_stream(byte_stream, clear)
 
         remainder = byte_stream.read()
         if len(remainder) > 0:
