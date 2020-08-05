@@ -249,6 +249,18 @@ def test_write_from_string_format_instruction():
     assert byte_stream.getvalue() == b'\x00\x00\x00\x04' + b'abcd'
 
 
+def test_write_from_string_format_instruction_string_length_size():
+    test_string = 'abcd'
+    byte_stream = PascalStyleByteStream()
+    byte_stream.write_from_format_instruction(
+        PascalStyleFormatInstruction.STRING,
+        test_string,
+        8
+    )
+    assert byte_stream.getvalue() == \
+        b'\x00\x00\x00\x00\x00\x00\x00\x04' + b'abcd'
+
+
 def test_write_from_pos_no_prefix_mpint_format_instruction():
     test_int = 0x1000
     byte_stream = PascalStyleByteStream()
