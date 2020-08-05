@@ -976,7 +976,6 @@ def test_private_key_list_from_list_invalid_key_pair():
 
 def private_key_list_pack_bytes_test_assertions(
     pack_bytes,
-    mocker,
     passphrase,
     getpass_assert_called,
     cipher,
@@ -1103,7 +1102,6 @@ def test_private_key_list_pack_bytes_one_key_none(mocker):
 
     private_key_list_pack_bytes_test_assertions(
         pack_bytes,
-        mocker,
         passphrase,
         False,
         cipher,
@@ -1160,7 +1158,6 @@ def test_private_key_list_pack_bytes_two_keys_none(mocker):
 
     private_key_list_pack_bytes_test_assertions(
         pack_bytes,
-        mocker,
         passphrase,
         False,
         cipher,
@@ -1205,7 +1202,6 @@ def test_private_key_list_pack_bytes_one_key_bcrypt_aes256_ctr(mocker):
 
     private_key_list_pack_bytes_test_assertions(
         pack_bytes,
-        mocker,
         passphrase,
         True,
         cipher,
@@ -1250,7 +1246,6 @@ def test_private_key_list_pack_bytes_two_keys_include_indices(mocker):
 
     private_key_list_pack_bytes_test_assertions(
         pack_bytes,
-        mocker,
         passphrase,
         False,
         cipher,
@@ -1330,7 +1325,6 @@ def test_private_key_list_pack_bytes_override_public_with_private(mocker):
 
     private_key_list_pack_bytes_test_assertions(
         pack_bytes,
-        mocker,
         passphrase,
         False,
         cipher,
@@ -1389,7 +1383,6 @@ def test_private_key_list_pack_bytes_no_override_public_with_private(mocker):
 
     private_key_list_pack_bytes_test_assertions(
         pack_bytes,
-        mocker,
         passphrase,
         False,
         cipher,
@@ -1447,7 +1440,6 @@ def test_private_key_list_pack_string_one_key_none(mocker):
 
     private_key_list_pack_string_test_assertions(
         pack_string,
-        mocker,
         passphrase,
         False,
         cipher,
@@ -1504,7 +1496,6 @@ def test_private_key_list_pack_string_two_keys_none(mocker):
 
     private_key_list_pack_string_test_assertions(
         pack_string,
-        mocker,
         passphrase,
         False,
         cipher,
@@ -1549,7 +1540,6 @@ def test_private_key_list_pack_string_one_key_bcrypt_aes256_ctr(mocker):
 
     private_key_list_pack_string_test_assertions(
         pack_string,
-        mocker,
         passphrase,
         True,
         cipher,
@@ -1594,7 +1584,6 @@ def test_private_key_list_pack_string_two_keys_include_indices(mocker):
 
     private_key_list_pack_string_test_assertions(
         pack_string,
-        mocker,
         passphrase,
         False,
         cipher,
@@ -1678,7 +1667,6 @@ def test_private_key_list_pack_string_override_public_with_private(mocker):
 
     private_key_list_pack_string_test_assertions(
         pack_string,
-        mocker,
         passphrase,
         False,
         cipher,
@@ -1738,7 +1726,6 @@ def test_private_key_list_pack_string_no_override_public_with_private(mocker):
 
     private_key_list_pack_string_test_assertions(
         pack_string,
-        mocker,
         passphrase,
         False,
         cipher,
