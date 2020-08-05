@@ -168,9 +168,9 @@ def private_key_list_from_bytes_test_assertions(
     private_key_list = PrivateKeyList.from_bytes(write_byte_stream.getvalue())
 
     if getpass_assert_called:
-        getpass.getpass.assert_called_once()
+        getpass.getpass.assert_called_once()  # pylint: disable=no-member
     else:
-        getpass.getpass.assert_not_called()
+        getpass.getpass.assert_not_called()  # pylint: disable=no-member
 
     assert private_key_list.byte_string == write_byte_stream.getvalue()
     assert private_key_list.header == header
@@ -986,9 +986,9 @@ def private_key_list_pack_bytes_test_assertions(
     pack_byte_stream = PascalStyleByteStream(pack_bytes)
 
     if getpass_assert_called:
-        getpass.getpass.assert_called_once()
+        getpass.getpass.assert_called_once()  # pylint: disable=no-member
     else:
-        getpass.getpass.assert_not_called()
+        getpass.getpass.assert_not_called()  # pylint: disable=no-member
 
     kdf_options_byte_stream = PascalStyleByteStream()
     kdf_options_byte_stream.write_from_format_instructions_dict(

@@ -86,7 +86,7 @@ def test_bcrypt_calls_lib(mocker):
         'rounds': 1
     }
     BcryptKDF.derive_key(options, passphrase)
-    bcrypt.kdf.assert_called_once_with(
+    bcrypt.kdf.assert_called_once_with(  # pylint: disable=no-member
         password=passphrase.encode(),
         salt=options['salt'],
         desired_key_bytes=BcryptKDF.IV_LENGTH+BcryptKDF.KEY_LENGTH,
