@@ -28,7 +28,7 @@ if __name__ == "__main__":
         for i, file_line in enumerate(file_contents.splitlines()):
             try:
                 parsed_contents.append(PublicKey.from_string(file_line))
-            except:
+            except (ValueError, NotImplementedError, EOFError):
                 warnings.warn(f'Could not parse line {i}')
 
     class KeyJSONEncoder(json.JSONEncoder):
