@@ -22,9 +22,9 @@ class PascalStyleFormatInstructionStringLengthSize(typing.NamedTuple):
 class PascalStyleByteStream(io.BytesIO):
     def read_from_format_instruction(
         self,
-        format_instruction,
-        string_length_size=OPENSSH_DEFAULT_STRING_LENGTH_SIZE
-    ):
+        format_instruction: PascalStyleFormatInstruction,
+        string_length_size: int = OPENSSH_DEFAULT_STRING_LENGTH_SIZE
+    ) -> typing.Any:
         if isinstance(format_instruction, str):
             calcsize = struct.calcsize(format_instruction)
             read_bytes = self.read_fixed_bytes(calcsize)
@@ -46,7 +46,17 @@ class PascalStyleByteStream(io.BytesIO):
                 )
         raise NotImplementedError()
 
-    def read_from_format_instructions_dict(self, format_instructions_dict):
+    def read_from_format_instructions_dict(
+        self,
+        format_instructions_dict:
+            typing.Dict[
+                str,
+                typing.Union[
+                    PascalStyleFormatInstruction,
+                    PascalStyleFormatInstructionStringLengthSize
+                ]
+            ]
+    ) -> typing.Dict[str, typing.Any]:
         return {
             k: (
                 self.read_from_format_instruction(
@@ -61,13 +71,13 @@ class PascalStyleByteStream(io.BytesIO):
             for k, format_instruction in format_instructions_dict.items()
         }
 
-    def read_fixed_bytes(self, num_bytes):
+    def read_fixed_bytes(self, num_bytes: int) -> bytes:
         read_bytes = self.read(num_bytes)
         if len(read_bytes) < num_bytes:
             raise EOFError()
         return read_bytes
 
-    def read_pascal_bytes(self, string_length_size):
+    def read_pascal_bytes(self, string_length_size: int) -> bytes:
         if string_length_size <= 0:
             raise ValueError('string_length_size must be positive')
         length = int.from_bytes(
@@ -78,10 +88,10 @@ class PascalStyleByteStream(io.BytesIO):
 
     def write_from_format_instruction(
         self,
-        format_instruction,
-        value,
-        string_length_size=OPENSSH_DEFAULT_STRING_LENGTH_SIZE
-    ):
+        format_instruction: PascalStyleFormatInstruction,
+        value: typing.Any,
+        string_length_size: int = OPENSSH_DEFAULT_STRING_LENGTH_SIZE
+    ) -> None:
         write_bytes = None
         if isinstance(format_instruction, str):
             write_bytes = struct.pack(format_instruction, value)
@@ -113,9 +123,11 @@ class PascalStyleByteStream(io.BytesIO):
 
     def write_from_format_instructions_dict(
         self,
-        format_instructions_dict,
-        values_dict
-    ):
+        format_instructions_dict:
+            typing.Dict[str, PascalStyleFormatInstruction],
+        values_dict:
+            typing.Dict[str, typing.Any]
+    ) -> None:
         for k, v in format_instructions_dict.items():
             self.write_from_format_instruction(
                 v,
@@ -124,9 +136,11 @@ class PascalStyleByteStream(io.BytesIO):
 
     @staticmethod
     def check_dict_matches_format_instructions_dict(
-        target_dict,
-        format_instructions_dict
-    ):
+        target_dict:
+            typing.Dict[str, typing.Any],
+        format_instructions_dict:
+            typing.Dict[str, PascalStyleFormatInstruction]
+    ) -> None:
         for k, v in format_instructions_dict.items():
             if k not in target_dict:
                 warnings.warn(k + ' missing')
