@@ -71,14 +71,16 @@ class BcryptKDF(KDF):
         }
 
     @classmethod
-    def generate_options(cls, salt_length=None, rounds=None, **kwargs):
-        if salt_length is None:
-            salt_length = cls.SALT_LENGTH
-        if rounds is None:
-            rounds = cls.ROUNDS
+    def generate_options(cls, **kwargs):
         return {
-            'salt': secrets.token_bytes(salt_length),
-            'rounds': rounds
+            'salt': secrets.token_bytes(
+                kwargs['salt_length'] if 'salt_length' in kwargs
+                else cls.SALT_LENGTH
+            ),
+            'rounds': (
+                kwargs['rounds'] if 'rounds' in kwargs
+                else cls.ROUNDS
+            )
         }
 
 
