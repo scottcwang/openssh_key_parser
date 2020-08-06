@@ -28,6 +28,12 @@ FormatInstructionsDict = typing.Dict[
 ]
 
 
+ValuesDict = typing.Dict[
+    str,
+    typing.Any
+]
+
+
 class PascalStyleByteStream(io.BytesIO):
     def read_from_format_instruction(
         self,
@@ -58,7 +64,7 @@ class PascalStyleByteStream(io.BytesIO):
     def read_from_format_instructions_dict(
         self,
         format_instructions_dict: FormatInstructionsDict
-    ) -> typing.Dict[str, typing.Any]:
+    ) -> ValuesDict:
         return {
             k: (
                 self.read_from_format_instruction(
@@ -126,7 +132,7 @@ class PascalStyleByteStream(io.BytesIO):
     def write_from_format_instructions_dict(
         self,
         format_instructions_dict: FormatInstructionsDict,
-        values_dict: typing.Dict[str, typing.Any]
+        values_dict: ValuesDict
     ) -> None:
         for k, format_instruction in format_instructions_dict.items():
             if isinstance(
@@ -146,7 +152,7 @@ class PascalStyleByteStream(io.BytesIO):
 
     @staticmethod
     def check_dict_matches_format_instructions_dict(
-        target_dict: typing.Dict[str, typing.Any],
+        target_dict: ValuesDict,
         format_instructions_dict: FormatInstructionsDict
     ) -> None:
         for k, v in format_instructions_dict.items():
