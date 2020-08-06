@@ -2,7 +2,8 @@ import pytest
 
 from openssh_key.pascal_style_byte_stream import (
     PascalStyleByteStream,
-    PascalStyleFormatInstruction
+    PascalStyleFormatInstruction,
+    PascalStyleFormatInstructionStringLengthSize
 )
 
 
@@ -212,10 +213,10 @@ def test_read_from_format_instructions_dict_length():
     pascal_bytes = b'\x01' + b'\x00'
     byte_stream = PascalStyleByteStream(pascal_bytes)
     result = byte_stream.read_from_format_instructions_dict({
-        'first': {
-            'format_instruction': PascalStyleFormatInstruction.BYTES,
-            'string_length_size': 1
-        }
+        'first': PascalStyleFormatInstructionStringLengthSize(
+            PascalStyleFormatInstruction.BYTES,
+            1
+        )
     })
     assert result == {
         'first': b'\x00'

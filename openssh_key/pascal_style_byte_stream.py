@@ -2,6 +2,7 @@ import enum
 import io
 import struct
 import warnings
+import typing
 
 OPENSSH_DEFAULT_STRING_LENGTH_SIZE = 4
 
@@ -11,6 +12,11 @@ class PascalStyleFormatInstruction(enum.Enum):
     BYTES = bytes
     STRING = str
     MPINT = int
+
+
+class PascalStyleFormatInstructionStringLengthSize(typing.NamedTuple):
+    format_instruction: PascalStyleFormatInstruction
+    string_length_size: int
 
 
 class PascalStyleByteStream(io.BytesIO):
@@ -42,12 +48,15 @@ class PascalStyleByteStream(io.BytesIO):
 
     def read_from_format_instructions_dict(self, format_instructions_dict):
         return {
-            k: self.read_from_format_instruction(
-                **(
-                    format_instruction
-                    if isinstance(format_instruction, dict)
-                    else {'format_instruction': format_instruction}
+            k: (
+                self.read_from_format_instruction(
+                    format_instruction.format_instruction,
+                    format_instruction.string_length_size
+                ) if isinstance(
+                    format_instruction,
+                    PascalStyleFormatInstructionStringLengthSize
                 )
+                else self.read_from_format_instruction(format_instruction)
             )
             for k, format_instruction in format_instructions_dict.items()
         }
