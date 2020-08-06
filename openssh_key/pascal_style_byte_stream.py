@@ -19,6 +19,15 @@ class PascalStyleFormatInstructionStringLengthSize(typing.NamedTuple):
     string_length_size: int
 
 
+FormatInstructionsDict = typing.Dict[
+    str,
+    typing.Union[
+        PascalStyleFormatInstruction,
+        PascalStyleFormatInstructionStringLengthSize
+    ]
+]
+
+
 class PascalStyleByteStream(io.BytesIO):
     def read_from_format_instruction(
         self,
@@ -48,14 +57,7 @@ class PascalStyleByteStream(io.BytesIO):
 
     def read_from_format_instructions_dict(
         self,
-        format_instructions_dict:
-            typing.Dict[
-                str,
-                typing.Union[
-                    PascalStyleFormatInstruction,
-                    PascalStyleFormatInstructionStringLengthSize
-                ]
-            ]
+        format_instructions_dict: FormatInstructionsDict
     ) -> typing.Dict[str, typing.Any]:
         return {
             k: (
