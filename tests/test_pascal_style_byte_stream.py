@@ -335,6 +335,19 @@ def test_write_from_format_instructions_dict_missing_key():
         })
 
 
+def test_write_from_format_instructions_dict_length():
+    byte_stream = PascalStyleByteStream()
+    byte_stream.write_from_format_instructions_dict({
+        'first': PascalStyleFormatInstructionStringLengthSize(
+            PascalStyleFormatInstruction.BYTES,
+            2
+        )
+    }, {
+        'first': b'\x00'
+    })
+    assert byte_stream.getvalue() == b'\x00\x01' + b'\x00'
+
+
 def test_check_dict_str():
     with pytest.warns(None) as warnings_list:
         PascalStyleByteStream.check_dict_matches_format_instructions_dict(
@@ -453,3 +466,34 @@ def test_check_dict_extra_attribute():
             }
         )
     assert not warnings_list
+
+
+def test_check_dict_length():
+    with pytest.warns(None) as warnings_list:
+        PascalStyleByteStream.check_dict_matches_format_instructions_dict(
+            {
+                'a': 'string'
+            },
+            {
+                'a': PascalStyleFormatInstructionStringLengthSize(
+                    PascalStyleFormatInstruction.STRING,
+                    1
+                )
+            }
+        )
+    assert not warnings_list
+
+
+def test_check_dict_length_incorrect_type():
+    with pytest.warns(UserWarning, match='a should be of class int'):
+        PascalStyleByteStream.check_dict_matches_format_instructions_dict(
+            {
+                'a': 'string'
+            },
+            {
+                'a': PascalStyleFormatInstructionStringLengthSize(
+                    PascalStyleFormatInstruction.MPINT,
+                    1
+                )
+            }
+        )

@@ -125,23 +125,29 @@ class PascalStyleByteStream(io.BytesIO):
 
     def write_from_format_instructions_dict(
         self,
-        format_instructions_dict:
-            typing.Dict[str, PascalStyleFormatInstruction],
-        values_dict:
-            typing.Dict[str, typing.Any]
+        format_instructions_dict: FormatInstructionsDict,
+        values_dict: typing.Dict[str, typing.Any]
     ) -> None:
-        for k, v in format_instructions_dict.items():
-            self.write_from_format_instruction(
-                v,
-                values_dict[k]
-            )
+        for k, format_instruction in format_instructions_dict.items():
+            if isinstance(
+                format_instruction,
+                PascalStyleFormatInstructionStringLengthSize
+            ):
+                self.write_from_format_instruction(
+                    format_instruction.format_instruction,
+                    values_dict[k],
+                    format_instruction.string_length_size
+                )
+            else:
+                self.write_from_format_instruction(
+                    format_instruction,
+                    values_dict[k]
+                )
 
     @staticmethod
     def check_dict_matches_format_instructions_dict(
-        target_dict:
-            typing.Dict[str, typing.Any],
-        format_instructions_dict:
-            typing.Dict[str, PascalStyleFormatInstruction]
+        target_dict: typing.Dict[str, typing.Any],
+        format_instructions_dict: FormatInstructionsDict
     ) -> None:
         for k, v in format_instructions_dict.items():
             if k not in target_dict:
@@ -157,6 +163,12 @@ class PascalStyleByteStream(io.BytesIO):
                 if not isinstance(target_dict[k], v.value):
                     warnings.warn(
                         k + ' should be of class ' + str(v.value.__name__)
+                    )
+            elif isinstance(v, PascalStyleFormatInstructionStringLengthSize):
+                if not isinstance(target_dict[k], v.format_instruction.value):
+                    warnings.warn(
+                        k + ' should be of class ' +
+                            str(v.format_instruction.value.__name__)
                     )
             else:
                 raise NotImplementedError()
