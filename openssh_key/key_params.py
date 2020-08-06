@@ -91,20 +91,14 @@ class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
     KEY_SIZE = 4096
 
     @classmethod
-    def generate_private_params(
-        cls,
-        e=None,
-        key_size=None,
-        **kwargs
-    ):
-        if e is None:
-            e = cls.PUBLIC_EXPONENT
-        if key_size is None:
-            key_size = cls.KEY_SIZE
-
+    def generate_private_params(cls, **kwargs):
         private_key = rsa.generate_private_key(
-            public_exponent=e,
-            key_size=key_size,
+            public_exponent=(
+                kwargs['e'] if 'e' in kwargs else cls.PUBLIC_EXPONENT
+            ),
+            key_size=(
+                kwargs['key_size'] if 'key_size' in kwargs else cls.KEY_SIZE
+            ),
             backend=default_backend()
         )
         private_key_numbers = private_key.private_numbers()
