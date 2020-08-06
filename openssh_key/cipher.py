@@ -1,4 +1,5 @@
 import abc
+import typing
 
 import cryptography.hazmat.primitives.ciphers as ciphers
 import cryptography.hazmat.primitives.ciphers.algorithms as algorithms
@@ -9,37 +10,57 @@ from cryptography.hazmat.backends import default_backend
 class Cipher(abc.ABC):
     @staticmethod
     @abc.abstractmethod
-    def encrypt(cipher_key, initialization_vector, plain_bytes):
+    def encrypt(
+        cipher_key: bytes,
+        initialization_vector: bytes,
+        plain_bytes: bytes
+    ) -> bytes:
         pass
 
     @staticmethod
     @abc.abstractmethod
-    def decrypt(cipher_key, initialization_vector, cipher_bytes):
+    def decrypt(
+        cipher_key: bytes,
+        initialization_vector: bytes,
+        cipher_bytes: bytes
+    ) -> bytes:
         pass
 
     @staticmethod
     @abc.abstractmethod
-    def block_size():
+    def block_size() -> int:
         pass
 
 
 class NoneCipher(Cipher):
     @staticmethod
-    def encrypt(cipher_key, initialization_vector, plain_bytes):
+    def encrypt(
+        cipher_key: bytes,
+        initialization_vector: bytes,
+        plain_bytes: bytes
+    ) -> bytes:
         return plain_bytes
 
     @staticmethod
-    def decrypt(cipher_key, initialization_vector, cipher_bytes):
+    def decrypt(
+        cipher_key: bytes,
+        initialization_vector: bytes,
+        cipher_bytes: bytes
+    ) -> bytes:
         return cipher_bytes
 
     @staticmethod
-    def block_size():
+    def block_size() -> int:
         return 8
 
 
 class AES256_CTRCipher(Cipher):
     @staticmethod
-    def encrypt(cipher_key, initialization_vector, plain_bytes):
+    def encrypt(
+        cipher_key: bytes,
+        initialization_vector: bytes,
+        plain_bytes: bytes
+    ) -> bytes:
         cipher = ciphers.Cipher(
             algorithms.AES(cipher_key),
             modes.CTR(initialization_vector),
@@ -49,7 +70,11 @@ class AES256_CTRCipher(Cipher):
         return encryptor.update(plain_bytes) + encryptor.finalize()
 
     @staticmethod
-    def decrypt(cipher_key, initialization_vector, cipher_bytes):
+    def decrypt(
+        cipher_key: bytes,
+        initialization_vector: bytes,
+        cipher_bytes: bytes
+    ) -> bytes:
         cipher = ciphers.Cipher(
             algorithms.AES(cipher_key),
             modes.CTR(initialization_vector),
@@ -59,7 +84,7 @@ class AES256_CTRCipher(Cipher):
         return decryptor.update(cipher_bytes) + decryptor.finalize()
 
     @staticmethod
-    def block_size():
+    def block_size() -> int:
         return 16
 
 
@@ -69,5 +94,5 @@ _CIPHER_MAPPING = {
 }
 
 
-def create_cipher(cipher_type):
+def create_cipher(cipher_type: str) -> typing.Type[Cipher]:
     return _CIPHER_MAPPING[cipher_type]
