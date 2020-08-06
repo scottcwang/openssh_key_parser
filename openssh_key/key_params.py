@@ -35,7 +35,7 @@ class PublicKeyParams(collections.UserDict, abc.ABC):
             self.public_format_instructions_dict()
         )
 
-    def convert_to(self, destination_class):
+    def convert_to(self, destination_class):  # pylint: disable=no-self-use
         if not isinstance(destination_class, type):
             raise ValueError('destination_class must be a class')
         raise NotImplementedError()
