@@ -56,7 +56,7 @@ class PrivateKeyParams(PublicKeyParams):
     @classmethod
     @abc.abstractmethod
     def generate_private_params(cls, **kwargs):
-        return {}
+        return cls({})
 
 
 class RSAPublicKeyParams(PublicKeyParams):
