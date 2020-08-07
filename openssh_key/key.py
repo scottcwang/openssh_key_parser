@@ -128,16 +128,16 @@ class Key(typing.Generic[PublicKeyParamsTypeVar]):
         use_footer_comment=True,
         use_clear_comment=True
     ):
-        text = self.header['key_type'] + ' '
+        text = str(self.header['key_type']) + ' '
 
         public_key_bytes = self.pack_public_bytes()
         public_keys_b64 = base64.b64encode(public_key_bytes).decode()
         text += public_keys_b64
 
         if use_footer_comment and 'comment' in self.footer:
-            text += ' ' + self.footer['comment']
+            text += ' ' + str(self.footer['comment'])
         if use_clear_comment and 'comment' in self.clear:
-            text += ' ' + self.clear['comment']
+            text += ' ' + str(self.clear['comment'])
 
         text += '\n'
         return text
