@@ -22,6 +22,7 @@ class PascalStyleFormatInstructionStringLengthSize(typing.NamedTuple):
 FormatInstructionsDict = typing.Dict[
     str,
     typing.Union[
+        str,
         PascalStyleFormatInstruction,
         PascalStyleFormatInstructionStringLengthSize
     ]
@@ -37,7 +38,7 @@ ValuesDict = typing.Dict[
 class PascalStyleByteStream(io.BytesIO):
     def read_from_format_instruction(
         self,
-        format_instruction: PascalStyleFormatInstruction,
+        format_instruction: typing.Union[str, PascalStyleFormatInstruction],
         string_length_size: int = OPENSSH_DEFAULT_STRING_LENGTH_SIZE
     ) -> typing.Any:
         if isinstance(format_instruction, str):
@@ -96,7 +97,7 @@ class PascalStyleByteStream(io.BytesIO):
 
     def write_from_format_instruction(
         self,
-        format_instruction: PascalStyleFormatInstruction,
+        format_instruction: typing.Union[str, PascalStyleFormatInstruction],
         value: typing.Any,
         string_length_size: int = OPENSSH_DEFAULT_STRING_LENGTH_SIZE
     ) -> None:
