@@ -19,7 +19,7 @@ class PascalStyleFormatInstructionStringLengthSize(typing.NamedTuple):
     string_length_size: int
 
 
-FormatInstructionsDict = typing.Dict[
+FormatInstructionsDict = typing.Mapping[
     str,
     typing.Union[
         str,
@@ -29,7 +29,7 @@ FormatInstructionsDict = typing.Dict[
 ]
 
 
-ValuesDict = typing.Dict[
+ValuesDict = typing.Mapping[
     str,
     typing.Any
 ]
