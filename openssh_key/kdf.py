@@ -3,9 +3,16 @@ import abc
 import secrets
 import typing
 
-import bcrypt
+import bcrypt  # type: ignore
 
-from openssh_key.pascal_style_byte_stream import PascalStyleFormatInstruction
+from openssh_key.pascal_style_byte_stream import (
+    PascalStyleFormatInstruction,
+    FormatInstructionsDict,
+    ValuesDict
+)
+
+
+KDFOptions = ValuesDict
 
 
 class KDFResult(typing.NamedTuple):
@@ -16,7 +23,7 @@ class KDFResult(typing.NamedTuple):
 class KDF(abc.ABC):
     @staticmethod
     @abc.abstractmethod
-    def derive_key(options, passphrase):
+    def derive_key(options: KDFOptions, passphrase: str) -> KDFResult:
         return KDFResult(
             cipher_key=b'',
             initialization_vector=b''
@@ -24,29 +31,29 @@ class KDF(abc.ABC):
 
     @staticmethod
     @abc.abstractmethod
-    def options_format_instructions_dict():
+    def options_format_instructions_dict() -> FormatInstructionsDict:
         return {}
 
     @classmethod
     @abc.abstractmethod
-    def generate_options(cls, **kwargs):
+    def generate_options(cls, **kwargs) -> KDFOptions:
         return {}
 
 
 class NoneKDF(KDF):
     @staticmethod
-    def derive_key(options, passphrase):
+    def derive_key(options: KDFOptions, passphrase: str) -> KDFResult:
         return KDFResult(
             cipher_key=b'',
             initialization_vector=b''
         )
 
     @staticmethod
-    def options_format_instructions_dict():
+    def options_format_instructions_dict() -> FormatInstructionsDict:
         return {}
 
     @classmethod
-    def generate_options(cls, **kwargs):
+    def generate_options(cls, **kwargs) -> KDFOptions:
         return {}
 
 
@@ -57,7 +64,7 @@ class BcryptKDF(KDF):
     ROUNDS = 16
 
     @staticmethod
-    def derive_key(options, passphrase):
+    def derive_key(options: KDFOptions, passphrase: str) -> KDFResult:
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             bcrypt_result = bcrypt.kdf(
@@ -73,14 +80,14 @@ class BcryptKDF(KDF):
         )
 
     @staticmethod
-    def options_format_instructions_dict():
+    def options_format_instructions_dict() -> FormatInstructionsDict:
         return {
             'salt': PascalStyleFormatInstruction.BYTES,
             'rounds': '>I'
         }
 
     @classmethod
-    def generate_options(cls, **kwargs):
+    def generate_options(cls, **kwargs) -> KDFOptions:
         return {
             'salt': secrets.token_bytes(
                 kwargs['salt_length'] if 'salt_length' in kwargs
@@ -99,5 +106,5 @@ _KDF_MAPPING = {
 }
 
 
-def create_kdf(kdf_type):
+def create_kdf(kdf_type: str) -> typing.Type[KDF]:
     return _KDF_MAPPING[kdf_type]
