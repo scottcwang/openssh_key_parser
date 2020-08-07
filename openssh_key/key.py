@@ -39,8 +39,7 @@ class Key(typing.Generic[PublicKeyParamsTypeVar]):
     def create_key_params(key_type, key_params_dict) -> PublicKeyParamsTypeVar:
         pass
 
-    def __init__(self, header, params, footer, clear=None):
-        self.header = header
+        self.header = dict(header)
         PascalStyleByteStream.check_dict_matches_format_instructions_dict(
             self.header,
             self.header_format_instructions_dict()
@@ -48,14 +47,14 @@ class Key(typing.Generic[PublicKeyParamsTypeVar]):
 
         self.params = self.create_key_params(header['key_type'], params)
 
-        self.footer = footer
+        self.footer = dict(footer)
 
         PascalStyleByteStream.check_dict_matches_format_instructions_dict(
             self.footer,
             self.footer_format_instructions_dict()
         )
 
-        self.clear = clear if clear is not None else {}
+        self.clear = dict(clear) if clear is not None else {}
 
     @classmethod
     def from_byte_stream(cls, byte_stream, clear=None):
