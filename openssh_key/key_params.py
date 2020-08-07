@@ -253,11 +253,9 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
         return super().convert_to(destination_class)
 
 
-PublicPrivateKeyParamsClasses = collections.namedtuple(
-    'PublicPrivateKeyParamsClasses', [
-        'PublicKeyParamsClass', 'PrivateKeyParamsClass'
-    ]
-)
+class PublicPrivateKeyParamsClasses(typing.NamedTuple):
+    publicKeyParamsClass: typing.Type[PublicKeyParams]
+    privateKeyParamsClass: typing.Type[PrivateKeyParams]
 
 
 _KEY_TYPE_MAPPING = {
@@ -270,9 +268,9 @@ _KEY_TYPE_MAPPING = {
 }
 
 
-def create_public_key_params(key_type):
-    return _KEY_TYPE_MAPPING[key_type].PublicKeyParamsClass
+def create_public_key_params(key_type: str) -> typing.Type[PublicKeyParams]:
+    return _KEY_TYPE_MAPPING[key_type].publicKeyParamsClass
 
 
-def create_private_key_params(key_type):
-    return _KEY_TYPE_MAPPING[key_type].PrivateKeyParamsClass
+def create_private_key_params(key_type: str) -> typing.Type[PrivateKeyParams]:
+    return _KEY_TYPE_MAPPING[key_type].privateKeyParamsClass
