@@ -1,6 +1,7 @@
 import collections
 import abc
 import warnings
+import typing
 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
@@ -11,43 +12,53 @@ from cryptography.hazmat.primitives.asymmetric import (
 
 from openssh_key.pascal_style_byte_stream import (
     PascalStyleByteStream,
-    PascalStyleFormatInstruction
+    PascalStyleFormatInstruction,
+    FormatInstructionsDict
 )
 
 
 class PublicKeyParams(collections.UserDict, abc.ABC):
-    def __init__(self, params: dict):
+    def __init__(self, params: typing.Dict[str, typing.Any]):
         super().__init__(params)
         self.check_params_are_valid()
 
     @staticmethod
     @abc.abstractmethod
-    def public_format_instructions_dict():
+    def public_format_instructions_dict() -> FormatInstructionsDict:
         return {}
 
     @property
-    def params(self):
+    def params(self) -> dict:
         return self.data
 
-    def check_params_are_valid(self):
+    def check_params_are_valid(self) -> None:
         PascalStyleByteStream.check_dict_matches_format_instructions_dict(
             self.data,
             self.public_format_instructions_dict()
         )
 
-    def convert_to(self, destination_class):  # pylint: disable=no-self-use
+    def convert_to(  # pylint: disable=no-self-use
+        self,
+        destination_class: typing.Type
+    ) -> typing.Any:
         if not isinstance(destination_class, type):
             raise ValueError('destination_class must be a class')
         raise NotImplementedError()
 
 
+PrivateKeyParamsTypeVar = typing.TypeVar(
+    'PrivateKeyParamsTypeVar',
+    bound='PrivateKeyParams'
+)
+
+
 class PrivateKeyParams(PublicKeyParams):
     @staticmethod
     @abc.abstractmethod
-    def private_format_instructions_dict():
+    def private_format_instructions_dict() -> FormatInstructionsDict:
         return {}
 
-    def check_params_are_valid(self):
+    def check_params_are_valid(self) -> None:
         PascalStyleByteStream.check_dict_matches_format_instructions_dict(
             self.data,
             self.private_format_instructions_dict()
@@ -55,19 +66,22 @@ class PrivateKeyParams(PublicKeyParams):
 
     @classmethod
     @abc.abstractmethod
-    def generate_private_params(cls, **kwargs):
+    def generate_private_params(
+        cls: typing.Type[PrivateKeyParamsTypeVar],
+        **kwargs
+    ) -> PrivateKeyParamsTypeVar:
         return cls({})
 
 
 class RSAPublicKeyParams(PublicKeyParams):
     @staticmethod
-    def public_format_instructions_dict():
+    def public_format_instructions_dict() -> FormatInstructionsDict:
         return {
             'e': PascalStyleFormatInstruction.MPINT,
             'n': PascalStyleFormatInstruction.MPINT,
         }
 
-    def convert_to(self, destination_class):
+    def convert_to(self, destination_class: typing.Type) -> typing.Any:
         if destination_class == rsa.RSAPublicKey:
             return rsa.RSAPublicNumbers(
                 self['e'], self['n']
@@ -75,9 +89,15 @@ class RSAPublicKeyParams(PublicKeyParams):
         return super().convert_to(destination_class)
 
 
+RSAPrivateKeyParamsTypeVar = typing.TypeVar(
+    'RSAPrivateKeyParamsTypeVar',
+    bound='RSAPrivateKeyParams'
+)
+
+
 class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
     @staticmethod
-    def private_format_instructions_dict():
+    def private_format_instructions_dict() -> FormatInstructionsDict:
         return {
             'n': PascalStyleFormatInstruction.MPINT,
             'e': PascalStyleFormatInstruction.MPINT,
@@ -91,7 +111,10 @@ class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
     KEY_SIZE = 4096
 
     @classmethod
-    def generate_private_params(cls, **kwargs):
+    def generate_private_params(
+        cls: typing.Type[RSAPrivateKeyParamsTypeVar],
+        **kwargs
+    ) -> RSAPrivateKeyParamsTypeVar:
         private_key = rsa.generate_private_key(
             public_exponent=(
                 kwargs['e'] if 'e' in kwargs else cls.PUBLIC_EXPONENT
@@ -113,7 +136,7 @@ class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
             }
         )
 
-    def convert_to(self, destination_class):
+    def convert_to(self, destination_class: typing.Type) -> typing.Any:
         if destination_class == rsa.RSAPrivateKey:
             return rsa.RSAPrivateNumbers(
                 self['p'],
@@ -134,7 +157,7 @@ class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
 
 class Ed25519PublicKeyParams(PublicKeyParams):
     @staticmethod
-    def public_format_instructions_dict():
+    def public_format_instructions_dict() -> FormatInstructionsDict:
         return {
             'public': PascalStyleFormatInstruction.BYTES
         }
@@ -147,13 +170,13 @@ class Ed25519PublicKeyParams(PublicKeyParams):
                 and len(self.data['public']) != self.KEY_SIZE:
             warnings.warn('Public key not of length ' + str(self.KEY_SIZE))
 
-    def convert_to(self, destination_class):
+    def convert_to(self, destination_class: typing.Type) -> typing.Any:
         if destination_class == ed25519.Ed25519PublicKey:
             return ed25519.Ed25519PublicKey.from_public_bytes(self['public'])
         if destination_class == bytes:
             return self['public']
         try:
-            import nacl
+            import nacl  # type: ignore
             if destination_class == nacl.public.PublicKey:
                 return nacl.public.PublicKey(self['public'])
         except ImportError:
@@ -161,9 +184,15 @@ class Ed25519PublicKeyParams(PublicKeyParams):
         return super().convert_to(destination_class)
 
 
+Ed25519PrivateKeyParamsTypeVar = typing.TypeVar(
+    'Ed25519PrivateKeyParamsTypeVar',
+    bound='Ed25519PrivateKeyParams'
+)
+
+
 class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
     @staticmethod
-    def private_format_instructions_dict():
+    def private_format_instructions_dict() -> FormatInstructionsDict:
         return {
             'public': PascalStyleFormatInstruction.BYTES,
             'private_public': PascalStyleFormatInstruction.BYTES
@@ -183,7 +212,10 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
             )
 
     @classmethod
-    def generate_private_params(cls, **kwargs):
+    def generate_private_params(
+        cls: typing.Type[Ed25519PrivateKeyParamsTypeVar],
+        **kwargs
+    ) -> Ed25519PrivateKeyParamsTypeVar:
         private_key = ed25519.Ed25519PrivateKey.generate()
 
         private_bytes = private_key.private_bytes(
@@ -203,7 +235,7 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
             'private_public': private_bytes + public_bytes
         })
 
-    def convert_to(self, destination_class):
+    def convert_to(self, destination_class: typing.Type) -> typing.Any:
         if destination_class == ed25519.Ed25519PrivateKey:
             return ed25519.Ed25519PrivateKey.from_private_bytes(
                 self['private_public'][:self.KEY_SIZE]
@@ -211,7 +243,7 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
         if destination_class == bytes:
             return self['private_public'][:self.KEY_SIZE]
         try:
-            import nacl
+            import nacl  # type: ignore
             if destination_class == nacl.public.PrivateKey:
                 return nacl.public.PrivateKey(
                     self['private_public'][:self.KEY_SIZE]
