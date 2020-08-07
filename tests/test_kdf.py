@@ -1,7 +1,12 @@
 import pytest
 import bcrypt
 
-from openssh_key.kdf import create_kdf, NoneKDF, BcryptKDF
+from openssh_key.kdf import (
+    create_kdf,
+    NoneKDF,
+    BcryptKDF,
+    KDFResult
+)
 from openssh_key.pascal_style_byte_stream import (
     PascalStyleFormatInstruction,
     PascalStyleByteStream
@@ -71,10 +76,10 @@ def test_bcrypt_generate_options_rounds():
 
 def test_none():
     test_key = 'abcd'
-    assert NoneKDF.derive_key({}, test_key) == {
-        'cipher_key': b'',
-        'initialization_vector': b''
-    }
+    assert NoneKDF.derive_key({}, test_key) == KDFResult(
+        cipher_key=b'',
+        initialization_vector=b''
+    )
 
 
 def test_bcrypt_calls_lib(mocker):
@@ -105,7 +110,7 @@ def test_bcrypt_returns_key_iv(mocker):
         'rounds': 1
     }
     key_iv = BcryptKDF.derive_key(options, passphrase)
-    assert key_iv == {
-        'cipher_key': b'\x00' * BcryptKDF.KEY_LENGTH,
-        'initialization_vector': b'\x01' * BcryptKDF.IV_LENGTH
-    }
+    assert key_iv == KDFResult(
+        cipher_key=b'\x00' * BcryptKDF.KEY_LENGTH,
+        initialization_vector=b'\x01' * BcryptKDF.IV_LENGTH
+    )

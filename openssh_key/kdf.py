@@ -1,20 +1,26 @@
 import warnings
 import abc
 import secrets
+import typing
 
 import bcrypt
 
 from openssh_key.pascal_style_byte_stream import PascalStyleFormatInstruction
 
 
+class KDFResult(typing.NamedTuple):
+    cipher_key: bytes
+    initialization_vector: bytes
+
+
 class KDF(abc.ABC):
     @staticmethod
     @abc.abstractmethod
     def derive_key(options, passphrase):
-        return {
-            'cipher_key': b'',
-            'initialization_vector': b''
-        }
+        return KDFResult(
+            cipher_key=b'',
+            initialization_vector=b''
+        )
 
     @staticmethod
     @abc.abstractmethod
@@ -30,10 +36,10 @@ class KDF(abc.ABC):
 class NoneKDF(KDF):
     @staticmethod
     def derive_key(options, passphrase):
-        return {
-            'cipher_key': b'',
-            'initialization_vector': b''
-        }
+        return KDFResult(
+            cipher_key=b'',
+            initialization_vector=b''
+        )
 
     @staticmethod
     def options_format_instructions_dict():
@@ -61,10 +67,10 @@ class BcryptKDF(KDF):
                 desired_key_bytes=BcryptKDF.KEY_LENGTH + BcryptKDF.IV_LENGTH,
                 rounds=options['rounds']
             )
-        return {
-            'cipher_key': bcrypt_result[:BcryptKDF.KEY_LENGTH],
-            'initialization_vector': bcrypt_result[-BcryptKDF.IV_LENGTH:]
-        }
+        return KDFResult(
+            cipher_key=bcrypt_result[:BcryptKDF.KEY_LENGTH],
+            initialization_vector=bcrypt_result[-BcryptKDF.IV_LENGTH:]
+        )
 
     @staticmethod
     def options_format_instructions_dict():

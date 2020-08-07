@@ -119,8 +119,8 @@ class PrivateKeyList(collections.UserList):
         kdf_result = kdf_class.derive_key(kdf_options, passphrase)
 
         decipher_bytes = cipher_class.decrypt(
-            kdf_result['cipher_key'],
-            kdf_result['initialization_vector'],
+            kdf_result.cipher_key,
+            kdf_result.initialization_vector,
             cipher_bytes
         )
 
@@ -299,8 +299,8 @@ class PrivateKeyList(collections.UserList):
 
         kdf_result = create_kdf(kdf).derive_key(kdf_options, passphrase)
         cipher_bytes = create_cipher(cipher).encrypt(
-            kdf_result['cipher_key'],
-            kdf_result['initialization_vector'],
+            kdf_result.cipher_key,
+            kdf_result.initialization_vector,
             decipher_byte_stream.getvalue()
         )
         write_byte_stream.write_from_format_instruction(
