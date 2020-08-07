@@ -1,5 +1,7 @@
 import warnings
 import base64
+import typing
+import abc
 
 from openssh_key.pascal_style_byte_stream import (
     PascalStyleFormatInstruction,
@@ -7,11 +9,14 @@ from openssh_key.pascal_style_byte_stream import (
 )
 from openssh_key.key_params import (
     create_public_key_params,
-    create_private_key_params
+    PublicKeyParams,
+    PublicKeyParamsTypeVar,
+    create_private_key_params,
+    PrivateKeyParams
 )
 
 
-class PublicKey():
+class Key(typing.Generic[PublicKeyParamsTypeVar]):
     @staticmethod
     def header_format_instructions_dict():
         return {
@@ -30,8 +35,9 @@ class PublicKey():
         )
 
     @staticmethod
-    def create_key_params(key_type, key_params_dict):
-        return create_public_key_params(key_type)(key_params_dict)
+    @abc.abstractmethod
+    def create_key_params(key_type, key_params_dict) -> PublicKeyParamsTypeVar:
+        pass
 
     def __init__(self, header, params, footer, clear=None):
         self.header = header
@@ -102,7 +108,7 @@ class PublicKey():
         key_byte_stream = PascalStyleByteStream()
 
         key_byte_stream.write_from_format_instructions_dict(
-            PublicKey.header_format_instructions_dict(),
+            Key.header_format_instructions_dict(),
             self.header
         )
 
@@ -112,7 +118,7 @@ class PublicKey():
         )
 
         key_byte_stream.write_from_format_instructions_dict(
-            PublicKey.footer_format_instructions_dict(),
+            Key.footer_format_instructions_dict(),
             self.footer
         )
 
@@ -147,7 +153,13 @@ class PublicKey():
         )
 
 
-class PrivateKey(PublicKey):
+class PublicKey(Key[PublicKeyParams]):
+    @staticmethod
+    def create_key_params(key_type, key_params_dict) -> PublicKeyParams:
+        return create_public_key_params(key_type)(key_params_dict)
+
+
+class PrivateKey(Key[PrivateKeyParams]):
     @staticmethod
     def header_format_instructions_dict():
         return {
@@ -168,7 +180,7 @@ class PrivateKey(PublicKey):
         )
 
     @staticmethod
-    def create_key_params(key_type, key_params_dict):
+    def create_key_params(key_type, key_params_dict) -> PrivateKeyParams:
         return create_private_key_params(key_type)(key_params_dict)
 
     def pack_private_bytes(self):

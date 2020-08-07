@@ -17,6 +17,12 @@ from openssh_key.pascal_style_byte_stream import (
 )
 
 
+PublicKeyParamsTypeVar = typing.TypeVar(
+    'PublicKeyParamsTypeVar',
+    bound='PublicKeyParams'
+)
+
+
 class PublicKeyParams(collections.UserDict, abc.ABC):
     def __init__(self, params: typing.Dict[str, typing.Any]):
         super().__init__(params)
