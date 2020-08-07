@@ -11,7 +11,10 @@ class KDF(abc.ABC):
     @staticmethod
     @abc.abstractmethod
     def derive_key(options, passphrase):
-        pass
+        return {
+            'cipher_key': b'',
+            'initialization_vector': b''
+        }
 
     @staticmethod
     @abc.abstractmethod
