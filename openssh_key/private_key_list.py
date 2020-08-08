@@ -230,13 +230,22 @@ class PrivateKeyList(collections.UserList):
     def pack_bytes(
         self,
         include_indices=None,
-        override_public_with_private=True
+        override_public_with_private=True,
+        retain_kdf_options_if_present=False
     ):
-        cipher = self.header['cipher']
+        if isinstance(self.header, collections.abc.Mapping) \
+                and 'cipher' in self.header and 'kdf' in self.header:
+            cipher = self.header['cipher']
+            kdf = self.header['kdf']
+        else:
+            cipher = 'none'
+            kdf = 'none'
 
-        kdf = self.header['kdf']
-
-        kdf_options = self.kdf_options
+        if retain_kdf_options_if_present \
+                and isinstance(self.kdf_options, collections.abc.Mapping):
+            kdf_options = self.kdf_options
+        else:
+            kdf_options = create_kdf(kdf).generate_options()
 
         if include_indices is None:
             include_indices = list(range(len(self)))
@@ -316,12 +325,14 @@ class PrivateKeyList(collections.UserList):
     def pack_string(
         self,
         include_indices=None,
-        override_public_with_private=True
+        override_public_with_private=True,
+        retain_kdf_options_if_present=False
     ):
         text = OPENSSH_PRIVATE_KEY_HEADER + '\n'
         private_keys_bytes = self.pack_bytes(
             include_indices,
-            override_public_with_private
+            override_public_with_private,
+            retain_kdf_options_if_present
         )
         private_keys_b64 = base64.b64encode(private_keys_bytes).decode()
         private_keys_wrapped = '\n'.join([
