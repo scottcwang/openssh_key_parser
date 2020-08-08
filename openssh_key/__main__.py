@@ -34,7 +34,7 @@ if __name__ == "__main__":
                 warnings.warn(f'Could not parse line {i}')
 
     class KeyJSONEncoder(json.JSONEncoder):
-        def default(self, o):
+        def default(self, o: object) -> typing.Any:
             if hasattr(o, '__dict__'):
                 return o.__dict__
             if hasattr(o, '__str__'):
