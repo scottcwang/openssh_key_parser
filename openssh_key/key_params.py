@@ -46,7 +46,7 @@ class PublicKeyParams(collections.UserDict, abc.ABC):
 
     def convert_to(  # pylint: disable=no-self-use
         self,
-        destination_class: typing.Type
+        destination_class: typing.Type[typing.Any]
     ) -> typing.Any:
         if not isinstance(destination_class, type):
             raise ValueError('destination_class must be a class')
@@ -88,7 +88,10 @@ class RSAPublicKeyParams(PublicKeyParams):
             'n': PascalStyleFormatInstruction.MPINT,
         }
 
-    def convert_to(self, destination_class: typing.Type) -> typing.Any:
+    def convert_to(
+        self,
+        destination_class: typing.Type[typing.Any]
+    ) -> typing.Any:
         if destination_class == rsa.RSAPublicKey:
             return rsa.RSAPublicNumbers(
                 self['e'], self['n']
@@ -143,7 +146,10 @@ class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
             }
         )
 
-    def convert_to(self, destination_class: typing.Type) -> typing.Any:
+    def convert_to(
+        self,
+        destination_class: typing.Type[typing.Any]
+    ) -> typing.Any:
         if destination_class == rsa.RSAPrivateKey:
             return rsa.RSAPrivateNumbers(
                 self['p'],
@@ -177,7 +183,10 @@ class Ed25519PublicKeyParams(PublicKeyParams):
                 and len(self.data['public']) != self.KEY_SIZE:
             warnings.warn('Public key not of length ' + str(self.KEY_SIZE))
 
-    def convert_to(self, destination_class: typing.Type) -> typing.Any:
+    def convert_to(
+        self,
+        destination_class: typing.Type[typing.Any]
+    ) -> typing.Any:
         if destination_class == ed25519.Ed25519PublicKey:
             return ed25519.Ed25519PublicKey.from_public_bytes(self['public'])
         if destination_class == bytes:
@@ -242,7 +251,10 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
             'private_public': private_bytes + public_bytes
         })
 
-    def convert_to(self, destination_class: typing.Type) -> typing.Any:
+    def convert_to(
+        self,
+        destination_class: typing.Type[typing.Any]
+    ) -> typing.Any:
         if destination_class == ed25519.Ed25519PrivateKey:
             return ed25519.Ed25519PrivateKey.from_private_bytes(
                 self['private_public'][:self.KEY_SIZE]
