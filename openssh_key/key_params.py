@@ -177,7 +177,7 @@ class Ed25519PublicKeyParams(PublicKeyParams):
 
     KEY_SIZE = 32
 
-    def check_params_are_valid(self):
+    def check_params_are_valid(self) -> None:
         super().check_params_are_valid()
         if 'public' in self.data \
                 and len(self.data['public']) != self.KEY_SIZE:
@@ -214,7 +214,7 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
             'private_public': PascalStyleFormatInstruction.BYTES
         }
 
-    def check_params_are_valid(self):
+    def check_params_are_valid(self) -> None:
         Ed25519PublicKeyParams.check_params_are_valid(self)
         PrivateKeyParams.check_params_are_valid(self)
         if 'private_public' not in self.data:
