@@ -12,6 +12,11 @@ from openssh_key.pascal_style_byte_stream import (
 )
 
 
+KDFTypeVar = typing.TypeVar(
+    'KDFTypeVar',
+    bound='KDF'
+)
+
 KDFOptions = ValuesDict
 
 
@@ -36,7 +41,10 @@ class KDF(abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def generate_options(cls, **kwargs) -> KDFOptions:
+    def generate_options(
+        cls: typing.Type[KDFTypeVar],
+        **kwargs: typing.Any
+    ) -> KDFOptions:
         return {}
 
 
@@ -53,7 +61,10 @@ class NoneKDF(KDF):
         return {}
 
     @classmethod
-    def generate_options(cls, **kwargs) -> KDFOptions:
+    def generate_options(
+        cls: typing.Type['NoneKDF'],
+        **kwargs: typing.Any
+    ) -> KDFOptions:
         return {}
 
 
@@ -87,7 +98,10 @@ class BcryptKDF(KDF):
         }
 
     @classmethod
-    def generate_options(cls, **kwargs) -> KDFOptions:
+    def generate_options(
+        cls: typing.Type['BcryptKDF'],
+        **kwargs: typing.Any
+    ) -> KDFOptions:
         return {
             'salt': secrets.token_bytes(
                 kwargs['salt_length'] if 'salt_length' in kwargs
