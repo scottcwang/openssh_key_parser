@@ -13,7 +13,8 @@ from cryptography.hazmat.primitives.asymmetric import (
 from openssh_key.pascal_style_byte_stream import (
     PascalStyleByteStream,
     PascalStyleFormatInstruction,
-    FormatInstructionsDict
+    FormatInstructionsDict,
+    ValuesDict
 )
 
 
@@ -34,7 +35,7 @@ class PublicKeyParams(collections.UserDict, abc.ABC):
         return {}
 
     @property
-    def params(self) -> dict:
+    def params(self) -> ValuesDict:
         return self.data
 
     def check_params_are_valid(self) -> None:
