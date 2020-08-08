@@ -4,6 +4,7 @@ if __name__ == "__main__":
     import argparse
     import warnings
     import json
+    import typing
 
     from openssh_key.private_key_list import (
         OPENSSH_PRIVATE_KEY_HEADER,
@@ -21,6 +22,7 @@ if __name__ == "__main__":
 
     file_contents = open(args.filename).read()
 
+    parsed_contents: typing.Union[PrivateKeyList, typing.List[PublicKey]]
     if file_contents.startswith(OPENSSH_PRIVATE_KEY_HEADER):
         parsed_contents = PrivateKeyList.from_string(file_contents)
     else:
