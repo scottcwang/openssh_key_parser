@@ -9,7 +9,7 @@ from cryptography.hazmat.primitives.asymmetric import (
     rsa,
     ed25519
 )
-import nacl.public
+import nacl.public  # type: ignore
 
 from openssh_key.key_params import (
     create_public_key_params,
