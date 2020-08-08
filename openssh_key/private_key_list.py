@@ -94,7 +94,8 @@ class PrivateKeyList(collections.UserList):
     @classmethod
     def from_bytes(
         cls: typing.Type[PrivateKeyListTypeVar],
-        byte_string: bytes
+        byte_string: bytes,
+        passphrase: typing.Optional[str] = None
     ) -> PrivateKeyListTypeVar:
         byte_stream = PascalStyleByteStream(byte_string)
 
@@ -132,10 +133,10 @@ class PrivateKeyList(collections.UserList):
 
         cipher_class = create_cipher(header['cipher'])
 
-        if kdf_class != NoneKDF:
-            passphrase = getpass.getpass('Key passphrase: ')
-        else:
+        if kdf_class == NoneKDF:
             passphrase = ''
+        elif passphrase is None:
+            passphrase = getpass.getpass('Key passphrase: ')
 
         kdf_result = kdf_class.derive_key(kdf_options, passphrase)
 
@@ -210,7 +211,8 @@ class PrivateKeyList(collections.UserList):
     @classmethod
     def from_string(
         cls: typing.Type[PrivateKeyListTypeVar],
-        string: str
+        string: str,
+        passphrase: typing.Optional[str] = None
     ) -> PrivateKeyListTypeVar:
         key_lines = string.splitlines()
 
@@ -219,7 +221,7 @@ class PrivateKeyList(collections.UserList):
             raise ValueError('Not an openssh private key')
         key_b64 = ''.join(key_lines[1:-1])
         key_bytes = base64.b64decode(key_b64)
-        return cls.from_bytes(key_bytes)
+        return cls.from_bytes(key_bytes, passphrase)
 
     @classmethod
     def from_list(
@@ -253,6 +255,7 @@ class PrivateKeyList(collections.UserList):
 
     def pack_bytes(
         self,
+        passphrase: typing.Optional[str] = None,
         include_indices: typing.List[int] = None,
         override_public_with_private: bool = True,
         retain_kdf_options_if_present: bool = False
@@ -328,10 +331,10 @@ class PrivateKeyList(collections.UserList):
         padding_bytes = bytes(range(1, 1 + padding_length))
         decipher_byte_stream.write(padding_bytes)
 
-        if kdf != 'none':
-            passphrase = getpass.getpass('Key passphrase: ')
-        else:
+        if kdf == 'none':
             passphrase = ''
+        elif passphrase is None:
+            passphrase = getpass.getpass('Key passphrase: ')
 
         kdf_result = create_kdf(kdf).derive_key(kdf_options, passphrase)
         cipher_bytes = create_cipher(cipher).encrypt(
@@ -348,12 +351,14 @@ class PrivateKeyList(collections.UserList):
 
     def pack_string(
         self,
+        passphrase: typing.Optional[str] = None,
         include_indices: typing.List[int] = None,
         override_public_with_private: bool = True,
         retain_kdf_options_if_present: bool = False
     ) -> str:
         text = OPENSSH_PRIVATE_KEY_HEADER + '\n'
         private_keys_bytes = self.pack_bytes(
+            passphrase,
             include_indices,
             override_public_with_private,
             retain_kdf_options_if_present
