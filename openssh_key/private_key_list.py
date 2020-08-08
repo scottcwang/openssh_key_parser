@@ -89,12 +89,12 @@ class PrivateKeyList(collections.UserList):
         if num_keys < 0:
             raise ValueError('Cannot parse negative number of keys')
 
-        initlist = []
+        public_key_list = []
         for i in range(num_keys):
             public_key_bytes = byte_stream.read_from_format_instruction(
                 PascalStyleFormatInstruction.BYTES
             )
-            initlist.append(
+            public_key_list.append(
                 PublicKey.from_bytes(public_key_bytes)
             )
 
@@ -135,10 +135,13 @@ class PrivateKeyList(collections.UserList):
                 != decipher_bytes_header['check_int_2']:
             warnings.warn('Cipher header check numbers do not match')
 
+        initlist = []
         for i in range(num_keys):
-            initlist[i] = PublicPrivateKeyPair(
-                initlist[i],
-                PrivateKey.from_byte_stream(decipher_byte_stream)
+            initlist.append(
+                PublicPrivateKeyPair(
+                    public_key_list[i],
+                    PrivateKey.from_byte_stream(decipher_byte_stream)
+                )
             )
             if initlist[i].public.header['key_type'] \
                     != initlist[i].private.header['key_type']:
