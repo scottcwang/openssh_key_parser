@@ -5,7 +5,9 @@ import abc
 
 from openssh_key.pascal_style_byte_stream import (
     PascalStyleFormatInstruction,
-    PascalStyleByteStream
+    PascalStyleByteStream,
+    FormatInstructionsDict,
+    ValuesDict
 )
 from openssh_key.key_params import (
     create_public_key_params,
@@ -16,29 +18,49 @@ from openssh_key.key_params import (
 )
 
 
+KeyTypeVar = typing.TypeVar(
+    'KeyTypeVar',
+    bound='Key[typing.Any]'
+)
+
+
 class Key(typing.Generic[PublicKeyParamsTypeVar]):
     @staticmethod
-    def header_format_instructions_dict():
+    def header_format_instructions_dict() -> FormatInstructionsDict:
         return {
             'key_type': PascalStyleFormatInstruction.STRING
         }
 
     @staticmethod
-    def footer_format_instructions_dict():
+    def footer_format_instructions_dict() -> FormatInstructionsDict:
         return {}
 
     @staticmethod
-    def create_key_params_dict(key_type, byte_stream):
+    def create_key_params_dict(
+        key_type: str,
+        byte_stream: PascalStyleByteStream
+    ) -> ValuesDict:
         return byte_stream.read_from_format_instructions_dict(
             create_public_key_params(
-                key_type).public_format_instructions_dict()
+                key_type
+            ).public_format_instructions_dict()
         )
 
     @staticmethod
     @abc.abstractmethod
-    def create_key_params(key_type, key_params_dict) -> PublicKeyParamsTypeVar:
+    def create_key_params(
+        key_type: str,
+        key_params_dict: ValuesDict
+    ) -> PublicKeyParamsTypeVar:
         pass
 
+    def __init__(
+        self,
+        header: typing.Mapping[str, typing.Any],
+        params: typing.Mapping[str, typing.Any],
+        footer: typing.Mapping[str, typing.Any],
+        clear: typing.Optional[typing.Mapping[str, typing.Any]] = None
+    ):
         self.header = dict(header)
         PascalStyleByteStream.check_dict_matches_format_instructions_dict(
             self.header,
@@ -57,7 +79,11 @@ class Key(typing.Generic[PublicKeyParamsTypeVar]):
         self.clear = dict(clear) if clear is not None else {}
 
     @classmethod
-    def from_byte_stream(cls, byte_stream, clear=None):
+    def from_byte_stream(
+        cls: typing.Type[KeyTypeVar],
+        byte_stream: PascalStyleByteStream,
+        clear: typing.Optional[typing.Mapping[str, typing.Any]] = None
+    ) -> KeyTypeVar:
         header = byte_stream.read_from_format_instructions_dict(
             cls.header_format_instructions_dict()
         )
@@ -74,7 +100,11 @@ class Key(typing.Generic[PublicKeyParamsTypeVar]):
         return cls(header, params, footer, clear)
 
     @classmethod
-    def from_bytes(cls, byte_string, clear=None):
+    def from_bytes(
+        cls: typing.Type[KeyTypeVar],
+        byte_string: bytes,
+        clear: typing.Optional[typing.Mapping[str, typing.Any]] = None
+    ) -> KeyTypeVar:
         byte_stream = PascalStyleByteStream(byte_string)
 
         key = cls.from_byte_stream(byte_stream, clear)
@@ -87,7 +117,10 @@ class Key(typing.Generic[PublicKeyParamsTypeVar]):
         return key
 
     @classmethod
-    def from_string(cls, string):
+    def from_string(
+        cls: typing.Type[KeyTypeVar],
+        string: str
+    ) -> KeyTypeVar:
         key_type_clear, key_b64, comment_clear = string.split(' ', maxsplit=2)
         key_bytes = base64.b64decode(key_b64)
         public_key = cls.from_bytes(
@@ -103,7 +136,7 @@ class Key(typing.Generic[PublicKeyParamsTypeVar]):
             )
         return public_key
 
-    def pack_public_bytes(self):
+    def pack_public_bytes(self) -> bytes:
         key_byte_stream = PascalStyleByteStream()
 
         key_byte_stream.write_from_format_instructions_dict(
@@ -125,9 +158,9 @@ class Key(typing.Generic[PublicKeyParamsTypeVar]):
 
     def pack_public_string(
         self,
-        use_footer_comment=True,
-        use_clear_comment=True
-    ):
+        use_footer_comment: bool = True,
+        use_clear_comment: bool = True
+    ) -> str:
         text = str(self.header['key_type']) + ' '
 
         public_key_bytes = self.pack_public_bytes()
@@ -142,7 +175,7 @@ class Key(typing.Generic[PublicKeyParamsTypeVar]):
         text += '\n'
         return text
 
-    def __eq__(self, other):
+    def __eq__(self, other: typing.Any) -> bool:
         return (
             type(self) is type(other) and
             self.header == other.header and
@@ -154,35 +187,44 @@ class Key(typing.Generic[PublicKeyParamsTypeVar]):
 
 class PublicKey(Key[PublicKeyParams]):
     @staticmethod
-    def create_key_params(key_type, key_params_dict) -> PublicKeyParams:
+    def create_key_params(
+        key_type: str,
+        key_params_dict: ValuesDict
+    ) -> PublicKeyParams:
         return create_public_key_params(key_type)(key_params_dict)
 
 
 class PrivateKey(Key[PrivateKeyParams]):
     @staticmethod
-    def header_format_instructions_dict():
+    def header_format_instructions_dict() -> FormatInstructionsDict:
         return {
             'key_type': PascalStyleFormatInstruction.STRING
         }
 
     @staticmethod
-    def footer_format_instructions_dict():
+    def footer_format_instructions_dict() -> FormatInstructionsDict:
         return {
             'comment': PascalStyleFormatInstruction.STRING
         }
 
     @staticmethod
-    def create_key_params_dict(key_type, byte_stream):
+    def create_key_params_dict(
+        key_type: str,
+        byte_stream: PascalStyleByteStream
+    ) -> ValuesDict:
         return byte_stream.read_from_format_instructions_dict(
             create_private_key_params(
                 key_type).private_format_instructions_dict()
         )
 
     @staticmethod
-    def create_key_params(key_type, key_params_dict) -> PrivateKeyParams:
+    def create_key_params(
+        key_type: str,
+        key_params_dict: ValuesDict
+    ) -> PrivateKeyParams:
         return create_private_key_params(key_type)(key_params_dict)
 
-    def pack_private_bytes(self):
+    def pack_private_bytes(self) -> bytes:
         key_byte_stream = PascalStyleByteStream()
 
         key_byte_stream.write_from_format_instructions_dict(
