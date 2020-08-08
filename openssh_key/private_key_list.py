@@ -52,7 +52,16 @@ PrivateKeyListTypeVar = typing.TypeVar(
 )
 
 
-class PrivateKeyList(collections.UserList):
+# https://github.com/python/mypy/issues/5264
+if typing.TYPE_CHECKING:
+    BaseList = collections.UserList[  # pylint: disable=unsubscriptable-object
+        PublicPrivateKeyPair
+    ]
+else:
+    BaseList = collections.UserList
+
+
+class PrivateKeyList(BaseList):
     @staticmethod
     def header_format_instructions_dict() -> FormatInstructionsDict:
         return {

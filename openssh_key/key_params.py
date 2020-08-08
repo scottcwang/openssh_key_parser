@@ -24,7 +24,16 @@ PublicKeyParamsTypeVar = typing.TypeVar(
 )
 
 
-class PublicKeyParams(collections.UserDict, abc.ABC):
+# https://github.com/python/mypy/issues/5264
+if typing.TYPE_CHECKING:
+    BaseDict = collections.UserDict[  # pylint: disable=unsubscriptable-object
+        str, typing.Any
+    ]
+else:
+    BaseDict = collections.UserDict
+
+
+class PublicKeyParams(BaseDict, abc.ABC):
     def __init__(self, params: typing.Mapping[str, typing.Any]):
         super().__init__(params)
         self.check_params_are_valid()
