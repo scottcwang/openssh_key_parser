@@ -192,7 +192,7 @@ class Ed25519PublicKeyParams(PublicKeyParams):
         if destination_class == bytes:
             return self['public']
         try:
-            import nacl  # type: ignore
+            import nacl
             if destination_class == nacl.public.PublicKey:
                 return nacl.public.PublicKey(self['public'])
         except ImportError:
@@ -262,7 +262,7 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
         if destination_class == bytes:
             return self['private_public'][:self.KEY_SIZE]
         try:
-            import nacl  # type: ignore
+            import nacl
             if destination_class == nacl.public.PrivateKey:
                 return nacl.public.PrivateKey(
                     self['private_public'][:self.KEY_SIZE]

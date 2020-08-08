@@ -1,5 +1,5 @@
 import pytest
-import bcrypt  # type: ignore
+import bcrypt
 
 from openssh_key.kdf import (
     create_kdf,

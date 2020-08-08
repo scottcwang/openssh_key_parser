@@ -3,7 +3,7 @@ import abc
 import secrets
 import typing
 
-import bcrypt  # type: ignore
+import bcrypt
 
 from openssh_key.pascal_style_byte_stream import (
     PascalStyleFormatInstruction,
