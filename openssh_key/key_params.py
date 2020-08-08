@@ -75,7 +75,7 @@ class PrivateKeyParams(PublicKeyParams):
     @abc.abstractmethod
     def generate_private_params(
         cls: typing.Type[PrivateKeyParamsTypeVar],
-        **kwargs
+        **kwargs: typing.Any
     ) -> PrivateKeyParamsTypeVar:
         return cls({})
 
@@ -123,7 +123,7 @@ class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
     @classmethod
     def generate_private_params(
         cls: typing.Type[RSAPrivateKeyParamsTypeVar],
-        **kwargs
+        **kwargs: typing.Any
     ) -> RSAPrivateKeyParamsTypeVar:
         private_key = rsa.generate_private_key(
             public_exponent=(
@@ -230,7 +230,7 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
     @classmethod
     def generate_private_params(
         cls: typing.Type[Ed25519PrivateKeyParamsTypeVar],
-        **kwargs
+        **kwargs: typing.Any
     ) -> Ed25519PrivateKeyParamsTypeVar:
         private_key = ed25519.Ed25519PrivateKey.generate()
 
