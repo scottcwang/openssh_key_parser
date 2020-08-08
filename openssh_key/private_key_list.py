@@ -3,6 +3,7 @@ import warnings
 import getpass
 import secrets
 import base64
+import typing
 
 from openssh_key.key import (
     PublicKey,
@@ -10,9 +11,15 @@ from openssh_key.key import (
 )
 from openssh_key.pascal_style_byte_stream import (
     PascalStyleFormatInstruction,
-    PascalStyleByteStream
+    PascalStyleByteStream,
+    FormatInstructionsDict,
+    ValuesDict
 )
-from openssh_key.kdf import create_kdf, NoneKDF
+from openssh_key.kdf import (
+    create_kdf,
+    NoneKDF,
+    KDFOptions
+)
 from openssh_key.cipher import create_cipher
 
 
@@ -23,11 +30,15 @@ WRAP_COL = 70
 
 
 class PublicPrivateKeyPair:
-    def __init__(self, public, private):
+    def __init__(
+        self,
+        public: PublicKey,
+        private: PrivateKey
+    ):
         self.public = public
         self.private = private
 
-    def __eq__(self, other):
+    def __eq__(self, other: typing.Any) -> bool:
         return (
             type(self) is type(other) and
             self.public == other.public and
@@ -35,9 +46,15 @@ class PublicPrivateKeyPair:
         )
 
 
+PrivateKeyListTypeVar = typing.TypeVar(
+    'PrivateKeyListTypeVar',
+    bound='PrivateKeyList'
+)
+
+
 class PrivateKeyList(collections.UserList):
     @staticmethod
-    def header_format_instructions_dict():
+    def header_format_instructions_dict() -> FormatInstructionsDict:
         return {
             'auth_magic': '15s',
             'cipher': PascalStyleFormatInstruction.STRING,
@@ -47,7 +64,8 @@ class PrivateKeyList(collections.UserList):
         }
 
     @staticmethod
-    def decipher_bytes_header_format_instructions_dict():
+    def decipher_bytes_header_format_instructions_dict() \
+            -> FormatInstructionsDict:
         return {
             'check_int_1': '>I',
             'check_int_2': '>I'
@@ -55,14 +73,14 @@ class PrivateKeyList(collections.UserList):
 
     def __init__(
         self,
-        initlist,
-        byte_string=None,
-        header=None,
-        cipher_bytes=None,
-        kdf_options=None,
-        decipher_bytes=None,
-        decipher_bytes_header=None,
-        decipher_padding=None
+        initlist: typing.List[PublicPrivateKeyPair],
+        byte_string: typing.Optional[bytes] = None,
+        header: typing.Optional[ValuesDict] = None,
+        cipher_bytes: typing.Optional[bytes] = None,
+        kdf_options: typing.Optional[KDFOptions] = None,
+        decipher_bytes: typing.Optional[bytes] = None,
+        decipher_bytes_header: typing.Optional[ValuesDict] = None,
+        decipher_padding: typing.Optional[bytes] = None
     ):
         super().__init__(initlist)
         self.byte_string = byte_string
@@ -74,7 +92,10 @@ class PrivateKeyList(collections.UserList):
         self.decipher_padding = decipher_padding
 
     @classmethod
-    def from_bytes(cls, byte_string):
+    def from_bytes(
+        cls: typing.Type[PrivateKeyListTypeVar],
+        byte_string: bytes
+    ) -> PrivateKeyListTypeVar:
         byte_stream = PascalStyleByteStream(byte_string)
 
         header = byte_stream.read_from_format_instructions_dict(
@@ -187,7 +208,10 @@ class PrivateKeyList(collections.UserList):
         )
 
     @classmethod
-    def from_string(cls, string):
+    def from_string(
+        cls: typing.Type[PrivateKeyListTypeVar],
+        string: str
+    ) -> PrivateKeyListTypeVar:
         key_lines = string.splitlines()
 
         if key_lines[0] != OPENSSH_PRIVATE_KEY_HEADER or \
@@ -199,12 +223,12 @@ class PrivateKeyList(collections.UserList):
 
     @classmethod
     def from_list(
-        cls,
-        key_pair_list,
-        cipher='none',
-        kdf='none',
-        kdf_options=None
-    ):
+        cls: typing.Type[PrivateKeyListTypeVar],
+        key_pair_list: typing.List[PublicPrivateKeyPair],
+        cipher: str = 'none',
+        kdf: str = 'none',
+        kdf_options: KDFOptions = None
+    ) -> PrivateKeyListTypeVar:
         header = {
             'cipher': cipher,
             'kdf': kdf
@@ -229,10 +253,10 @@ class PrivateKeyList(collections.UserList):
 
     def pack_bytes(
         self,
-        include_indices=None,
-        override_public_with_private=True,
-        retain_kdf_options_if_present=False
-    ):
+        include_indices: typing.List[int] = None,
+        override_public_with_private: bool = True,
+        retain_kdf_options_if_present: bool = False
+    ) -> bytes:
         if isinstance(self.header, collections.abc.Mapping) \
                 and 'cipher' in self.header and 'kdf' in self.header:
             cipher = self.header['cipher']
@@ -324,10 +348,10 @@ class PrivateKeyList(collections.UserList):
 
     def pack_string(
         self,
-        include_indices=None,
-        override_public_with_private=True,
-        retain_kdf_options_if_present=False
-    ):
+        include_indices: typing.List[int] = None,
+        override_public_with_private: bool = True,
+        retain_kdf_options_if_present: bool = False
+    ) -> str:
         text = OPENSSH_PRIVATE_KEY_HEADER + '\n'
         private_keys_bytes = self.pack_bytes(
             include_indices,
