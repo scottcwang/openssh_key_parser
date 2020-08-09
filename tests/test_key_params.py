@@ -504,6 +504,41 @@ def test_ed25519_public_missing_params():
         Ed25519PublicKeyParams({})
 
 
+def test_ed25519_public_convert_from_unknown():
+    with pytest.raises(NotImplementedError):
+        Ed25519PublicKeyParams.convert_from('random')
+
+
+def test_ed25519_public_convert_from_cryptography_public():
+    ed25519_key_object = ed25519.Ed25519PrivateKey.generate().public_key()
+    converted = Ed25519PublicKeyParams.convert_from(ed25519_key_object)
+    assert isinstance(converted, Ed25519PublicKeyParams)
+    assert converted == {
+        'public': ed25519_key_object.public_bytes(
+            encoding=serialization.Encoding.Raw,
+            format=serialization.PublicFormat.Raw
+        )
+    }
+
+
+def test_ed25519_public_convert_from_bytes_public():
+    ed25519_key_object = secrets.token_bytes(Ed25519PublicKeyParams.KEY_SIZE)
+    converted = Ed25519PublicKeyParams.convert_from(ed25519_key_object)
+    assert isinstance(converted, Ed25519PublicKeyParams)
+    assert converted == {
+        'public': ed25519_key_object
+    }
+
+
+def test_ed25519_public_convert_from_pynacl_public():
+    ed25519_key_object = nacl.public.PrivateKey.generate().public_key
+    converted = Ed25519PublicKeyParams.convert_from(ed25519_key_object)
+    assert isinstance(converted, Ed25519PublicKeyParams)
+    assert converted == {
+        'public': bytes(ed25519_key_object)
+    }
+
+
 def test_ed25519_public_convert_to_cryptography_public():
     ed25519_private = Ed25519PrivateKeyParams.generate_private_params()
     ed25519_public = Ed25519PublicKeyParams({

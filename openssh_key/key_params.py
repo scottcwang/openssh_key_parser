@@ -229,6 +229,31 @@ class Ed25519PublicKeyParams(PublicKeyParams):
                 and len(self.data['public']) != self.KEY_SIZE:
             warnings.warn('Public key not of length ' + str(self.KEY_SIZE))
 
+    @classmethod
+    def convert_from(
+        cls,
+        key_object: typing.Any
+    ) -> PublicKeyParams:
+        public_bytes = None
+        if isinstance(key_object, ed25519.Ed25519PublicKey):
+            public_bytes = key_object.public_bytes(
+                encoding=serialization.Encoding.Raw,
+                format=serialization.PublicFormat.Raw
+            )
+        try:
+            import nacl
+            if isinstance(key_object, nacl.public.PublicKey):
+                public_bytes = bytes(key_object)
+        except ImportError:
+            pass
+        if isinstance(key_object, bytes):
+            public_bytes = key_object
+        if public_bytes is not None:
+            return cls({
+                'public': public_bytes
+            })
+        return super().convert_from(key_object)
+
     def convert_to(
         self,
         destination_class: typing.Type[typing.Any]
