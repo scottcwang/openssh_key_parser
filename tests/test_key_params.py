@@ -322,6 +322,30 @@ def test_rsa_private_generate_private_params_invalid_key_size():
         RSAPrivateKeyParams.generate_private_params(key_size=key_size)
 
 
+def test_rsa_private_convert_from_unknown():
+    with pytest.raises(NotImplementedError):
+        RSAPrivateKeyParams.convert_from('random')
+
+
+def test_rsa_private_convert_from_cryptography_private():
+    rsa_key_object = rsa.generate_private_key(
+        RSAPrivateKeyParams.PUBLIC_EXPONENT,
+        RSAPrivateKeyParams.KEY_SIZE,
+        default_backend()
+    )
+    rsa_numbers = rsa_key_object.private_numbers()
+    converted = RSAPrivateKeyParams.convert_from(rsa_key_object)
+    assert isinstance(converted, RSAPrivateKeyParams)
+    assert converted == {
+        'n': rsa_numbers.public_numbers.n,
+        'e': rsa_numbers.public_numbers.e,
+        'd': rsa_numbers.d,
+        'iqmp': rsa_numbers.iqmp,
+        'p': rsa_numbers.p,
+        'q': rsa_numbers.q
+    }
+
+
 def test_rsa_private_convert_cryptography_private():
     rsa_private = RSAPrivateKeyParams.generate_private_params()
     converted = rsa_private.convert_to(rsa.RSAPrivateKey)

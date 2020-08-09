@@ -175,6 +175,23 @@ class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
             }
         )
 
+    @classmethod
+    def convert_from(
+        cls,
+        key_object: typing.Any
+    ) -> PublicKeyParams:
+        if isinstance(key_object, rsa.RSAPrivateKeyWithSerialization):
+            private_numbers = key_object.private_numbers()
+            return cls({
+                'n': private_numbers.public_numbers.n,
+                'e': private_numbers.public_numbers.e,
+                'd': private_numbers.d,
+                'iqmp': private_numbers.iqmp,
+                'p': private_numbers.p,
+                'q': private_numbers.q
+            })
+        return super().convert_from(key_object)
+
     def convert_to(
         self,
         destination_class: typing.Type[typing.Any]
