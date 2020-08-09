@@ -38,6 +38,13 @@ class PublicKeyParams(BaseDict, abc.ABC):
         super().__init__(params)
         self.check_params_are_valid()
 
+    @classmethod
+    def convert_from(
+        cls,
+        key_object: typing.Any
+    ) -> 'PublicKeyParams':
+        raise NotImplementedError()
+
     @staticmethod
     @abc.abstractmethod
     def public_format_instructions_dict() -> FormatInstructionsDict:
