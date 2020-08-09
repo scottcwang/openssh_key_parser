@@ -190,7 +190,7 @@ def test_rsa_public_convert_from_cryptography_public():
     }
 
 
-def test_rsa_public_convert_cryptography_public():
+def test_rsa_public_convert_to_cryptography_public():
     rsa_private = RSAPrivateKeyParams.generate_private_params()
     rsa_public = RSAPublicKeyParams({
         'e': rsa_private['e'],
@@ -346,7 +346,7 @@ def test_rsa_private_convert_from_cryptography_private():
     }
 
 
-def test_rsa_private_convert_cryptography_private():
+def test_rsa_private_convert_to_cryptography_private():
     rsa_private = RSAPrivateKeyParams.generate_private_params()
     converted = rsa_private.convert_to(rsa.RSAPrivateKey)
     assert isinstance(converted, rsa.RSAPrivateKey)
@@ -364,7 +364,7 @@ def test_rsa_private_convert_cryptography_private():
     )
 
 
-def test_rsa_private_convert_cryptography_public():
+def test_rsa_private_convert_to_cryptography_public():
     rsa_private = RSAPrivateKeyParams.generate_private_params()
     converted = rsa_private.convert_to(rsa.RSAPublicKey)
     assert isinstance(converted, rsa.RSAPublicKey)
@@ -374,7 +374,7 @@ def test_rsa_private_convert_cryptography_public():
     )
 
 
-def test_rsa_public_convert_not_implemented():
+def test_rsa_public_convert_to_not_implemented():
     rsa_private = RSAPrivateKeyParams.generate_private_params()
     with pytest.raises(NotImplementedError):
         assert rsa_private.convert_to(type)
@@ -504,7 +504,7 @@ def test_ed25519_public_missing_params():
         Ed25519PublicKeyParams({})
 
 
-def test_ed25519_public_convert_cryptography_public():
+def test_ed25519_public_convert_to_cryptography_public():
     ed25519_private = Ed25519PrivateKeyParams.generate_private_params()
     ed25519_public = Ed25519PublicKeyParams({
         'public': ed25519_private['public']
@@ -517,7 +517,7 @@ def test_ed25519_public_convert_cryptography_public():
     ) == ed25519_public['public']
 
 
-def test_ed25519_public_convert_bytes_public():
+def test_ed25519_public_convert_to_bytes_public():
     ed25519_private = Ed25519PrivateKeyParams.generate_private_params()
     ed25519_public = Ed25519PublicKeyParams({
         'public': ed25519_private['public']
@@ -527,7 +527,7 @@ def test_ed25519_public_convert_bytes_public():
     assert converted == ed25519_public['public']
 
 
-def test_ed25519_public_convert_pynacl_public():
+def test_ed25519_public_convert_to_pynacl_public():
     ed25519_private = Ed25519PrivateKeyParams.generate_private_params()
     ed25519_public = Ed25519PublicKeyParams({
         'public': ed25519_private['public']
@@ -537,7 +537,7 @@ def test_ed25519_public_convert_pynacl_public():
     assert bytes(converted) == ed25519_public['public']
 
 
-def test_ed25519_public_convert_missing_pynacl(mocker):
+def test_ed25519_public_convert_to_missing_pynacl(mocker):
     mocker.patch.dict(sys.modules, {'nacl': None})
     ed25519_private = Ed25519PrivateKeyParams.generate_private_params()
     ed25519_public = Ed25519PublicKeyParams({
@@ -589,7 +589,7 @@ def test_ed25519_private_generate_private_params():
     assert not warnings_list
 
 
-def test_ed25519_private_convert_cryptography_private():
+def test_ed25519_private_convert_to_cryptography_private():
     ed25519_private = Ed25519PrivateKeyParams.generate_private_params()
     converted = ed25519_private.convert_to(ed25519.Ed25519PrivateKey)
     assert isinstance(converted, ed25519.Ed25519PrivateKey)
@@ -600,7 +600,7 @@ def test_ed25519_private_convert_cryptography_private():
     ) == ed25519_private['private_public'][:Ed25519PublicKeyParams.KEY_SIZE]
 
 
-def test_ed25519_private_convert_cryptography_public():
+def test_ed25519_private_convert_to_cryptography_public():
     ed25519_private = Ed25519PrivateKeyParams.generate_private_params()
     converted = ed25519_private.convert_to(ed25519.Ed25519PublicKey)
     assert isinstance(converted, ed25519.Ed25519PublicKey)
@@ -610,7 +610,7 @@ def test_ed25519_private_convert_cryptography_public():
     ) == ed25519_private['public']
 
 
-def test_ed25519_private_convert_bytes_private():
+def test_ed25519_private_convert_to_bytes_private():
     ed25519_private = Ed25519PrivateKeyParams.generate_private_params()
     converted = ed25519_private.convert_to(bytes)
     assert isinstance(converted, bytes)
@@ -618,7 +618,7 @@ def test_ed25519_private_convert_bytes_private():
         ed25519_private['private_public'][:Ed25519PublicKeyParams.KEY_SIZE]
 
 
-def test_ed25519_private_convert_pynacl_private():
+def test_ed25519_private_convert_to_pynacl_private():
     ed25519_private = Ed25519PrivateKeyParams.generate_private_params()
     converted = ed25519_private.convert_to(nacl.public.PrivateKey)
     assert isinstance(converted, nacl.public.PrivateKey)
@@ -626,21 +626,21 @@ def test_ed25519_private_convert_pynacl_private():
         ed25519_private['private_public'][:Ed25519PublicKeyParams.KEY_SIZE]
 
 
-def test_ed25519_private_convert_pynacl_public():
+def test_ed25519_private_convert_to_pynacl_public():
     ed25519_private = Ed25519PrivateKeyParams.generate_private_params()
     converted = ed25519_private.convert_to(nacl.public.PublicKey)
     assert isinstance(converted, nacl.public.PublicKey)
     assert bytes(converted) == ed25519_private['public']
 
 
-def test_ed25519_private_convert_missing_pynacl(mocker):
+def test_ed25519_private_convert_to_missing_pynacl(mocker):
     mocker.patch.dict(sys.modules, {'nacl': None})
     ed25519_private = Ed25519PrivateKeyParams.generate_private_params()
     with pytest.raises(NotImplementedError):
         ed25519_private.convert_to(nacl.public.PublicKey)
 
 
-def test_ed25519_public_convert_not_implemented():
+def test_ed25519_public_convert_to_not_implemented():
     ed25519_private = Ed25519PrivateKeyParams.generate_private_params()
     with pytest.raises(NotImplementedError):
         assert ed25519_private.convert_to(type)
