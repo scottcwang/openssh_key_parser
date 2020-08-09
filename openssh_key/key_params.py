@@ -322,6 +322,45 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
             'private_public': private_bytes + public_bytes
         })
 
+    @classmethod
+    def convert_from(
+        cls,
+        key_object: typing.Any
+    ) -> PublicKeyParams:
+        private_bytes = None
+        public_bytes = None
+        if isinstance(key_object, ed25519.Ed25519PrivateKey):
+            private_bytes = key_object.private_bytes(
+                encoding=serialization.Encoding.Raw,
+                format=serialization.PrivateFormat.Raw,
+                encryption_algorithm=serialization.NoEncryption()
+            )
+            public_bytes = key_object.public_key().public_bytes(
+                encoding=serialization.Encoding.Raw,
+                format=serialization.PublicFormat.Raw
+            )
+        try:
+            import nacl
+            if isinstance(key_object, nacl.public.PrivateKey):
+                private_bytes = bytes(key_object)
+                public_bytes = bytes(key_object.public_key)
+        except ImportError:
+            pass
+        if isinstance(key_object, bytes):
+            private_bytes = key_object
+            public_bytes = ed25519.Ed25519PrivateKey.from_private_bytes(
+                key_object
+            ).public_key().public_bytes(
+                encoding=serialization.Encoding.Raw,
+                format=serialization.PublicFormat.Raw
+            )
+        if private_bytes is not None and public_bytes is not None:
+            return cls({
+                'public': public_bytes,
+                'private_public': private_bytes + public_bytes
+            })
+        return super().convert_from(key_object)
+
     def convert_to(
         self,
         destination_class: typing.Type[typing.Any]

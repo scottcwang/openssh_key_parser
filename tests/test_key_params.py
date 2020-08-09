@@ -624,6 +624,56 @@ def test_ed25519_private_generate_private_params():
     assert not warnings_list
 
 
+def test_ed25519_private_convert_from_unknown():
+    with pytest.raises(NotImplementedError):
+        Ed25519PrivateKeyParams.convert_from('random')
+
+
+def test_ed25519_private_convert_from_cryptography_private():
+    ed25519_key_object = ed25519.Ed25519PrivateKey.generate()
+    converted = Ed25519PrivateKeyParams.convert_from(ed25519_key_object)
+    assert isinstance(converted, Ed25519PrivateKeyParams)
+    public_bytes = ed25519_key_object.public_key().public_bytes(
+        encoding=serialization.Encoding.Raw,
+        format=serialization.PublicFormat.Raw
+    )
+    assert converted == {
+        'public': public_bytes,
+        'private_public': ed25519_key_object.private_bytes(
+            encoding=serialization.Encoding.Raw,
+            format=serialization.PrivateFormat.Raw,
+            encryption_algorithm=serialization.NoEncryption()
+        ) + public_bytes
+    }
+
+
+def test_ed25519_private_convert_from_bytes_private():
+    ed25519_key_object = secrets.token_bytes(Ed25519PublicKeyParams.KEY_SIZE)
+    converted = Ed25519PrivateKeyParams.convert_from(ed25519_key_object)
+    assert isinstance(converted, Ed25519PrivateKeyParams)
+    public_bytes = ed25519.Ed25519PrivateKey.from_private_bytes(
+        ed25519_key_object
+    ).public_key().public_bytes(
+        encoding=serialization.Encoding.Raw,
+        format=serialization.PublicFormat.Raw
+    )
+    assert converted == {
+        'public': public_bytes,
+        'private_public': ed25519_key_object + public_bytes
+    }
+
+
+def test_ed25519_private_convert_from_pynacl_private():
+    ed25519_key_object = nacl.public.PrivateKey.generate()
+    converted = Ed25519PrivateKeyParams.convert_from(ed25519_key_object)
+    assert isinstance(converted, Ed25519PrivateKeyParams)
+    public_bytes = ed25519_key_object.public_key
+    assert converted == {
+        'public': bytes(public_bytes),
+        'private_public': bytes(ed25519_key_object) + bytes(public_bytes)
+    }
+
+
 def test_ed25519_private_convert_to_cryptography_private():
     ed25519_private = Ed25519PrivateKeyParams.generate_private_params()
     converted = ed25519_private.convert_to(ed25519.Ed25519PrivateKey)
