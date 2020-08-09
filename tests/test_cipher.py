@@ -2,11 +2,11 @@ from openssh_key.cipher import create_cipher, NoneCipher, AES256_CTRCipher
 
 
 def test_factory_none():
-    assert isinstance(create_cipher('none'), NoneCipher.__class__)
+    assert create_cipher('none') == NoneCipher
 
 
 def test_factory_aes256_ctr():
-    assert isinstance(create_cipher('aes256-ctr'), AES256_CTRCipher.__class__)
+    assert create_cipher('aes256-ctr') == AES256_CTRCipher
 
 
 def test_none_encrypt():

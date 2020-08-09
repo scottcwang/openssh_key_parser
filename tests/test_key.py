@@ -231,7 +231,7 @@ def test_public_key_from_byte_stream():
     public_key_bytes, _ = correct_public_key_bytes_ed25519()
     key = PublicKey.from_byte_stream(PascalStyleByteStream(public_key_bytes))
     assert key.header == ED25519_TEST_HEADER
-    assert isinstance(key.params, Ed25519PublicKeyParams)
+    assert type(key.params) == Ed25519PublicKeyParams
     assert key.params == ED25519_TEST_PUBLIC
     assert key.footer == {}
 
@@ -240,7 +240,7 @@ def test_public_key_from_bytes():
     public_key_bytes, _ = correct_public_key_bytes_ed25519()
     key = PublicKey.from_bytes(public_key_bytes)
     assert key.header == ED25519_TEST_HEADER
-    assert isinstance(key.params, Ed25519PublicKeyParams)
+    assert type(key.params) == Ed25519PublicKeyParams
     assert key.params == ED25519_TEST_PUBLIC
     assert key.footer == {}
 
@@ -252,7 +252,7 @@ def test_public_key_from_bytes_remainder():
     with pytest.warns(UserWarning, match='Excess bytes in key'):
         key = PublicKey.from_bytes(public_key_bytes)
     assert key.header == ED25519_TEST_HEADER
-    assert isinstance(key.params, Ed25519PublicKeyParams)
+    assert type(key.params) == Ed25519PublicKeyParams
     assert key.params == ED25519_TEST_PUBLIC
     assert key.footer == {}
     assert key.clear == {'remainder': remainder}
@@ -388,7 +388,7 @@ def test_private_key_from_byte_stream():
     key = PrivateKey.from_byte_stream(PascalStyleByteStream(private_key_bytes))
     assert key.header == ED25519_TEST_HEADER
     assert key.params == ED25519_TEST_PRIVATE
-    assert isinstance(key.params, Ed25519PrivateKeyParams)
+    assert type(key.params) == Ed25519PrivateKeyParams
     assert key.footer == PRIVATE_TEST_FOOTER
 
 
@@ -397,7 +397,7 @@ def test_private_key_from_bytes():
     key = PrivateKey.from_bytes(private_key_bytes)
     assert key.header == ED25519_TEST_HEADER
     assert key.params == ED25519_TEST_PRIVATE
-    assert isinstance(key.params, Ed25519PrivateKeyParams)
+    assert type(key.params) == Ed25519PrivateKeyParams
     assert key.footer == PRIVATE_TEST_FOOTER
 
 

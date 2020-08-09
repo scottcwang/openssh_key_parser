@@ -14,11 +14,11 @@ from openssh_key.pascal_style_byte_stream import (
 
 
 def test_factory_none():
-    assert isinstance(create_kdf('none'), NoneKDF.__class__)
+    assert create_kdf('none') == NoneKDF
 
 
 def test_factory_bcrypt():
-    assert isinstance(create_kdf('bcrypt'), BcryptKDF.__class__)
+    assert create_kdf('bcrypt') == BcryptKDF
 
 
 def test_none_options_format_instructions_dict():
