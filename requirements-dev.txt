@@ -6,3 +6,4 @@ pytest-mypy
 pynacl
 
 sphinx
+sphinx-autodoc-typehints
