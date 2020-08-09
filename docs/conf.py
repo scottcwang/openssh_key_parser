@@ -29,6 +29,7 @@ author = 'Scott C Wang'
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.napoleon',
     'sphinx_autodoc_typehints'
 ]
 
