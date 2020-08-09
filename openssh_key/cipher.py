@@ -49,9 +49,11 @@ class NoneCipher(Cipher):
     ) -> bytes:
         return cipher_bytes
 
+    BLOCK_SIZE = 8
+
     @staticmethod
     def block_size() -> int:
-        return 8
+        return NoneCipher.BLOCK_SIZE
 
 
 class AES256_CTRCipher(Cipher):
@@ -83,9 +85,11 @@ class AES256_CTRCipher(Cipher):
         decryptor = cipher.decryptor()
         return decryptor.update(cipher_bytes) + decryptor.finalize()
 
+    BLOCK_SIZE = 16
+
     @staticmethod
     def block_size() -> int:
-        return 16
+        return AES256_CTRCipher.BLOCK_SIZE
 
 
 _CIPHER_MAPPING = {
