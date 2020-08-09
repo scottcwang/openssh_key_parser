@@ -104,6 +104,19 @@ class RSAPublicKeyParams(PublicKeyParams):
             'n': PascalStyleFormatInstruction.MPINT,
         }
 
+    @classmethod
+    def convert_from(
+        cls,
+        key_object: typing.Any
+    ) -> PublicKeyParams:
+        if isinstance(key_object, rsa.RSAPublicKey):
+            public_numbers = key_object.public_numbers()
+            return cls({
+                'e': public_numbers.e,
+                'n': public_numbers.n
+            })
+        return super().convert_from(key_object)
+
     def convert_to(
         self,
         destination_class: typing.Type[typing.Any]

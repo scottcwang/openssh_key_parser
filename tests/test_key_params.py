@@ -170,6 +170,26 @@ def test_rsa_public_missing_params():
         })
 
 
+def test_rsa_public_convert_from_unknown():
+    with pytest.raises(NotImplementedError):
+        RSAPublicKeyParams.convert_from('random')
+
+
+def test_rsa_public_convert_from_cryptography_public():
+    rsa_key_object = rsa.generate_private_key(
+        RSAPrivateKeyParams.PUBLIC_EXPONENT,
+        RSAPrivateKeyParams.KEY_SIZE,
+        default_backend()
+    ).public_key()
+    rsa_numbers = rsa_key_object.public_numbers()
+    converted = RSAPublicKeyParams.convert_from(rsa_key_object)
+    assert isinstance(converted, RSAPublicKeyParams)
+    assert converted == {
+        'e': rsa_numbers.e,
+        'n': rsa_numbers.n
+    }
+
+
 def test_rsa_public_convert_cryptography_public():
     rsa_private = RSAPrivateKeyParams.generate_private_params()
     rsa_public = RSAPublicKeyParams({
