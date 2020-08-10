@@ -1,3 +1,8 @@
+"""Classes representing key derivation functions.
+
+The abstract base class is :py:class:`KDF`.
+"""
+
 import abc
 import secrets
 import typing
@@ -20,14 +25,36 @@ KDFOptions = ValuesDict
 
 
 class KDFResult(typing.NamedTuple):
+    """The result of a key derivation function.
+    """
+
     cipher_key: bytes
     initialization_vector: bytes
 
 
 class KDF(abc.ABC):
+    """A password-based key derivation function.
+
+    Used to obtain a pseudorandom symmetric key by cryptographically hashing
+    a potentially low-entropy passphrase given certain parameters, such as a
+    work factor, memory factor, or salt.
+    """
+
     @staticmethod
     @abc.abstractmethod
     def derive_key(options: KDFOptions, passphrase: str) -> KDFResult:
+        """Derives a key derivation function result from a given passphrase
+        and parameters.
+
+        Args:
+            options
+                Key derivation function parameters.
+            passphrase
+                Passphrase from which to derive key.
+
+        Returns:
+            Key derivation function result.
+        """
         return KDFResult(
             cipher_key=b'',
             initialization_vector=b''
@@ -36,6 +63,12 @@ class KDF(abc.ABC):
     @staticmethod
     @abc.abstractmethod
     def options_format_instructions_dict() -> FormatInstructionsDict:
+        """The Pascal-style byte stream format instructions for the parameters
+        to a key derivation function.
+
+        Returns:
+            The format instructions.
+        """
         return {}
 
     @classmethod
@@ -44,12 +77,37 @@ class KDF(abc.ABC):
         cls: typing.Type[KDFTypeVar],
         **kwargs: typing.Any
     ) -> KDFOptions:
+        """Generates parameters to be consumed by a key derivation function.
+
+        Args:
+            kwargs
+                Keyword arguments using which to generate parameters.
+
+        Returns:
+            Generated key generation function parameters.
+        """
         return {}
 
 
 class NoneKDF(KDF):
+    """Null key derivation function.
+
+    To be used only with null encryption.
+    """
     @staticmethod
     def derive_key(options: KDFOptions, passphrase: str) -> KDFResult:
+        """Returns an empty key derivation function result for use with null
+        encryption.
+
+        Args:
+            options
+                Ignored.
+            passphrase
+                Ignored.
+
+        Returns:
+            An empty key derivation function result.
+        """
         return KDFResult(
             cipher_key=b'',
             initialization_vector=b''
@@ -57,6 +115,11 @@ class NoneKDF(KDF):
 
     @staticmethod
     def options_format_instructions_dict() -> FormatInstructionsDict:
+        """Empty format instructions.
+
+        Returns:
+            An empty ``dict``.
+        """
         return {}
 
     @classmethod
@@ -64,10 +127,21 @@ class NoneKDF(KDF):
         cls: typing.Type['NoneKDF'],
         **kwargs: typing.Any
     ) -> KDFOptions:
+        """Empty key derivation function parameters.
+
+        Returns:
+            An empty ``dict``.
+        """
         return {}
 
 
 class BcryptKDF(KDF):
+    """Bcrypt-PBKDF2, as implemented by OpenSSH; viz., the `RFC 2898
+    Password-based Key Derivation Function 2 <https://tools.ietf.org/html/rfc2898#section-5.2>`_,
+    using the Blowfish-cipher-based password hash function as the pseudorandom
+    function.
+    """
+
     KEY_LENGTH = 32
     IV_LENGTH = 16
     SALT_LENGTH = 16
@@ -75,10 +149,31 @@ class BcryptKDF(KDF):
 
     @staticmethod
     def derive_key(options: KDFOptions, passphrase: str) -> KDFResult:
+        """Derives a bcrypt-PBKDF2 result from a given passphrase and
+        parameters.
+
+        OpenSSH uses a hash length of 48 bytes: 32 for the symmetric key and
+        16 for the cipher initialization vector.
+
+        Args:
+            options
+                Bcrypt-PBKDF2 parameters.
+            passphrase
+                Passphrase from which to derive key.
+
+        Returns:
+            Bcrypt-PBKDF2 result.
+
+        Raises:
+            ValueError: ``passphrase`` or ``options['salt']`` is empty, or
+                ``options['rounds']`` is negative.
+
+        Notes:
+            https://github.com/openssh/openssh-portable/blob/e073106f370cdd2679e41f6f55a37b491f0e82fe/sshkey.c#L3875
+        """
         bcrypt_result = bcrypt.kdf(
             password=passphrase.encode(),
             salt=options['salt'],
-            # https://blog.rebased.pl/2020/03/24/basic-key-security.html
             desired_key_bytes=BcryptKDF.KEY_LENGTH + BcryptKDF.IV_LENGTH,
             rounds=options['rounds'],
             ignore_few_rounds=True
@@ -90,6 +185,12 @@ class BcryptKDF(KDF):
 
     @staticmethod
     def options_format_instructions_dict() -> FormatInstructionsDict:
+        """The Pascal-style byte stream format instructions for the parameters
+        to bcrypt-PBKDF2.
+
+        Returns:
+            The format instructions.
+        """
         return {
             'salt': PascalStyleFormatInstruction.BYTES,
             'rounds': '>I'
@@ -100,6 +201,18 @@ class BcryptKDF(KDF):
         cls: typing.Type['BcryptKDF'],
         **kwargs: typing.Any
     ) -> KDFOptions:
+        """Generates parameters to be consumed by bcrypt-PBKDF2.
+
+        Args:
+            kwargs
+                Keyword arguments using which to generate parameters.
+
+        Returns:
+            Generated key generation function parameters. Following OpenSSH,
+            if ``kwargs['salt_length']`` is not given, a salt of length 16
+            bytes is generated, and if ``kwargs['rounds']`` is not given, 16
+            PBKDF2 rounds are used.
+        """
         return {
             'salt': secrets.token_bytes(
                 kwargs['salt_length'] if 'salt_length' in kwargs
@@ -119,4 +232,19 @@ _KDF_MAPPING = {
 
 
 def create_kdf(kdf_type: str) -> typing.Type[KDF]:
+    """Returns the class corresponding to the given key derivation function
+    type name.
+
+    Args:
+        kdf_type
+            The name of the OpenSSH private key key derivation function type.
+
+    Returns:
+        The subclass of :py:class:`KDF` corresponding to the key derivation
+        function type name.
+
+    Raises:
+        KeyError: There is no subclass of :py:class:`KDF` corresponding to
+            the given key derivation function type name.
+    """
     return _KDF_MAPPING[kdf_type]
