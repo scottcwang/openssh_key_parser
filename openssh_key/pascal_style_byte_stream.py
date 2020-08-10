@@ -4,8 +4,6 @@ import struct
 import warnings
 import typing
 
-OPENSSH_DEFAULT_STRING_LENGTH_SIZE = 4
-
 
 class PascalStyleFormatInstruction(enum.Enum):
     # https://tools.ietf.org/html/rfc4251#section-5
@@ -36,6 +34,8 @@ ValuesDict = typing.Mapping[
 
 
 class PascalStyleByteStream(io.BytesIO):
+    OPENSSH_DEFAULT_STRING_LENGTH_SIZE = 4
+
     def read_from_format_instruction(
         self,
         format_instruction: typing.Union[str, PascalStyleFormatInstruction],
