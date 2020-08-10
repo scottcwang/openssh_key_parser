@@ -95,7 +95,8 @@ def test_bcrypt_calls_lib(mocker):
         password=passphrase.encode(),
         salt=options['salt'],
         desired_key_bytes=BcryptKDF.IV_LENGTH+BcryptKDF.KEY_LENGTH,
-        rounds=options['rounds']
+        rounds=options['rounds'],
+        ignore_few_rounds=True
     )
 
 
