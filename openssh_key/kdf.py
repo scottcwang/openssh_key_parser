@@ -152,8 +152,9 @@ class BcryptKDF(KDF):
         """Derives a bcrypt-PBKDF2 result from a given passphrase and
         parameters.
 
-        OpenSSH uses a hash length of 48 bytes: 32 for the symmetric key and
-        16 for the cipher initialization vector.
+        `OpenSSH uses <https://github.com/openssh/openssh-portable/blob/e073106f370cdd2679e41f6f55a37b491f0e82fe/sshkey.c#L3875>`_
+        a hash length of 48 bytes: 32 for the symmetric key and 16 for the
+        cipher initialization vector.
 
         Args:
             options
@@ -167,9 +168,6 @@ class BcryptKDF(KDF):
         Raises:
             ValueError: ``passphrase`` or ``options['salt']`` is empty, or
                 ``options['rounds']`` is negative.
-
-        Notes:
-            https://github.com/openssh/openssh-portable/blob/e073106f370cdd2679e41f6f55a37b491f0e82fe/sshkey.c#L3875
         """
         bcrypt_result = bcrypt.kdf(
             password=passphrase.encode(),

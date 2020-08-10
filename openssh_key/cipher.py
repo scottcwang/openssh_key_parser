@@ -119,11 +119,9 @@ class NoneCipher(Cipher):
 
     @staticmethod
     def block_size() -> int:
-        """The value 8, the cipher block size OpenSSH uses to pad private
-        bytes under null encryption.
-
-        Notes:
-            https://github.com/openssh/openssh-portable/blob/9cd40b829a5295cc81fbea8c7d632b2478db6274/cipher.c#L112
+        """The value 8, the cipher block size
+        `OpenSSH uses <https://github.com/openssh/openssh-portable/blob/9cd40b829a5295cc81fbea8c7d632b2478db6274/cipher.c#L112>`_
+        to pad private bytes under null encryption.
         """
         return NoneCipher.BLOCK_SIZE
 
