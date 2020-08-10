@@ -1,3 +1,7 @@
+"""Classes for manipulating bytestreams containing values that may be fixed-
+or variable-size.
+"""
+
 import enum
 import io
 import struct
@@ -6,15 +10,35 @@ import typing
 
 
 class PascalStyleFormatInstruction(enum.Enum):
-    # https://tools.ietf.org/html/rfc4251#section-5
+    """Format instructions for variable-length values that may appear in a
+    :py:class:`PascalStyleByteStream` representing an OpenSSH key, per
+    `RFC 4251 <https://tools.ietf.org/html/rfc4251#section-5>`_.
+    """
     BYTES = bytes
     STRING = str
     MPINT = int
+    """A big-endian, signed ``int`` value.
+    """
 
 
 class PascalStyleFormatInstructionStringLengthSize(typing.NamedTuple):
+    """A format instruction for a variable-length value, and the size,
+    in bytes, of the unsigned ``int`` prefix describing the value's length
+    in bytes.
+
+    Example:
+        Reading ``b'\\x00\\x00\\x03abc'`` with a
+        :any:`format_instruction` of
+        :any:`PascalStyleFormatInstruction.STRING` and a
+        :any:`string_length_size` of ``3`` yields a ``str``, viz.
+        ``'abc'``.
+    """
     format_instruction: PascalStyleFormatInstruction
+    """The format instruction.
+    """
     string_length_size: int
+    """The size of the length prefix.
+    """
 
 
 FormatInstructionsDict = typing.Mapping[
@@ -34,6 +58,12 @@ ValuesDict = typing.Mapping[
 
 
 class PascalStyleByteStream(io.BytesIO):
+    """Methods on :py:class:`io.BytesIO` that allow reading and writing values
+    either as ``struct`` values, or as Pascal-style values: variable-length
+    ``bytes``, ``str``, or variable-precision ``int`` values prefixed by the
+    length of such variable-length value.
+    """
+
     OPENSSH_DEFAULT_STRING_LENGTH_SIZE = 4
 
     def read_from_format_instruction(
@@ -41,6 +71,33 @@ class PascalStyleByteStream(io.BytesIO):
         format_instruction: typing.Union[str, PascalStyleFormatInstruction],
         string_length_size: int = OPENSSH_DEFAULT_STRING_LENGTH_SIZE
     ) -> typing.Any:
+        """Reads a value from the underlying bytestream according to a format
+        instruction.
+
+        Args:
+            format_instruction
+                A format instruction; either a ``struct``
+                `format string <https://docs.python.org/3/library/struct.html#format-strings>`_,
+                or a :any:`PascalStyleFormatInstruction`.
+            string_length_size
+                If ``format_instruction`` is a
+                :any:`PascalStyleFormatInstruction`, the size in bytes of the
+                ``int`` preceding the variable-length value that indicates the
+                length of the latter. Ignored otherwise. The default is 4,
+                which OpenSSH uses for encoding keys.
+
+        Returns:
+            The read value. If ``format_instruction`` is a ``struct``
+            format string, the value unpacked using
+            :py:func:`struct.unpack`; if ``format_instruction``
+            is a :any:`PascalStyleFormatInstruction`, the value converted
+            to the corresponding class.
+
+        Raises:
+            EOFError: The underlying bytestream does not contain enough bytes
+                to read a complete value according to ``format_instruction``.
+            ValueError: ``string_length_size`` is nonpositive.
+        """
         if isinstance(format_instruction, str):
             calcsize = struct.calcsize(format_instruction)
             read_bytes = self.read_fixed_bytes(calcsize)
@@ -66,6 +123,23 @@ class PascalStyleByteStream(io.BytesIO):
         self,
         format_instructions_dict: FormatInstructionsDict
     ) -> ValuesDict:
+        """Reads values from the underlying bytestream according to a
+        :py:class:`typing.Mapping` of format instructions.
+
+        Args:
+            format_instructions_dict
+                A :py:class:`typing.Mapping` of value names to format
+                instructions.
+
+        Returns:
+            A :py:class:`typing.Mapping` of value names to read values, as
+            per :any:`read_from_format_instruction`.
+
+        Raises:
+            EOFError: The underlying bytestream does not contain enough bytes
+                to read a complete value for one of the format instructions in
+                ``format_instructions_dict``.
+        """
         return {
             k: (
                 self.read_from_format_instruction(
@@ -81,12 +155,42 @@ class PascalStyleByteStream(io.BytesIO):
         }
 
     def read_fixed_bytes(self, num_bytes: int) -> bytes:
+        """Reads a fixed number of bytes from the underlying bytestream.
+
+        Args:
+            num_bytes
+                The number of bytes to read.
+
+        Returns:
+            The read bytes.
+
+        Raises:
+            EOFError: Fewer than ``num_bytes`` bytes remained in the
+                underlying bytestream.
+        """
         read_bytes = self.read(num_bytes)
         if len(read_bytes) < num_bytes:
             raise EOFError()
         return read_bytes
 
     def read_pascal_bytes(self, string_length_size: int) -> bytes:
+        """Reads a Pascal-style byte string from the underlying bytestream,
+        given the size of the length prefix.
+
+        Args:
+            string_length_size
+                The size of the big-endian unsigned ``int`` prefix that
+                indicates the length of the byte string to read.
+
+        Returns:
+            The read byte string.
+
+        Raises:
+            EOFError: Fewer than ``string_length_size`` bytes remained in the
+                underlying bytestream, or the length prefix exceeds the number
+                of bytes remaining in the underlying bytestream.
+            ValueError: ``string_length_size`` is nonpositive.
+        """
         if string_length_size <= 0:
             raise ValueError('string_length_size must be positive')
         length = int.from_bytes(
@@ -101,6 +205,23 @@ class PascalStyleByteStream(io.BytesIO):
         value: typing.Any,
         string_length_size: int = OPENSSH_DEFAULT_STRING_LENGTH_SIZE
     ) -> None:
+        """Writes a value to the underlying bytestream according to a format
+        instruction.
+
+        Args:
+            format_instruction
+                A format instruction; either a ``struct``
+                `format string <https://docs.python.org/3/library/struct.html#format-strings>`_,
+                or a :any:`PascalStyleFormatInstruction`.
+            value
+                The value to write.
+            string_length_size
+                If ``format_instruction`` is a
+                :any:`PascalStyleFormatInstruction`, the size in bytes of the
+                ``int`` preceding the variable-length value that indicates the
+                length of the latter. Ignored otherwise. The default is 4,
+                which OpenSSH uses for encoding keys.
+        """
         write_bytes = None
         if isinstance(format_instruction, str):
             write_bytes = struct.pack(format_instruction, value)
@@ -147,6 +268,21 @@ class PascalStyleByteStream(io.BytesIO):
         format_instructions_dict: FormatInstructionsDict,
         values_dict: ValuesDict
     ) -> None:
+        """Writes values to the underlying bytestream according to a
+        :py:class:`typing.Mapping` of format instructions.
+
+        Args:
+            format_instructions_dict
+                A :py:class:`typing.Mapping` of value names to format
+                instructions.
+            values_dict
+                A :py:class:`typing.Mapping` of value names to values to
+                be written.
+
+        Raises:
+            KeyError: ``values_dict`` does not contain a key that is
+                contained in ``format_instructions_dict``.
+        """
         for k, format_instruction in format_instructions_dict.items():
             if isinstance(
                 format_instruction,
@@ -168,6 +304,24 @@ class PascalStyleByteStream(io.BytesIO):
         target_dict: ValuesDict,
         format_instructions_dict: FormatInstructionsDict
     ) -> None:
+        """Checks whether a given set of values can validly be passed to
+        :any:`write_from_format_instructions_dict` for given format
+        instructions.
+
+        Args:
+            target_dict
+                A :py:class:`typing.Mapping` of value names to values to
+                be checked.
+            format_instructions_dict
+                A :py:class:`typing.Mapping` of value names to format
+                instructions.
+
+        Raises:
+            UserWarning: A key is missing from ``target_dict`` that is present
+                in ``format_instructions_dict``, or the type or struct size of
+                a value for a key in ``target_dict`` does not match that
+                proscribed for that key in ``format_instructions_dict``.
+        """
         for k, v in format_instructions_dict.items():
             if k not in target_dict:
                 warnings.warn(k + ' missing')
