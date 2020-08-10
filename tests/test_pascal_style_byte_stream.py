@@ -302,6 +302,84 @@ def test_write_from_zero_mpint_format_instruction():
     assert byte_stream.getvalue() == b'\x00\x00\x00\x00'
 
 
+def test_write_from_bytes_format_instruction_bad_class_str():
+    test = 'random'
+    byte_stream = PascalStyleByteStream()
+    with pytest.raises(
+        ValueError,
+        match='value must be a bytes instance for bytes format instruction'
+    ):
+        byte_stream.write_from_format_instruction(
+            PascalStyleFormatInstruction.BYTES,
+            test
+        )
+
+
+def test_write_from_bytes_format_instruction_bad_class_int():
+    test = 1
+    byte_stream = PascalStyleByteStream()
+    with pytest.raises(
+        ValueError,
+        match='value must be a bytes instance for bytes format instruction'
+    ):
+        byte_stream.write_from_format_instruction(
+            PascalStyleFormatInstruction.BYTES,
+            test
+        )
+
+
+def test_write_from_str_format_instruction_bad_class_bytes():
+    test = b'random'
+    byte_stream = PascalStyleByteStream()
+    with pytest.raises(
+        ValueError,
+        match='value must be a str instance for string format instruction'
+    ):
+        byte_stream.write_from_format_instruction(
+            PascalStyleFormatInstruction.STRING,
+            test
+        )
+
+
+def test_write_from_str_format_instruction_bad_class_int():
+    test = 1
+    byte_stream = PascalStyleByteStream()
+    with pytest.raises(
+        ValueError,
+        match='value must be a str instance for string format instruction'
+    ):
+        byte_stream.write_from_format_instruction(
+            PascalStyleFormatInstruction.STRING,
+            test
+        )
+
+
+def test_write_from_mpint_format_instruction_bad_class_bytes():
+    test = b'random'
+    byte_stream = PascalStyleByteStream()
+    with pytest.raises(
+        ValueError,
+        match='value must be an int instance for mpint format instruction'
+    ):
+        byte_stream.write_from_format_instruction(
+            PascalStyleFormatInstruction.MPINT,
+            test
+        )
+
+
+def test_write_from_mpint_format_instruction_bad_class_str():
+    test = 'random'
+    byte_stream = PascalStyleByteStream()
+    with pytest.raises(
+        ValueError,
+        match='value must be an int instance for mpint format instruction'
+    ):
+        byte_stream.write_from_format_instruction(
+            PascalStyleFormatInstruction.MPINT,
+            test
+        )
+
+
 def test_write_from_format_instructions_dict():
     byte_stream = PascalStyleByteStream()
     byte_stream.write_from_format_instructions_dict({

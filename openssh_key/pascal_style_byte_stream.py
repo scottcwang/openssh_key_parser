@@ -106,13 +106,25 @@ class PascalStyleByteStream(io.BytesIO):
             write_bytes = struct.pack(format_instruction, value)
         elif isinstance(format_instruction, PascalStyleFormatInstruction):
             if format_instruction == PascalStyleFormatInstruction.BYTES:
-                assert isinstance(value, bytes)
+                if not isinstance(value, bytes):
+                    raise ValueError(
+                        'value must be a bytes instance for bytes '
+                        'format instruction'
+                    )
                 write_bytes = value
             elif format_instruction == PascalStyleFormatInstruction.STRING:
-                assert isinstance(value, str)
+                if not isinstance(value, str):
+                    raise ValueError(
+                        'value must be a str instance for string '
+                        'format instruction'
+                    )
                 write_bytes = value.encode()
             elif format_instruction == PascalStyleFormatInstruction.MPINT:
-                assert isinstance(value, int)
+                if not isinstance(value, int):
+                    raise ValueError(
+                        'value must be an int instance for mpint '
+                        'format instruction'
+                    )
                 write_bytes = value.to_bytes(
                     length=(value.bit_length() + (8 if value > 0 else 7)) // 8,
                     byteorder='big',
