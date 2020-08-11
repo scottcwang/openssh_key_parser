@@ -184,6 +184,21 @@ def test_rsa_public_convert_from_cryptography_public():
     }
 
 
+def test_rsa_public_convert_from_cryptography_private():
+    rsa_key_object = rsa.generate_private_key(
+        RSAPrivateKeyParams.PUBLIC_EXPONENT,
+        RSAPrivateKeyParams.KEY_SIZE,
+        default_backend()
+    )
+    rsa_numbers = rsa_key_object.private_numbers()
+    converted = RSAPublicKeyParams.convert_from(rsa_key_object)
+    assert type(converted) == RSAPublicKeyParams
+    assert converted == {
+        'e': rsa_numbers.public_numbers.e,
+        'n': rsa_numbers.public_numbers.n
+    }
+
+
 def test_rsa_public_convert_to_cryptography_public():
     rsa_private = RSAPrivateKeyParams.generate_private_params()
     rsa_public = RSAPublicKeyParams({
@@ -524,6 +539,29 @@ def test_ed25519_public_convert_from_pynacl_public():
     assert type(converted) == Ed25519PublicKeyParams
     assert converted == {
         'public': bytes(ed25519_key_object)
+    }
+
+
+def test_ed25519_public_convert_from_cryptography_private():
+    ed25519_key_object = ed25519.Ed25519PrivateKey.generate()
+    converted = Ed25519PublicKeyParams.convert_from(ed25519_key_object)
+    assert type(converted) == Ed25519PublicKeyParams
+    public_bytes = ed25519_key_object.public_key().public_bytes(
+        encoding=serialization.Encoding.Raw,
+        format=serialization.PublicFormat.Raw
+    )
+    assert converted == {
+        'public': public_bytes
+    }
+
+
+def test_ed25519_public_convert_from_pynacl_private():
+    ed25519_key_object = nacl.public.PrivateKey.generate()
+    converted = Ed25519PublicKeyParams.convert_from(ed25519_key_object)
+    assert type(converted) == Ed25519PublicKeyParams
+    public_bytes = ed25519_key_object.public_key
+    assert converted == {
+        'public': bytes(public_bytes)
     }
 
 

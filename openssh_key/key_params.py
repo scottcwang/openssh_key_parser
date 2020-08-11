@@ -43,7 +43,40 @@ class PublicKeyParams(BaseDict, abc.ABC):
         cls,
         key_object: typing.Any
     ) -> 'PublicKeyParams':
+        params_dict: typing.Optional[typing.Mapping[str, typing.Any]] = None
+        for k, v in cls.conversion_functions().items():
+            if isinstance(key_object, k):
+                params_dict = v(key_object)
+                break
+        if params_dict is None:
+            for subcls in cls.__subclasses__():
+                try:
+                    params_dict = dict(subcls.convert_from(key_object))
+                except NotImplementedError:
+                    pass
+                if params_dict is not None:
+                    break
+        if params_dict is not None:
+            return cls({
+                k: params_dict[k]
+                for k in (
+                    cls.private_format_instructions_dict()
+                    if issubclass(cls, PrivateKeyParams)
+                    else cls.public_format_instructions_dict()
+                )
+            })
         raise NotImplementedError()
+
+    @staticmethod
+    def conversion_functions(
+    ) -> typing.Mapping[
+        typing.Type[typing.Any],
+        typing.Callable[
+            [typing.Any],
+            typing.Mapping[str, typing.Any]
+        ]
+    ]:
+        return {}
 
     @staticmethod
     @abc.abstractmethod
@@ -104,18 +137,26 @@ class RSAPublicKeyParams(PublicKeyParams):
             'n': PascalStyleFormatInstruction.MPINT,
         }
 
-    @classmethod
-    def convert_from(
-        cls,
-        key_object: typing.Any
-    ) -> PublicKeyParams:
-        if isinstance(key_object, rsa.RSAPublicKey):
+    @staticmethod
+    def conversion_functions(
+    ) -> typing.Mapping[
+        typing.Type[typing.Any],
+        typing.Callable[
+            [typing.Any],
+            typing.Mapping[str, typing.Any]
+        ]
+    ]:
+        def rsa_public_key(
+            key_object: rsa.RSAPublicKey
+        ) -> typing.Mapping[str, typing.Any]:
             public_numbers = key_object.public_numbers()
-            return cls({
+            return {
                 'e': public_numbers.e,
                 'n': public_numbers.n
-            })
-        return super().convert_from(key_object)
+            }
+        return {
+            rsa.RSAPublicKey: rsa_public_key
+        }
 
     def convert_to(
         self,
@@ -175,22 +216,30 @@ class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
             }
         )
 
-    @classmethod
-    def convert_from(
-        cls,
-        key_object: typing.Any
-    ) -> PublicKeyParams:
-        if isinstance(key_object, rsa.RSAPrivateKeyWithSerialization):
+    @staticmethod
+    def conversion_functions(
+    ) -> typing.Mapping[
+        typing.Type[typing.Any],
+        typing.Callable[
+            [typing.Any],
+            typing.Mapping[str, typing.Any]
+        ]
+    ]:
+        def rsa_private_key(
+            key_object: rsa.RSAPrivateKeyWithSerialization
+        ) -> typing.Mapping[str, typing.Any]:
             private_numbers = key_object.private_numbers()
-            return cls({
+            return {
                 'n': private_numbers.public_numbers.n,
                 'e': private_numbers.public_numbers.e,
                 'd': private_numbers.d,
                 'iqmp': private_numbers.iqmp,
                 'p': private_numbers.p,
                 'q': private_numbers.q
-            })
-        return super().convert_from(key_object)
+            }
+        return {
+            rsa.RSAPrivateKeyWithSerialization: rsa_private_key
+        }
 
     def convert_to(
         self,
@@ -229,30 +278,60 @@ class Ed25519PublicKeyParams(PublicKeyParams):
                 and len(self.data['public']) != self.KEY_SIZE:
             warnings.warn('Public key not of length ' + str(self.KEY_SIZE))
 
-    @classmethod
-    def convert_from(
-        cls,
-        key_object: typing.Any
-    ) -> PublicKeyParams:
-        public_bytes = None
-        if isinstance(key_object, ed25519.Ed25519PublicKey):
-            public_bytes = key_object.public_bytes(
-                encoding=serialization.Encoding.Raw,
-                format=serialization.PublicFormat.Raw
-            )
+    @staticmethod
+    def conversion_functions(
+    ) -> typing.Mapping[
+        typing.Type[typing.Any],
+        typing.Callable[
+            [typing.Any],
+            typing.Mapping[str, typing.Any]
+        ]
+    ]:
+        def ed25519_public_key_cryptography(
+            key_object: ed25519.Ed25519PublicKey
+        ) -> typing.Mapping[str, typing.Any]:
+            return {
+                'public': key_object.public_bytes(
+                    encoding=serialization.Encoding.Raw,
+                    format=serialization.PublicFormat.Raw
+                )
+            }
+
+        def ed25519_public_key_bytes(
+            key_object: bytes
+        ) -> typing.Mapping[str, typing.Any]:
+            return {
+                'public': key_object
+            }
+
+        conversion_functions_dict: typing.MutableMapping[
+            typing.Type[typing.Any],
+            typing.Callable[
+                [typing.Any],
+                typing.Mapping[str, typing.Any]
+            ]
+        ] = {
+            ed25519.Ed25519PublicKey: ed25519_public_key_cryptography,
+            bytes: ed25519_public_key_bytes
+        }
+
         try:
             import nacl
-            if isinstance(key_object, nacl.public.PublicKey):
-                public_bytes = bytes(key_object)
+
+            def ed25519_public_key_pynacl(
+                key_object: nacl.public.PublicKey
+            ) -> typing.Mapping[str, typing.Any]:
+                return {
+                    'public': bytes(key_object)
+                }
+
+            conversion_functions_dict[
+                nacl.public.PublicKey
+            ] = ed25519_public_key_pynacl
         except ImportError:
             pass
-        if isinstance(key_object, bytes):
-            public_bytes = key_object
-        if public_bytes is not None:
-            return cls({
-                'public': public_bytes
-            })
-        return super().convert_from(key_object)
+
+        return conversion_functions_dict
 
     def convert_to(
         self,
@@ -322,14 +401,18 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
             'private_public': private_bytes + public_bytes
         })
 
-    @classmethod
-    def convert_from(
-        cls,
-        key_object: typing.Any
-    ) -> PublicKeyParams:
-        private_bytes = None
-        public_bytes = None
-        if isinstance(key_object, ed25519.Ed25519PrivateKey):
+    @staticmethod
+    def conversion_functions(
+    ) -> typing.Mapping[
+        typing.Type[typing.Any],
+        typing.Callable[
+            [typing.Any],
+            typing.Mapping[str, typing.Any]
+        ]
+    ]:
+        def ed25519_private_key_cryptography(
+            key_object: ed25519.Ed25519PrivateKey
+        ) -> typing.Mapping[str, typing.Any]:
             private_bytes = key_object.private_bytes(
                 encoding=serialization.Encoding.Raw,
                 format=serialization.PrivateFormat.Raw,
@@ -339,14 +422,14 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
                 encoding=serialization.Encoding.Raw,
                 format=serialization.PublicFormat.Raw
             )
-        try:
-            import nacl
-            if isinstance(key_object, nacl.public.PrivateKey):
-                private_bytes = bytes(key_object)
-                public_bytes = bytes(key_object.public_key)
-        except ImportError:
-            pass
-        if isinstance(key_object, bytes):
+            return {
+                'public': public_bytes,
+                'private_public': private_bytes + public_bytes
+            }
+
+        def ed25519_private_key_bytes(
+            key_object: bytes
+        ) -> typing.Mapping[str, typing.Any]:
             private_bytes = key_object
             public_bytes = ed25519.Ed25519PrivateKey.from_private_bytes(
                 key_object
@@ -354,12 +437,42 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
                 encoding=serialization.Encoding.Raw,
                 format=serialization.PublicFormat.Raw
             )
-        if private_bytes is not None and public_bytes is not None:
-            return cls({
+            return {
                 'public': public_bytes,
                 'private_public': private_bytes + public_bytes
-            })
-        return super().convert_from(key_object)
+            }
+
+        conversion_functions_dict: typing.MutableMapping[
+            typing.Type[typing.Any],
+            typing.Callable[
+                [typing.Any],
+                typing.Mapping[str, typing.Any]
+            ]
+        ] = {
+            ed25519.Ed25519PrivateKey: ed25519_private_key_cryptography,
+            bytes: ed25519_private_key_bytes
+        }
+
+        try:
+            import nacl
+
+            def ed25519_private_key_pynacl(
+                key_object: nacl.public.PrivateKey
+            ) -> typing.Mapping[str, typing.Any]:
+                private_bytes = bytes(key_object)
+                public_bytes = bytes(key_object.public_key)
+                return {
+                    'public': public_bytes,
+                    'private_public': private_bytes + public_bytes
+                }
+
+            conversion_functions_dict[
+                nacl.public.PrivateKey
+            ] = ed25519_private_key_pynacl
+        except ImportError:
+            pass
+
+        return conversion_functions_dict
 
     def convert_to(
         self,
