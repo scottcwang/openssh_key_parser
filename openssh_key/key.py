@@ -43,7 +43,7 @@ class Key(typing.Generic[PublicKeyParamsTypeVar]):
         return byte_stream.read_from_format_instructions_dict(
             create_public_key_params(
                 key_type
-            ).public_format_instructions_dict()
+            ).format_instructions_dict()
         )
 
     @staticmethod
@@ -144,8 +144,18 @@ class Key(typing.Generic[PublicKeyParamsTypeVar]):
             self.header
         )
 
+        self_params_types: typing.Sequence[typing.Type[PublicKeyParams]] = \
+             type(self.params).mro()
+        first_public_key_params_type = next(
+            (
+                params_type for params_type in self_params_types
+                if not issubclass(params_type, PrivateKeyParams)
+            ),
+            PublicKeyParams
+        )
+
         key_byte_stream.write_from_format_instructions_dict(
-            self.params.public_format_instructions_dict(),
+            first_public_key_params_type.format_instructions_dict(),
             self.params
         )
 
@@ -214,7 +224,8 @@ class PrivateKey(Key[PrivateKeyParams]):
     ) -> ValuesDict:
         return byte_stream.read_from_format_instructions_dict(
             create_private_key_params(
-                key_type).private_format_instructions_dict()
+                key_type
+            ).format_instructions_dict()
         )
 
     @staticmethod
@@ -233,7 +244,7 @@ class PrivateKey(Key[PrivateKeyParams]):
         )
 
         key_byte_stream.write_from_format_instructions_dict(
-            self.params.private_format_instructions_dict(),
+            self.params.format_instructions_dict(),
             self.params
         )
 

@@ -141,7 +141,7 @@ def correct_public_key_bytes_ed25519(write_byte_stream=None):
         ED25519_TEST_HEADER
     )
     public_key_write_byte_stream.write_from_format_instructions_dict(
-        Ed25519PublicKeyParams.public_format_instructions_dict(),
+        Ed25519PublicKeyParams.format_instructions_dict(),
         ED25519_TEST_PUBLIC
     )
     public_key_bytes = public_key_write_byte_stream.getvalue()
@@ -161,7 +161,7 @@ def correct_private_key_bytes_ed25519(decipher_byte_stream=None):
         ED25519_TEST_HEADER
     )
     private_key_write_byte_stream.write_from_format_instructions_dict(
-        Ed25519PrivateKeyParams.private_format_instructions_dict(),
+        Ed25519PrivateKeyParams.format_instructions_dict(),
         ED25519_TEST_PRIVATE
     )
     private_key_write_byte_stream.write_from_format_instructions_dict(
@@ -182,7 +182,7 @@ def correct_public_key_bytes_rsa(write_byte_stream=None):
         RSA_TEST_HEADER
     )
     public_key_write_byte_stream.write_from_format_instructions_dict(
-        RSAPublicKeyParams.public_format_instructions_dict(),
+        RSAPublicKeyParams.format_instructions_dict(),
         RSA_TEST_PUBLIC
     )
     public_key_bytes = public_key_write_byte_stream.getvalue()
@@ -202,7 +202,7 @@ def correct_private_key_bytes_rsa(decipher_byte_stream=None):
         RSA_TEST_HEADER
     )
     private_key_write_byte_stream.write_from_format_instructions_dict(
-        RSAPrivateKeyParams.private_format_instructions_dict(),
+        RSAPrivateKeyParams.format_instructions_dict(),
         RSA_TEST_PRIVATE
     )
     private_key_write_byte_stream.write_from_format_instructions_dict(
@@ -316,7 +316,7 @@ def test_public_key_pack_public_bytes():
         PublicKey.header_format_instructions_dict()
     ) == ED25519_TEST_HEADER
     assert public_key_byte_stream.read_from_format_instructions_dict(
-        Ed25519PublicKeyParams.public_format_instructions_dict()
+        Ed25519PublicKeyParams.format_instructions_dict()
     ) == ED25519_TEST_PUBLIC
     assert public_key_byte_stream.read_from_format_instructions_dict(
         PublicKey.footer_format_instructions_dict()
@@ -409,7 +409,7 @@ def test_private_key_pack_public():
         PublicKey.header_format_instructions_dict()
     ) == ED25519_TEST_HEADER
     assert public_key_byte_stream.read_from_format_instructions_dict(
-        Ed25519PublicKeyParams.public_format_instructions_dict()
+        Ed25519PublicKeyParams.format_instructions_dict()
     ) == ED25519_TEST_PUBLIC
     assert public_key_byte_stream.read_from_format_instructions_dict(
         PublicKey.footer_format_instructions_dict()
@@ -424,7 +424,7 @@ def test_private_key_pack_private_bytes():
         PrivateKey.header_format_instructions_dict()
     ) == ED25519_TEST_HEADER
     assert private_key_byte_stream.read_from_format_instructions_dict(
-        Ed25519PrivateKeyParams.private_format_instructions_dict()
+        Ed25519PrivateKeyParams.format_instructions_dict()
     ) == ED25519_TEST_PRIVATE
     assert private_key_byte_stream.read_from_format_instructions_dict(
         PrivateKey.footer_format_instructions_dict()

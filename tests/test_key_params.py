@@ -31,14 +31,14 @@ def test_factory_rsa_private():
 
 
 def test_rsa_public_format_instructions_dict():
-    assert RSAPublicKeyParams.public_format_instructions_dict() == {
+    assert RSAPublicKeyParams.format_instructions_dict() == {
         'e': PascalStyleFormatInstruction.MPINT,
         'n': PascalStyleFormatInstruction.MPINT,
     }
 
 
 def test_rsa_private_format_instructions_dict():
-    assert RSAPrivateKeyParams.private_format_instructions_dict() == {
+    assert RSAPrivateKeyParams.format_instructions_dict() == {
         'n': PascalStyleFormatInstruction.MPINT,
         'e': PascalStyleFormatInstruction.MPINT,
         'd': PascalStyleFormatInstruction.MPINT,
@@ -398,13 +398,13 @@ def test_factory_ed25519_private():
 
 
 def test_ed25519_public_format_instructions_dict():
-    assert Ed25519PublicKeyParams.public_format_instructions_dict() == {
+    assert Ed25519PublicKeyParams.format_instructions_dict() == {
         'public': PascalStyleFormatInstruction.BYTES
     }
 
 
 def test_ed25519_private_format_instructions_dict():
-    assert Ed25519PrivateKeyParams.private_format_instructions_dict() == {
+    assert Ed25519PrivateKeyParams.format_instructions_dict() == {
         'public': PascalStyleFormatInstruction.BYTES,
         'private_public': PascalStyleFormatInstruction.BYTES
     }

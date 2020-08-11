@@ -608,7 +608,7 @@ def test_private_key_list_from_bytes_one_key_none_inconsistent_key_params():
         ])
     }
     public_key_write_byte_stream.write_from_format_instructions_dict(
-        Ed25519PublicKeyParams.public_format_instructions_dict(),
+        Ed25519PublicKeyParams.format_instructions_dict(),
         public_key_params
     )
     public_key_bytes = public_key_write_byte_stream.getvalue()
@@ -1129,7 +1129,7 @@ def private_key_list_pack_bytes_test_assertions(
         assert public_key_byte_stream.read_from_format_instructions_dict(
             create_public_key_params(
                 key_pair.public.header['key_type']
-            ).public_format_instructions_dict()
+            ).format_instructions_dict()
         ) == key_pair.public.params
         assert public_key_byte_stream.read_from_format_instructions_dict(
             PublicKey.footer_format_instructions_dict()
@@ -1160,7 +1160,7 @@ def private_key_list_pack_bytes_test_assertions(
         assert decipher_byte_stream.read_from_format_instructions_dict(
             create_private_key_params(
                 key_pair.private.header['key_type']
-            ).private_format_instructions_dict()
+            ).format_instructions_dict()
         ) == key_pair.private.params
         assert decipher_byte_stream.read_from_format_instructions_dict(
             PrivateKey.footer_format_instructions_dict()

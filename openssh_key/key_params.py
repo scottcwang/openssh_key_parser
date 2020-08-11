@@ -59,11 +59,7 @@ class PublicKeyParams(BaseDict, abc.ABC):
         if params_dict is not None:
             return cls({
                 k: params_dict[k]
-                for k in (
-                    cls.private_format_instructions_dict()
-                    if issubclass(cls, PrivateKeyParams)
-                    else cls.public_format_instructions_dict()
-                )
+                for k in cls.format_instructions_dict()
             })
         raise NotImplementedError()
 
@@ -80,7 +76,7 @@ class PublicKeyParams(BaseDict, abc.ABC):
 
     @staticmethod
     @abc.abstractmethod
-    def public_format_instructions_dict() -> FormatInstructionsDict:
+    def format_instructions_dict() -> FormatInstructionsDict:
         return {}
 
     @property
@@ -90,7 +86,7 @@ class PublicKeyParams(BaseDict, abc.ABC):
     def check_params_are_valid(self) -> None:
         PascalStyleByteStream.check_dict_matches_format_instructions_dict(
             self.data,
-            self.public_format_instructions_dict()
+            self.format_instructions_dict()
         )
 
     def convert_to(  # pylint: disable=no-self-use
@@ -109,17 +105,6 @@ PrivateKeyParamsTypeVar = typing.TypeVar(
 
 
 class PrivateKeyParams(PublicKeyParams):
-    @staticmethod
-    @abc.abstractmethod
-    def private_format_instructions_dict() -> FormatInstructionsDict:
-        return {}
-
-    def check_params_are_valid(self) -> None:
-        PascalStyleByteStream.check_dict_matches_format_instructions_dict(
-            self.data,
-            self.private_format_instructions_dict()
-        )
-
     @classmethod
     @abc.abstractmethod
     def generate_private_params(
@@ -131,7 +116,7 @@ class PrivateKeyParams(PublicKeyParams):
 
 class RSAPublicKeyParams(PublicKeyParams):
     @staticmethod
-    def public_format_instructions_dict() -> FormatInstructionsDict:
+    def format_instructions_dict() -> FormatInstructionsDict:
         return {
             'e': PascalStyleFormatInstruction.MPINT,
             'n': PascalStyleFormatInstruction.MPINT,
@@ -177,7 +162,7 @@ RSAPrivateKeyParamsTypeVar = typing.TypeVar(
 
 class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
     @staticmethod
-    def private_format_instructions_dict() -> FormatInstructionsDict:
+    def format_instructions_dict() -> FormatInstructionsDict:
         return {
             'n': PascalStyleFormatInstruction.MPINT,
             'e': PascalStyleFormatInstruction.MPINT,
@@ -265,7 +250,7 @@ class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
 
 class Ed25519PublicKeyParams(PublicKeyParams):
     @staticmethod
-    def public_format_instructions_dict() -> FormatInstructionsDict:
+    def format_instructions_dict() -> FormatInstructionsDict:
         return {
             'public': PascalStyleFormatInstruction.BYTES
         }
@@ -358,7 +343,7 @@ Ed25519PrivateKeyParamsTypeVar = typing.TypeVar(
 
 class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
     @staticmethod
-    def private_format_instructions_dict() -> FormatInstructionsDict:
+    def format_instructions_dict() -> FormatInstructionsDict:
         return {
             'public': PascalStyleFormatInstruction.BYTES,
             'private_public': PascalStyleFormatInstruction.BYTES
