@@ -24,6 +24,17 @@ PublicKeyParamsTypeVar = typing.TypeVar(
 )
 
 
+class ConversionFunctions(typing.NamedTuple):
+    object_to_mapping: typing.Callable[
+        [typing.Any],
+        typing.Mapping[str, typing.Any]
+    ]
+    mapping_to_object: typing.Callable[
+        [typing.Mapping[str, typing.Any]],
+        typing.Any
+    ]
+
+
 # https://github.com/python/mypy/issues/5264
 if typing.TYPE_CHECKING:
     BaseDict = collections.UserDict[  # pylint: disable=unsubscriptable-object
@@ -46,7 +57,7 @@ class PublicKeyParams(BaseDict, abc.ABC):
         params_dict: typing.Optional[typing.Mapping[str, typing.Any]] = None
         for k, v in cls.conversion_functions().items():
             if isinstance(key_object, k):
-                params_dict = v(key_object)
+                params_dict = v.object_to_mapping(key_object)
                 break
         if params_dict is None:
             for subcls in cls.__subclasses__():
@@ -67,10 +78,7 @@ class PublicKeyParams(BaseDict, abc.ABC):
     def conversion_functions(
     ) -> typing.Mapping[
         typing.Type[typing.Any],
-        typing.Callable[
-            [typing.Any],
-            typing.Mapping[str, typing.Any]
-        ]
+        ConversionFunctions
     ]:
         return {}
 
@@ -95,6 +103,14 @@ class PublicKeyParams(BaseDict, abc.ABC):
     ) -> typing.Any:
         if not isinstance(destination_class, type):
             raise ValueError('destination_class must be a class')
+        for supercls in self.__class__.__mro__:
+            if not issubclass(supercls, PublicKeyParams):
+                break
+            for candidate_class in supercls.conversion_functions():
+                if issubclass(candidate_class, destination_class):
+                    return supercls.conversion_functions()[
+                        candidate_class
+                    ].mapping_to_object(self)
         raise NotImplementedError()
 
 
@@ -126,12 +142,9 @@ class RSAPublicKeyParams(PublicKeyParams):
     def conversion_functions(
     ) -> typing.Mapping[
         typing.Type[typing.Any],
-        typing.Callable[
-            [typing.Any],
-            typing.Mapping[str, typing.Any]
-        ]
+        ConversionFunctions
     ]:
-        def rsa_public_key(
+        def rsa_public_key_convert_from_cryptography(
             key_object: rsa.RSAPublicKey
         ) -> typing.Mapping[str, typing.Any]:
             public_numbers = key_object.public_numbers()
@@ -139,19 +152,21 @@ class RSAPublicKeyParams(PublicKeyParams):
                 'e': public_numbers.e,
                 'n': public_numbers.n
             }
-        return {
-            rsa.RSAPublicKey: rsa_public_key
-        }
 
-    def convert_to(
-        self,
-        destination_class: typing.Type[typing.Any]
-    ) -> typing.Any:
-        if destination_class == rsa.RSAPublicKey:
+        def rsa_public_key_convert_to_cryptography(
+            key_params: typing.Mapping[str, typing.Any]
+        ) -> rsa.RSAPublicKey:
             return rsa.RSAPublicNumbers(
-                self['e'], self['n']
+                key_params['e'],
+                key_params['n']
             ).public_key(default_backend())
-        return super().convert_to(destination_class)
+
+        return {
+            rsa.RSAPublicKey: ConversionFunctions(
+                rsa_public_key_convert_from_cryptography,
+                rsa_public_key_convert_to_cryptography
+            )
+        }
 
 
 RSAPrivateKeyParamsTypeVar = typing.TypeVar(
@@ -205,12 +220,9 @@ class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
     def conversion_functions(
     ) -> typing.Mapping[
         typing.Type[typing.Any],
-        typing.Callable[
-            [typing.Any],
-            typing.Mapping[str, typing.Any]
-        ]
+        ConversionFunctions
     ]:
-        def rsa_private_key(
+        def rsa_private_key_convert_from_cryptography(
             key_object: rsa.RSAPrivateKeyWithSerialization
         ) -> typing.Mapping[str, typing.Any]:
             private_numbers = key_object.private_numbers()
@@ -222,30 +234,32 @@ class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
                 'p': private_numbers.p,
                 'q': private_numbers.q
             }
-        return {
-            rsa.RSAPrivateKeyWithSerialization: rsa_private_key
-        }
 
-    def convert_to(
-        self,
-        destination_class: typing.Type[typing.Any]
-    ) -> typing.Any:
-        if destination_class == rsa.RSAPrivateKey:
-            return rsa.RSAPrivateNumbers(
-                self['p'],
-                self['q'],
-                self['d'],
+        def rsa_private_key_convert_to_cryptography(
+            key_params: typing.Mapping[str, typing.Any]
+        ) -> rsa.RSAPrivateKeyWithSerialization:
+            key_object = rsa.RSAPrivateNumbers(
+                key_params['p'],
+                key_params['q'],
+                key_params['d'],
                 rsa.rsa_crt_dmp1(
-                    self['d'], self['p']),
+                    key_params['d'], key_params['p']),
                 rsa.rsa_crt_dmp1(
-                    self['d'], self['q']),
-                self['iqmp'],
+                    key_params['d'], key_params['q']),
+                key_params['iqmp'],
                 rsa.RSAPublicNumbers(
-                    self['e'],
-                    self['n']
+                    key_params['e'],
+                    key_params['n']
                 )
             ).private_key(default_backend())
-        return super().convert_to(destination_class)
+            return typing.cast(rsa.RSAPrivateKeyWithSerialization, key_object)
+
+        return {
+            rsa.RSAPrivateKeyWithSerialization: ConversionFunctions(
+                rsa_private_key_convert_from_cryptography,
+                rsa_private_key_convert_to_cryptography
+            )
+        }
 
 
 class Ed25519PublicKeyParams(PublicKeyParams):
@@ -267,12 +281,9 @@ class Ed25519PublicKeyParams(PublicKeyParams):
     def conversion_functions(
     ) -> typing.Mapping[
         typing.Type[typing.Any],
-        typing.Callable[
-            [typing.Any],
-            typing.Mapping[str, typing.Any]
-        ]
+        ConversionFunctions
     ]:
-        def ed25519_public_key_cryptography(
+        def ed25519_public_key_convert_from_cryptography(
             key_object: ed25519.Ed25519PublicKey
         ) -> typing.Mapping[str, typing.Any]:
             return {
@@ -282,57 +293,64 @@ class Ed25519PublicKeyParams(PublicKeyParams):
                 )
             }
 
-        def ed25519_public_key_bytes(
+        def ed25519_public_key_convert_to_cryptography(
+            key_params: typing.Mapping[str, typing.Any]
+        ) -> ed25519.Ed25519PublicKey:
+            return ed25519.Ed25519PublicKey.from_public_bytes(
+                key_params['public']
+            )
+
+        def ed25519_public_key_convert_from_bytes(
             key_object: bytes
         ) -> typing.Mapping[str, typing.Any]:
             return {
                 'public': key_object
             }
 
+        def ed25519_public_key_convert_to_bytes(
+            key_params: typing.Mapping[str, typing.Any]
+        ) -> bytes:
+            return bytes(key_params['public'])
+
         conversion_functions_dict: typing.MutableMapping[
             typing.Type[typing.Any],
-            typing.Callable[
-                [typing.Any],
-                typing.Mapping[str, typing.Any]
-            ]
+            ConversionFunctions
         ] = {
-            ed25519.Ed25519PublicKey: ed25519_public_key_cryptography,
-            bytes: ed25519_public_key_bytes
+            ed25519.Ed25519PublicKey: ConversionFunctions(
+                ed25519_public_key_convert_from_cryptography,
+                ed25519_public_key_convert_to_cryptography
+            ),
+            bytes: ConversionFunctions(
+                ed25519_public_key_convert_from_bytes,
+                ed25519_public_key_convert_to_bytes
+            )
         }
 
         try:
             import nacl
 
-            def ed25519_public_key_pynacl(
+            def ed25519_public_key_convert_from_pynacl(
                 key_object: nacl.signing.VerifyKey
             ) -> typing.Mapping[str, typing.Any]:
                 return {
                     'public': bytes(key_object)
                 }
 
+            def ed25519_public_key_convert_to_pynacl(
+                key_params: typing.Mapping[str, typing.Any]
+            ) -> nacl.signing.VerifyKey:
+                return nacl.signing.VerifyKey(key_params['public'])
+
             conversion_functions_dict[
                 nacl.signing.VerifyKey
-            ] = ed25519_public_key_pynacl
+            ] = ConversionFunctions(
+                ed25519_public_key_convert_from_pynacl,
+                ed25519_public_key_convert_to_pynacl
+            )
         except ImportError:
             pass
 
         return conversion_functions_dict
-
-    def convert_to(
-        self,
-        destination_class: typing.Type[typing.Any]
-    ) -> typing.Any:
-        if destination_class == ed25519.Ed25519PublicKey:
-            return ed25519.Ed25519PublicKey.from_public_bytes(self['public'])
-        if destination_class == bytes:
-            return self['public']
-        try:
-            import nacl
-            if destination_class == nacl.signing.VerifyKey:
-                return nacl.signing.VerifyKey(self['public'])
-        except ImportError:
-            pass
-        return super().convert_to(destination_class)
 
 
 Ed25519PrivateKeyParamsTypeVar = typing.TypeVar(
@@ -390,12 +408,9 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
     def conversion_functions(
     ) -> typing.Mapping[
         typing.Type[typing.Any],
-        typing.Callable[
-            [typing.Any],
-            typing.Mapping[str, typing.Any]
-        ]
+        ConversionFunctions
     ]:
-        def ed25519_private_key_cryptography(
+        def ed25519_private_key_convert_from_cryptography(
             key_object: ed25519.Ed25519PrivateKey
         ) -> typing.Mapping[str, typing.Any]:
             private_bytes = key_object.private_bytes(
@@ -412,7 +427,16 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
                 'private_public': private_bytes + public_bytes
             }
 
-        def ed25519_private_key_bytes(
+        def ed25519_private_key_convert_to_cryptography(
+            key_params: typing.Mapping[str, typing.Any]
+        ) -> ed25519.Ed25519PrivateKey:
+            return ed25519.Ed25519PrivateKey.from_private_bytes(
+                key_params[
+                    'private_public'
+                ][:Ed25519PrivateKeyParams.KEY_SIZE]
+            )
+
+        def ed25519_private_key_convert_from_bytes(
             key_object: bytes
         ) -> typing.Mapping[str, typing.Any]:
             private_bytes = key_object
@@ -427,21 +451,33 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
                 'private_public': private_bytes + public_bytes
             }
 
+        def ed25519_private_key_convert_to_bytes(
+            key_params: typing.Mapping[str, typing.Any]
+        ) -> bytes:
+            return bytes(
+                key_params[
+                    'private_public'
+                ][: Ed25519PrivateKeyParams.KEY_SIZE]
+            )
+
         conversion_functions_dict: typing.MutableMapping[
             typing.Type[typing.Any],
-            typing.Callable[
-                [typing.Any],
-                typing.Mapping[str, typing.Any]
-            ]
+            ConversionFunctions
         ] = {
-            ed25519.Ed25519PrivateKey: ed25519_private_key_cryptography,
-            bytes: ed25519_private_key_bytes
+            ed25519.Ed25519PrivateKey: ConversionFunctions(
+                ed25519_private_key_convert_from_cryptography,
+                ed25519_private_key_convert_to_cryptography
+            ),
+            bytes: ConversionFunctions(
+                ed25519_private_key_convert_from_bytes,
+                ed25519_private_key_convert_to_bytes
+            )
         }
 
         try:
             import nacl
 
-            def ed25519_private_key_pynacl(
+            def ed25519_private_key_convert_from_pynacl(
                 key_object: nacl.signing.SigningKey
             ) -> typing.Mapping[str, typing.Any]:
                 private_bytes = bytes(key_object)
@@ -451,33 +487,25 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
                     'private_public': private_bytes + public_bytes
                 }
 
+            def ed25519_private_key_convert_to_pynacl(
+                key_params: typing.Mapping[str, typing.Any]
+            ) -> nacl.signing.SigningKey:
+                return nacl.signing.SigningKey(
+                    key_params[
+                        'private_public'
+                    ][:Ed25519PrivateKeyParams.KEY_SIZE]
+                )
+
             conversion_functions_dict[
                 nacl.signing.SigningKey
-            ] = ed25519_private_key_pynacl
+            ] = ConversionFunctions(
+                ed25519_private_key_convert_from_pynacl,
+                ed25519_private_key_convert_to_pynacl
+            )
         except ImportError:
             pass
 
         return conversion_functions_dict
-
-    def convert_to(
-        self,
-        destination_class: typing.Type[typing.Any]
-    ) -> typing.Any:
-        if destination_class == ed25519.Ed25519PrivateKey:
-            return ed25519.Ed25519PrivateKey.from_private_bytes(
-                self['private_public'][:self.KEY_SIZE]
-            )
-        if destination_class == bytes:
-            return self['private_public'][:self.KEY_SIZE]
-        try:
-            import nacl
-            if destination_class == nacl.signing.SigningKey:
-                return nacl.signing.SigningKey(
-                    self['private_public'][:self.KEY_SIZE]
-                )
-        except ImportError:
-            pass
-        return super().convert_to(destination_class)
 
 
 class PublicPrivateKeyParamsClasses(typing.NamedTuple):

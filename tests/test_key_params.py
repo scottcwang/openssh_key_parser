@@ -357,6 +357,23 @@ def test_rsa_private_convert_from_cryptography_private():
 
 def test_rsa_private_convert_to_cryptography_private():
     rsa_private = RSAPrivateKeyParams.generate_private_params()
+    converted = rsa_private.convert_to(rsa.RSAPrivateKeyWithSerialization)
+    assert isinstance(converted, rsa.RSAPrivateKeyWithSerialization)
+    assert converted.private_numbers() == rsa.RSAPrivateNumbers(
+        rsa_private['p'],
+        rsa_private['q'],
+        rsa_private['d'],
+        rsa.rsa_crt_dmp1(rsa_private['d'], rsa_private['p']),
+        rsa.rsa_crt_dmp1(rsa_private['d'], rsa_private['q']),
+        rsa_private['iqmp'],
+        rsa.RSAPublicNumbers(
+            rsa_private['e'],
+            rsa_private['n']
+        )
+    )
+
+def test_rsa_private_convert_to_cryptography_rsaprivatekey():
+    rsa_private = RSAPrivateKeyParams.generate_private_params()
     converted = rsa_private.convert_to(rsa.RSAPrivateKey)
     assert isinstance(converted, rsa.RSAPrivateKey)
     assert converted.private_numbers() == rsa.RSAPrivateNumbers(
