@@ -1,3 +1,7 @@
+"""Classes representing public- and private-key parameters for keys of various
+cryptosystems.
+"""
+
 import collections
 import abc
 import warnings
@@ -25,14 +29,24 @@ PublicKeyParamsTypeVar = typing.TypeVar(
 
 
 class ConversionFunctions(typing.NamedTuple):
+    """Functions to convert :any:`typing.Mapping`, representing parameter
+    values, to an object of a certain type, and *vice versa*.
+    """
     object_to_mapping: typing.Callable[
         [typing.Any],
         typing.Mapping[str, typing.Any]
     ]
+    """Functions to convert an object of a certain type to a
+    :any:`typing.Mapping` representing the parameter values in the object.
+    """
+
     mapping_to_object: typing.Callable[
         [typing.Mapping[str, typing.Any]],
         typing.Any
     ]
+    """Functions to convert a :any:`typing.Mapping` containing parameter
+    values to an object of a certain type.
+    """
 
 
 # https://github.com/python/mypy/issues/5264
@@ -45,6 +59,23 @@ else:
 
 
 class PublicKeyParams(BaseDict, abc.ABC):
+    """The parameters comprising a key.
+
+    The names and iteration order of parameters of *public* keys recognized by
+    implementations of the Secure Shell (SSH) protocol are as specified in
+    `RFC 4253 <https://tools.ietf.org/html/rfc4253#section-6.6>`_.
+
+    Args:
+        params
+            The values with which to initialize this parameters object. All
+            given values are saved, even those that do not exist in the format
+            instructions for this key type.
+
+    Raises:
+        UserWarning: A value in ``params`` is missing or does not have a type
+            that matches the format instructions for this key type.
+    """
+
     def __init__(self, params: typing.Mapping[str, typing.Any]):
         super().__init__(params)
         self.check_params_are_valid()
@@ -54,6 +85,24 @@ class PublicKeyParams(BaseDict, abc.ABC):
         cls,
         key_object: typing.Any
     ) -> 'PublicKeyParams':
+        """Constructs and initializes a parameters object for this key type
+        from attributes contained in the given object.
+
+        This classmethod searches :any:`conversion_functions` for a class that
+        is a superclass of ``key_object``. If one is found, it returns the
+        parameters object from the :any:`typing.Mapping` returned by the
+        corresponding :any:`object_to_mapping` function. Otherwise, it searches
+        its subclasses' :any:`conversion_functions`, traversing pre-order.
+
+        Args:
+            key_object
+                An object containing key parameter values.
+
+        Raises:
+            NotImplementedError: ``key_object`` is not of a supported type,
+                or it does not contain the attributes necessary to construct
+                a parameters object of this class.
+        """
         params_dict: typing.Optional[typing.Mapping[str, typing.Any]] = None
         for k, v in cls.conversion_functions().items():
             if isinstance(key_object, k):
@@ -80,18 +129,43 @@ class PublicKeyParams(BaseDict, abc.ABC):
         typing.Type[typing.Any],
         ConversionFunctions
     ]:
+        """Functions to extract parameter values dicts for supported types of
+        key objects.
+
+        Returns:
+            A :py:class:`typing.Mapping` from types of key objects to functions
+            that take key objects of that type and return parameter values.
+        """
         return {}
 
     @staticmethod
     @abc.abstractmethod
     def format_instructions_dict() -> FormatInstructionsDict:
+        """The Pascal-style byte stream format instructions for the parameters
+        of a key of this type.
+
+        Returns:
+            The format instructions.
+        """
         return {}
 
     @property
     def params(self) -> ValuesDict:
+        """The values within this parameters object.
+
+        Returns:
+            The parameter values.
+        """
         return self.data
 
     def check_params_are_valid(self) -> None:
+        """Checks whether the values within this parameters object conform to
+        the format instructions.
+
+        Raises:
+            UserWarning: A parameter value is missing or does not have a type
+                that matches the format instructions for this key type.
+        """
         PascalStyleByteStream.check_dict_matches_format_instructions_dict(
             self.data,
             self.format_instructions_dict()
@@ -101,6 +175,27 @@ class PublicKeyParams(BaseDict, abc.ABC):
         self,
         destination_class: typing.Type[typing.Any]
     ) -> typing.Any:
+        """Creates and initializes an object of the given type containing the
+        values of this parameters object.
+
+        This method searches :any:`conversion_functions` for a class that
+        is a subclass of ``key_object``. If one is found, it passes this
+        parameters object to the corresponding :any:`mapping_to_object`.
+        Otherwise, it searches its superclasses' :any:`conversion_functions`
+        in the same way, in method resolution order, up to and including
+        :any:`PublicKeyParams`.
+
+        Args:
+            destination_class
+                The type of the object to which the values of this parameters
+                object are to be converted.
+
+        Raises:
+            ValueError: ``destination_class`` is not a class.
+            ImportError: ``destination_class`` cannot be imported.
+            NotImplementedError: Converting this parameters object to an
+                object of type ``destination_class`` is not supported.
+        """
         if not isinstance(destination_class, type):
             raise ValueError('destination_class must be a class')
         for supercls in self.__class__.__mro__:
@@ -121,16 +216,62 @@ PrivateKeyParamsTypeVar = typing.TypeVar(
 
 
 class PrivateKeyParams(PublicKeyParams):
+    """The parameters comprising a private key, a superset of those parameters
+    comprising a public key (:any:`PublicKeyParams`).
+
+    The names and iteration order of parameters of *private* keys recognized by
+    implementations of the Secure Shell (SSH) protocol are as specified for
+    the ``SSH_AGENTC_ADD_IDENTITY`` message of the
+    `ssh-agent protocol <https://tools.ietf.org/html/draft-miller-ssh-agent-03#section-4.2>`_.
+    """
+
     @classmethod
     @abc.abstractmethod
     def generate_private_params(
         cls: typing.Type[PrivateKeyParamsTypeVar],
         **kwargs: typing.Any
     ) -> PrivateKeyParamsTypeVar:
+        """Constructs and initializes a parameters object with generated
+        values.
+
+        Args:
+            kwargs
+                Keyword arguments consumed to generate parameter values.
+
+        Returns:
+            A private key parameters object with generated values valid for
+            a private key of this type.
+        """
         return cls({})
 
 
 class RSAPublicKeyParams(PublicKeyParams):
+    """The parameters comprising a key in the Rivest-Shamir-Adleman (RSA)
+    cryptosystem.
+
+    The names and iteration order of parameters of a *public* RSA key is:
+
+    * ``e``: The public exponent (:any:`int`).
+    * ``n``: The public composite modulus (:any:`int`).
+
+    NB: OpenSSH `will deprecate <https://www.openssh.com/txt/release-8.2>`_
+    the "ssh-rsa" public key *signature algorithm*, due to its use of the
+    insecure SHA-1 hash algorithm, in favour of the "rsa-sha-256" and
+    "rsa-sha-512" signature algorithms, which use the secure SHA-2 hash
+    algorithms. The "ssh-rsa" *keys* represented by this class work with all
+    of these signature algorithms, as per
+    `RFC 8332 <https://tools.ietf.org/html/rfc8332#section-3>`_.
+
+    Args:
+        params
+            The values with which to initialize this parameters object. All
+            given values are saved, even those that do not exist in the format
+            instructions for this key type.
+
+    Raises:
+        UserWarning: A parameter value from the above list is missing from
+            ``params`` or does not have the correct type.
+    """
     @staticmethod
     def format_instructions_dict() -> FormatInstructionsDict:
         return {
@@ -144,6 +285,15 @@ class RSAPublicKeyParams(PublicKeyParams):
         typing.Type[typing.Any],
         ConversionFunctions
     ]:
+        """Conversion functions for key objects of the following types:
+
+        * :any:`cryptography.hazmat.primitives.asymmetric.rsa.RSAPublicKey`
+
+        Returns:
+            A :py:class:`typing.Mapping` from the above types of key objects
+            to functions that take key objects of these types and return
+            parameter values.
+        """
         def rsa_public_key_convert_from_cryptography(
             key_object: rsa.RSAPublicKey
         ) -> typing.Mapping[str, typing.Any]:
@@ -176,6 +326,29 @@ RSAPrivateKeyParamsTypeVar = typing.TypeVar(
 
 
 class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
+    """The parameters comprising a private key in the Rivest-Shamir-Adleman
+    (RSA) cryptosystem.
+
+    The names and iteration order of parameters of a *private* RSA key is:
+
+    * ``n``: The public composite modulus (:any:`int`).
+    * ``e``: The public exponent (:any:`int`; NB order of ``n`` and ``e`` are
+        reversed relative to :any:`RSAPublicKeyParams`).
+    * ``d``: The private exponent (:any:`int`).
+    * ``iqmp``: ``q^-1 mod p`` (:any:`int`).
+    * ``p``: First prime comprising ``n`` (:any:`int`).
+    * ``q``: Second prime comprising ``n`` (:any:`int`).
+
+    Args:
+        params
+            The values with which to initialize this parameters object. All
+            given values are saved, even those that do not exist in the format
+            instructions for this key type.
+
+    Raises:
+        UserWarning: A parameter value from the above list is missing from
+            ``params`` or does not have the correct type.
+    """
     @staticmethod
     def format_instructions_dict() -> FormatInstructionsDict:
         return {
@@ -195,6 +368,20 @@ class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
         cls: typing.Type[RSAPrivateKeyParamsTypeVar],
         **kwargs: typing.Any
     ) -> RSAPrivateKeyParamsTypeVar:
+        """Constructs and initializes an RSA private key parameters object with
+        generated values.
+
+        Args:
+            kwargs
+                Keyword arguments consumed to generate parameter values.
+
+        Returns:
+            A private key parameters object with generated values valid for
+            an RSA private key. Following OpenSSH, if ``kwargs['e']``
+            is not given, a public exponent of 65537 is used, and if
+            ``kwargs['key_size']`` is not given, a key of length 4096 is
+            generated.
+        """
         private_key = rsa.generate_private_key(
             public_exponent=(
                 kwargs['e'] if 'e' in kwargs else cls.PUBLIC_EXPONENT
@@ -222,6 +409,15 @@ class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
         typing.Type[typing.Any],
         ConversionFunctions
     ]:
+        """Conversion functions for key objects of the following types:
+
+        * :any:`cryptography.hazmat.primitives.asymmetric.rsa.RSAPrivateKeyWithSerialization`
+
+        Returns:
+            A :py:class:`typing.Mapping` from the above types of key objects
+            to functions that take key objects of these types and return
+            parameter values.
+        """
         def rsa_private_key_convert_from_cryptography(
             key_object: rsa.RSAPrivateKeyWithSerialization
         ) -> typing.Mapping[str, typing.Any]:
@@ -263,6 +459,24 @@ class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
 
 
 class Ed25519PublicKeyParams(PublicKeyParams):
+    """The parameters comprising a key in the Edwards-curve Digital Signature
+    Algorithm elliptic-curve cryptosystem on SHA-512 and Curve25519.
+
+    The names and iteration order of parameters of a *public* Ed25519 key is:
+
+    * ``public``: The public key (:any:`bytes`).
+
+    Args:
+        params
+            The values with which to initialize this parameters object. All
+            given values are saved, even those that do not exist in the format
+            instructions for this key type.
+
+    Raises:
+        UserWarning: A parameter value from the above list is missing from
+            ``params`` or does not have the correct type, or the key size is
+            not valid for Ed25519 (32 bytes).
+    """
     @staticmethod
     def format_instructions_dict() -> FormatInstructionsDict:
         return {
@@ -272,6 +486,15 @@ class Ed25519PublicKeyParams(PublicKeyParams):
     KEY_SIZE = 32
 
     def check_params_are_valid(self) -> None:
+        """Checks whether the values within this parameters object conform to
+        the format instructions, and whether the key size is valid for Ed25519
+        (32 bytes).
+
+        Raises:
+            UserWarning: A parameter value is missing or does not have a type
+                that matches the format instructions for this key type, or the
+                key size is incorrect.
+        """
         super().check_params_are_valid()
         if 'public' in self.data \
                 and len(self.data['public']) != self.KEY_SIZE:
@@ -283,6 +506,17 @@ class Ed25519PublicKeyParams(PublicKeyParams):
         typing.Type[typing.Any],
         ConversionFunctions
     ]:
+        """Conversion functions for key objects of the following types:
+
+        * :any:`cryptography.hazmat.primitives.asymmetric.ed25519.Ed25519PublicKey`
+        * :any:`nacl.signing.VerifyKey` (if ``nacl`` can be imported)
+        * :any:`bytes`
+
+        Returns:
+            A :py:class:`typing.Mapping` from the above types of key objects
+            to functions that take key objects of these types and return
+            parameter values.
+        """
         def ed25519_public_key_convert_from_cryptography(
             key_object: ed25519.Ed25519PublicKey
         ) -> typing.Mapping[str, typing.Any]:
@@ -360,6 +594,29 @@ Ed25519PrivateKeyParamsTypeVar = typing.TypeVar(
 
 
 class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
+    """The parameters comprising a private key in the Edwards-curve Digital
+    Signature Algorithm elliptic-curve cryptosystem on SHA-512 and Curve25519.
+
+    The names and iteration order of parameters of a *private* Ed25519 key is:
+
+    * ``public``: The public key (:any:`bytes`).
+    * ``private_public``: The seed of the private key, followed by the public
+        key (:any:`bytes`).
+
+    Args:
+        params
+            The values with which to initialize this parameters object. All
+            given values are saved, even those that do not exist in the format
+            instructions for this key type.
+
+    Raises:
+        UserWarning: A parameter value from the above list is missing from
+            ``params`` or does not have the correct type, the key size is
+            not valid for Ed25519 (32 bytes), or the public portion of the
+            ``private_public`` parameter value does not match the ``public``
+            parameter value.
+    """
+
     @staticmethod
     def format_instructions_dict() -> FormatInstructionsDict:
         return {
@@ -368,6 +625,17 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
         }
 
     def check_params_are_valid(self) -> None:
+        """Checks whether the values within this parameters object conform to
+        the format instructions, whether the key sizes are valid for Ed25519
+        (32 bytes each for the private and public keys), and whether the
+        public portion of the ``private_public`` parameter matches the
+        ``public`` parameter.
+
+        Raises:
+            UserWarning: A parameter value is missing or does not have a type
+                that matches the format instructions for this key type, the
+                key sizes are incorrect, or the parameters do not match.
+        """
         Ed25519PublicKeyParams.check_params_are_valid(self)
         PrivateKeyParams.check_params_are_valid(self)
         if 'private_public' not in self.data:
@@ -385,6 +653,18 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
         cls: typing.Type[Ed25519PrivateKeyParamsTypeVar],
         **kwargs: typing.Any
     ) -> Ed25519PrivateKeyParamsTypeVar:
+        """Constructs and initializes an Ed25519 private key parameters object
+        with generated values.
+
+        Args:
+            kwargs
+                Keyword arguments consumed to generate parameter values.
+
+        Returns:
+            A private key parameters object with generated values valid for
+            an Ed25519 private key (the key size is 32 bytes).
+        """
+
         private_key = ed25519.Ed25519PrivateKey.generate()
 
         private_bytes = private_key.private_bytes(
@@ -410,6 +690,17 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
         typing.Type[typing.Any],
         ConversionFunctions
     ]:
+        """Conversion functions for key objects of the following types:
+
+        * :any:`cryptography.hazmat.primitives.asymmetric.ed25519.Ed25519PrivateKey`
+        * :any:`nacl.signing.SigningKey` (if ``nacl`` can be imported)
+        * :any:`bytes` (the private bytes only)
+
+        Returns:
+            A :py:class:`typing.Mapping` from the above types of key objects
+            to functions that take key objects of these types and return
+            parameter values.
+        """
         def ed25519_private_key_convert_from_cryptography(
             key_object: ed25519.Ed25519PrivateKey
         ) -> typing.Mapping[str, typing.Any]:
@@ -524,8 +815,38 @@ _KEY_TYPE_MAPPING = {
 
 
 def create_public_key_params(key_type: str) -> typing.Type[PublicKeyParams]:
+    """Returns the class corresponding to public key parameters objects of the
+    given key type name.
+
+    Args:
+        key_type
+            The name of the OpenSSH key type.
+
+    Returns:
+        The subclass of :any:`PublicKeyParams` corresponding to the key type
+        name.
+
+    Raises:
+        KeyError: There is no subclass of :any:`PublicKeyParams` corresponding
+            to the given key type name.
+    """
     return _KEY_TYPE_MAPPING[key_type].publicKeyParamsClass
 
 
 def create_private_key_params(key_type: str) -> typing.Type[PrivateKeyParams]:
+    """Returns the class corresponding to private key parameters objects of the
+    given key type name.
+
+    Args:
+        key_type
+            The name of the OpenSSH key type.
+
+    Returns:
+        The subclass of :any:`PrivateKeyParams` corresponding to the key type
+        name.
+
+    Raises:
+        KeyError: There is no subclass of :any:`PrivateKeyParams` corresponding
+            to the given key type name.
+    """
     return _KEY_TYPE_MAPPING[key_type].privateKeyParamsClass

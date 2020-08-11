@@ -55,4 +55,8 @@ html_theme = 'alabaster'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
-intersphinx_mapping = {'python': ('https://docs.python.org/3', None)}
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3', None),
+    'cryptography': ('https://cryptography.io/en/latest', None),
+    'pynacl': ('https://pynacl.readthedocs.io/en/stable', None)
+}
