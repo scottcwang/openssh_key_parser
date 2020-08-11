@@ -304,14 +304,14 @@ class Ed25519PublicKeyParams(PublicKeyParams):
             import nacl
 
             def ed25519_public_key_pynacl(
-                key_object: nacl.public.PublicKey
+                key_object: nacl.signing.VerifyKey
             ) -> typing.Mapping[str, typing.Any]:
                 return {
                     'public': bytes(key_object)
                 }
 
             conversion_functions_dict[
-                nacl.public.PublicKey
+                nacl.signing.VerifyKey
             ] = ed25519_public_key_pynacl
         except ImportError:
             pass
@@ -328,8 +328,8 @@ class Ed25519PublicKeyParams(PublicKeyParams):
             return self['public']
         try:
             import nacl
-            if destination_class == nacl.public.PublicKey:
-                return nacl.public.PublicKey(self['public'])
+            if destination_class == nacl.signing.VerifyKey:
+                return nacl.signing.VerifyKey(self['public'])
         except ImportError:
             pass
         return super().convert_to(destination_class)
@@ -442,17 +442,17 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
             import nacl
 
             def ed25519_private_key_pynacl(
-                key_object: nacl.public.PrivateKey
+                key_object: nacl.signing.SigningKey
             ) -> typing.Mapping[str, typing.Any]:
                 private_bytes = bytes(key_object)
-                public_bytes = bytes(key_object.public_key)
+                public_bytes = bytes(key_object.verify_key)
                 return {
                     'public': public_bytes,
                     'private_public': private_bytes + public_bytes
                 }
 
             conversion_functions_dict[
-                nacl.public.PrivateKey
+                nacl.signing.SigningKey
             ] = ed25519_private_key_pynacl
         except ImportError:
             pass
@@ -471,8 +471,8 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
             return self['private_public'][:self.KEY_SIZE]
         try:
             import nacl
-            if destination_class == nacl.public.PrivateKey:
-                return nacl.public.PrivateKey(
+            if destination_class == nacl.signing.SigningKey:
+                return nacl.signing.SigningKey(
                     self['private_public'][:self.KEY_SIZE]
                 )
         except ImportError:

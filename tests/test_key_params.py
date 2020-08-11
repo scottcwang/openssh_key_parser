@@ -9,7 +9,7 @@ from cryptography.hazmat.primitives.asymmetric import (
     rsa,
     ed25519
 )
-import nacl.public
+import nacl.signing
 
 from openssh_key.key_params import (
     create_public_key_params,
@@ -534,7 +534,7 @@ def test_ed25519_public_convert_from_bytes_public():
 
 
 def test_ed25519_public_convert_from_pynacl_public():
-    ed25519_key_object = nacl.public.PrivateKey.generate().public_key
+    ed25519_key_object = nacl.signing.SigningKey.generate().verify_key
     converted = Ed25519PublicKeyParams.convert_from(ed25519_key_object)
     assert type(converted) == Ed25519PublicKeyParams
     assert converted == {
@@ -556,10 +556,10 @@ def test_ed25519_public_convert_from_cryptography_private():
 
 
 def test_ed25519_public_convert_from_pynacl_private():
-    ed25519_key_object = nacl.public.PrivateKey.generate()
+    ed25519_key_object = nacl.signing.SigningKey.generate()
     converted = Ed25519PublicKeyParams.convert_from(ed25519_key_object)
     assert type(converted) == Ed25519PublicKeyParams
-    public_bytes = ed25519_key_object.public_key
+    public_bytes = ed25519_key_object.verify_key
     assert converted == {
         'public': bytes(public_bytes)
     }
@@ -593,8 +593,8 @@ def test_ed25519_public_convert_to_pynacl_public():
     ed25519_public = Ed25519PublicKeyParams({
         'public': ed25519_private['public']
     })
-    converted = ed25519_public.convert_to(nacl.public.PublicKey)
-    assert type(converted) == nacl.public.PublicKey
+    converted = ed25519_public.convert_to(nacl.signing.VerifyKey)
+    assert type(converted) == nacl.signing.VerifyKey
     assert bytes(converted) == ed25519_public['public']
 
 
@@ -605,7 +605,7 @@ def test_ed25519_public_convert_to_missing_pynacl(mocker):
         'public': ed25519_private['public']
     })
     with pytest.raises(NotImplementedError):
-        ed25519_public.convert_to(nacl.public.PublicKey)
+        ed25519_public.convert_to(nacl.signing.VerifyKey)
 
 
 def test_ed25519_private():
@@ -690,10 +690,10 @@ def test_ed25519_private_convert_from_bytes_private():
 
 
 def test_ed25519_private_convert_from_pynacl_private():
-    ed25519_key_object = nacl.public.PrivateKey.generate()
+    ed25519_key_object = nacl.signing.SigningKey.generate()
     converted = Ed25519PrivateKeyParams.convert_from(ed25519_key_object)
     assert type(converted) == Ed25519PrivateKeyParams
-    public_bytes = ed25519_key_object.public_key
+    public_bytes = ed25519_key_object.verify_key
     assert converted == {
         'public': bytes(public_bytes),
         'private_public': bytes(ed25519_key_object) + bytes(public_bytes)
@@ -731,16 +731,16 @@ def test_ed25519_private_convert_to_bytes_private():
 
 def test_ed25519_private_convert_to_pynacl_private():
     ed25519_private = Ed25519PrivateKeyParams.generate_private_params()
-    converted = ed25519_private.convert_to(nacl.public.PrivateKey)
-    assert type(converted) == nacl.public.PrivateKey
+    converted = ed25519_private.convert_to(nacl.signing.SigningKey)
+    assert type(converted) == nacl.signing.SigningKey
     assert bytes(converted) == \
         ed25519_private['private_public'][:Ed25519PublicKeyParams.KEY_SIZE]
 
 
 def test_ed25519_private_convert_to_pynacl_public():
     ed25519_private = Ed25519PrivateKeyParams.generate_private_params()
-    converted = ed25519_private.convert_to(nacl.public.PublicKey)
-    assert type(converted) == nacl.public.PublicKey
+    converted = ed25519_private.convert_to(nacl.signing.VerifyKey)
+    assert type(converted) == nacl.signing.VerifyKey
     assert bytes(converted) == ed25519_private['public']
 
 
@@ -748,7 +748,7 @@ def test_ed25519_private_convert_to_missing_pynacl(mocker):
     mocker.patch.dict(sys.modules, {'nacl': None})
     ed25519_private = Ed25519PrivateKeyParams.generate_private_params()
     with pytest.raises(NotImplementedError):
-        ed25519_private.convert_to(nacl.public.PublicKey)
+        ed25519_private.convert_to(nacl.signing.VerifyKey)
 
 
 def test_ed25519_public_convert_to_not_implemented():
