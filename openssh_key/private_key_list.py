@@ -257,10 +257,10 @@ class PrivateKeyList(BaseList):
 
         if (
             len(decipher_byte_stream.getvalue()) %
-                cipher_class.block_size() != 0
+                cipher_class.BLOCK_SIZE != 0
         ) or not (
             bytes(
-                range(1, 1 + cipher_class.block_size())
+                range(1, 1 + cipher_class.BLOCK_SIZE)
             ).startswith(decipher_padding)
         ):
             warnings.warn('Incorrect padding at end of ciphertext')
@@ -473,7 +473,7 @@ class PrivateKeyList(BaseList):
             )
 
         padding_length = (-len(decipher_byte_stream.getvalue())) \
-            % create_cipher(cipher).block_size()
+            % create_cipher(cipher).BLOCK_SIZE
         padding_bytes = bytes(range(1, 1 + padding_length))
         decipher_byte_stream.write(padding_bytes)
 

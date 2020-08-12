@@ -63,11 +63,9 @@ class Cipher(abc.ABC):
             Plaintext bytes.
         """
 
-    @staticmethod
-    @abc.abstractmethod
-    def block_size() -> int:
-        """The block size for this cipher.
-        """
+    BLOCK_SIZE: typing.ClassVar[int]
+    """The block size for this cipher.
+    """
 
 
 class NoneCipher(Cipher):
@@ -115,15 +113,11 @@ class NoneCipher(Cipher):
         """
         return cipher_bytes
 
-    BLOCK_SIZE = 8
-
-    @staticmethod
-    def block_size() -> int:
-        """The value 8, the cipher block size
-        `OpenSSH uses <https://github.com/openssh/openssh-portable/blob/9cd40b829a5295cc81fbea8c7d632b2478db6274/cipher.c#L112>`_
-        to pad private bytes under null encryption.
-        """
-        return NoneCipher.BLOCK_SIZE
+    BLOCK_SIZE: typing.ClassVar[int] = 8
+    """The value 8, the cipher block size
+    `OpenSSH uses <https://github.com/openssh/openssh-portable/blob/9cd40b829a5295cc81fbea8c7d632b2478db6274/cipher.c#L112>`_
+    to pad private bytes under null encryption.
+    """
 
 
 class AES256_CTRCipher(Cipher):
@@ -195,13 +189,9 @@ class AES256_CTRCipher(Cipher):
         decryptor = cipher.decryptor()
         return decryptor.update(cipher_bytes) + decryptor.finalize()
 
-    BLOCK_SIZE = 16
-
-    @staticmethod
-    def block_size() -> int:
-        """The value 16, the cipher block size of AES.
-        """
-        return AES256_CTRCipher.BLOCK_SIZE
+    BLOCK_SIZE: typing.ClassVar[int] = 16
+    """The value 16, the cipher block size of AES.
+    """
 
 
 _CIPHER_MAPPING = {

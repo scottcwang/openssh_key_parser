@@ -117,7 +117,7 @@ def correct_decipher_bytes_header(decipher_byte_stream=None):
 
 def correct_decipher_bytes_padding(decipher_byte_stream, cipher, write=False):
     padding_length = (-len(decipher_byte_stream.getvalue())) \
-        % create_cipher(cipher).block_size()
+        % create_cipher(cipher).BLOCK_SIZE
     padding_bytes = bytes(range(1, 1 + padding_length))
     if write:
         decipher_byte_stream.write(padding_bytes)
@@ -1165,7 +1165,7 @@ def private_key_list_pack_bytes_test_assertions(
             PrivateKey.footer_format_instructions_dict()
         ) == key_pair.private.footer
 
-    cipher_block_size = create_cipher(cipher).block_size()
+    cipher_block_size = create_cipher(cipher).BLOCK_SIZE
     assert len(decipher_byte_stream.getvalue()) \
         % cipher_block_size == 0
     assert bytes(
