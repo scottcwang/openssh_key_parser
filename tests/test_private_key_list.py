@@ -41,7 +41,7 @@ from tests.test_key import (
 
 
 def test_private_key_list_header_format_instructions_dict():
-    assert PrivateKeyList.header_format_instructions_dict() == {
+    assert PrivateKeyList.HEADER_FORMAT_INSTRUCTIONS_DICT == {
         'auth_magic': '15s',
         'cipher': PascalStyleFormatInstruction.STRING,
         'kdf': PascalStyleFormatInstruction.STRING,
@@ -51,7 +51,7 @@ def test_private_key_list_header_format_instructions_dict():
 
 
 def test_private_key_list_decipher_bytes_format_instructions_dict():
-    assert PrivateKeyList.decipher_bytes_header_format_instructions_dict() == {
+    assert PrivateKeyList.DECIPHER_BYTES_HEADER_FORMAT_INSTRUCTIONS_DICT == {
         'check_int_1': '>I',
         'check_int_2': '>I'
     }
@@ -73,7 +73,7 @@ def correct_header(
     }
     if write_byte_stream is not None:
         write_byte_stream.write_from_format_instructions_dict(
-            PrivateKeyList.header_format_instructions_dict(),
+            PrivateKeyList.HEADER_FORMAT_INSTRUCTIONS_DICT,
             header
         )
     return header
@@ -109,7 +109,7 @@ def correct_decipher_bytes_header(decipher_byte_stream=None):
     }
     if decipher_byte_stream is not None:
         decipher_byte_stream.write_from_format_instructions_dict(
-            PrivateKeyList.decipher_bytes_header_format_instructions_dict(),
+            PrivateKeyList.DECIPHER_BYTES_HEADER_FORMAT_INSTRUCTIONS_DICT,
             decipher_bytes_header
         )
     return decipher_bytes_header
@@ -209,7 +209,7 @@ def test_private_key_list_from_bytes_invalid_auth_magic():
         'num_keys': 0
     }
     write_byte_stream.write_from_format_instructions_dict(
-        PrivateKeyList.header_format_instructions_dict(),
+        PrivateKeyList.HEADER_FORMAT_INSTRUCTIONS_DICT,
         header
     )
     with pytest.raises(ValueError, match='Not an openssh-key-v1 key'):
@@ -467,7 +467,7 @@ def test_private_key_list_from_bytes_one_key_none_bad_decipher_bytes_header():
         'check_int_2': check_int ^ 1
     }
     decipher_byte_stream.write_from_format_instructions_dict(
-        PrivateKeyList.decipher_bytes_header_format_instructions_dict(),
+        PrivateKeyList.DECIPHER_BYTES_HEADER_FORMAT_INSTRUCTIONS_DICT,
         decipher_bytes_header
     )
 
@@ -1106,7 +1106,7 @@ def private_key_list_pack_bytes_test_assertions(
     kdf_options_bytes = kdf_options_byte_stream.getvalue()
 
     assert pack_byte_stream.read_from_format_instructions_dict(
-        PrivateKeyList.header_format_instructions_dict()
+        PrivateKeyList.HEADER_FORMAT_INSTRUCTIONS_DICT
     ) == {
         'auth_magic': b'openssh-key-v1\x00',
         'cipher': cipher,

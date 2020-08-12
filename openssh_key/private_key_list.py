@@ -87,35 +87,29 @@ class PrivateKeyList(BaseList):
             The values that pad the decrypted private byte string.
     """
 
-    @staticmethod
-    def header_format_instructions_dict() -> FormatInstructionsDict:
-        """The Pascal-style byte stream format instructions for the encoded
-        header of the key list.
+    HEADER_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
+        FormatInstructionsDict
+    ] = {
+        'auth_magic': '15s',
+        'cipher': PascalStyleFormatInstruction.STRING,
+        'kdf': PascalStyleFormatInstruction.STRING,
+        'kdf_options': PascalStyleFormatInstruction.BYTES,
+        'num_keys': '>i'
+    }
+    """The Pascal-style byte stream format instructions for the encoded
+    header of the key list.
+    """
 
-        Returns:
-            The format instructions.
-        """
-        return {
-            'auth_magic': '15s',
-            'cipher': PascalStyleFormatInstruction.STRING,
-            'kdf': PascalStyleFormatInstruction.STRING,
-            'kdf_options': PascalStyleFormatInstruction.BYTES,
-            'num_keys': '>i'
-        }
 
-    @staticmethod
-    def decipher_bytes_header_format_instructions_dict() \
-            -> FormatInstructionsDict:
-        """The Pascal-style byte stream format instructions for the header of
-        the decrypted private byte string.
-
-        Returns:
-            The format instructions.
-        """
-        return {
-            'check_int_1': '>I',
-            'check_int_2': '>I'
-        }
+    DECIPHER_BYTES_HEADER_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
+        FormatInstructionsDict
+    ] =  {
+        'check_int_1': '>I',
+        'check_int_2': '>I'
+    }
+    """The Pascal-style byte stream format instructions for the header of
+    the decrypted private byte string.
+    """
 
     def __init__(
         self,
@@ -168,7 +162,7 @@ class PrivateKeyList(BaseList):
         byte_stream = PascalStyleByteStream(byte_string)
 
         header = byte_stream.read_from_format_instructions_dict(
-            cls.header_format_instructions_dict()
+            cls.HEADER_FORMAT_INSTRUCTIONS_DICT
         )
 
         if header['auth_magic'] != b'openssh-key-v1\x00':
@@ -218,7 +212,7 @@ class PrivateKeyList(BaseList):
 
         decipher_bytes_header = \
             decipher_byte_stream.read_from_format_instructions_dict(
-                cls.decipher_bytes_header_format_instructions_dict()
+                cls.DECIPHER_BYTES_HEADER_FORMAT_INSTRUCTIONS_DICT
             )
 
         if decipher_bytes_header['check_int_1'] \
@@ -441,7 +435,7 @@ class PrivateKeyList(BaseList):
             'num_keys': len(include_indices)
         }
         write_byte_stream.write_from_format_instructions_dict(
-            PrivateKeyList.header_format_instructions_dict(),
+            PrivateKeyList.HEADER_FORMAT_INSTRUCTIONS_DICT,
             header
         )
 
@@ -463,7 +457,7 @@ class PrivateKeyList(BaseList):
             'check_int_2': check_int
         }
         decipher_byte_stream.write_from_format_instructions_dict(
-            PrivateKeyList.decipher_bytes_header_format_instructions_dict(),
+            PrivateKeyList.DECIPHER_BYTES_HEADER_FORMAT_INSTRUCTIONS_DICT,
             decipher_bytes_header
         )
 
