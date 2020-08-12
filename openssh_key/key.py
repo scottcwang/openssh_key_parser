@@ -83,7 +83,7 @@ class Key(typing.Generic[PublicKeyParamsTypeVar]):
         return byte_stream.read_from_format_instructions_dict(
             create_public_key_params(
                 key_type
-            ).format_instructions_dict()
+            ).FORMAT_INSTRUCTIONS_DICT
         )
 
     @staticmethod
@@ -261,7 +261,7 @@ class Key(typing.Generic[PublicKeyParamsTypeVar]):
         )
 
         key_byte_stream.write_from_format_instructions_dict(
-            first_public_key_params_type.format_instructions_dict(),
+            first_public_key_params_type.FORMAT_INSTRUCTIONS_DICT,
             self.params
         )
 
@@ -348,7 +348,7 @@ class PrivateKey(Key[PrivateKeyParams]):
         return byte_stream.read_from_format_instructions_dict(
             create_private_key_params(
                 key_type
-            ).format_instructions_dict()
+            ).FORMAT_INSTRUCTIONS_DICT
         )
 
     @staticmethod
@@ -387,7 +387,7 @@ class PrivateKey(Key[PrivateKeyParams]):
         )
 
         key_byte_stream.write_from_format_instructions_dict(
-            self.params.format_instructions_dict(),
+            self.params.FORMAT_INSTRUCTIONS_DICT,
             self.params
         )
 

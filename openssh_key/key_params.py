@@ -119,7 +119,7 @@ class PublicKeyParams(BaseDict, abc.ABC):
         if params_dict is not None:
             return cls({
                 k: params_dict[k]
-                for k in cls.format_instructions_dict()
+                for k in cls.FORMAT_INSTRUCTIONS_DICT
             })
         raise NotImplementedError()
 
@@ -138,16 +138,10 @@ class PublicKeyParams(BaseDict, abc.ABC):
         """
         return {}
 
-    @staticmethod
-    @abc.abstractmethod
-    def format_instructions_dict() -> FormatInstructionsDict:
-        """The Pascal-style byte stream format instructions for the parameters
-        of a key of this type.
-
-        Returns:
-            The format instructions.
-        """
-        return {}
+    FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[FormatInstructionsDict]
+    """The Pascal-style byte stream format instructions for the parameters
+    of a key of this type.
+    """
 
     @property
     def params(self) -> ValuesDict:
@@ -168,7 +162,7 @@ class PublicKeyParams(BaseDict, abc.ABC):
         """
         PascalStyleByteStream.check_dict_matches_format_instructions_dict(
             self.data,
-            self.format_instructions_dict()
+            self.FORMAT_INSTRUCTIONS_DICT
         )
 
     def convert_to(  # pylint: disable=no-self-use
@@ -272,12 +266,10 @@ class RSAPublicKeyParams(PublicKeyParams):
         UserWarning: A parameter value from the above list is missing from
             ``params`` or does not have the correct type.
     """
-    @staticmethod
-    def format_instructions_dict() -> FormatInstructionsDict:
-        return {
-            'e': PascalStyleFormatInstruction.MPINT,
-            'n': PascalStyleFormatInstruction.MPINT,
-        }
+    FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[FormatInstructionsDict] = {
+        'e': PascalStyleFormatInstruction.MPINT,
+        'n': PascalStyleFormatInstruction.MPINT,
+    }
 
     @staticmethod
     def conversion_functions(
@@ -349,16 +341,14 @@ class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
         UserWarning: A parameter value from the above list is missing from
             ``params`` or does not have the correct type.
     """
-    @staticmethod
-    def format_instructions_dict() -> FormatInstructionsDict:
-        return {
-            'n': PascalStyleFormatInstruction.MPINT,
-            'e': PascalStyleFormatInstruction.MPINT,
-            'd': PascalStyleFormatInstruction.MPINT,
-            'iqmp': PascalStyleFormatInstruction.MPINT,
-            'p': PascalStyleFormatInstruction.MPINT,
-            'q': PascalStyleFormatInstruction.MPINT
-        }
+    FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[FormatInstructionsDict] = {
+        'n': PascalStyleFormatInstruction.MPINT,
+        'e': PascalStyleFormatInstruction.MPINT,
+        'd': PascalStyleFormatInstruction.MPINT,
+        'iqmp': PascalStyleFormatInstruction.MPINT,
+        'p': PascalStyleFormatInstruction.MPINT,
+        'q': PascalStyleFormatInstruction.MPINT
+    }
 
     PUBLIC_EXPONENT = 65537
     KEY_SIZE = 4096
@@ -477,11 +467,9 @@ class Ed25519PublicKeyParams(PublicKeyParams):
             ``params`` or does not have the correct type, or the key size is
             not valid for Ed25519 (32 bytes).
     """
-    @staticmethod
-    def format_instructions_dict() -> FormatInstructionsDict:
-        return {
-            'public': PascalStyleFormatInstruction.BYTES
-        }
+    FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[ FormatInstructionsDict] = {
+        'public': PascalStyleFormatInstruction.BYTES
+    }
 
     KEY_SIZE = 32
 
@@ -617,12 +605,10 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
             parameter value.
     """
 
-    @staticmethod
-    def format_instructions_dict() -> FormatInstructionsDict:
-        return {
-            'public': PascalStyleFormatInstruction.BYTES,
-            'private_public': PascalStyleFormatInstruction.BYTES
-        }
+    FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[ FormatInstructionsDict] = {
+        'public': PascalStyleFormatInstruction.BYTES,
+        'private_public': PascalStyleFormatInstruction.BYTES
+    }
 
     def check_params_are_valid(self) -> None:
         """Checks whether the values within this parameters object conform to
