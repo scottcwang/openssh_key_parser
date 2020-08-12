@@ -94,7 +94,7 @@ def correct_kdf_options_bytes(kdf):
     else:
         raise NotImplementedError()
     kdf_options_write_byte_stream.write_from_format_instructions_dict(
-        create_kdf(kdf).options_format_instructions_dict(),
+        create_kdf(kdf).OPTIONS_FORMAT_INSTRUCTIONS_DICT,
         kdf_options
     )
     kdf_options_bytes = kdf_options_write_byte_stream.getvalue()
@@ -1100,7 +1100,7 @@ def private_key_list_pack_bytes_test_assertions(
 
     kdf_options_byte_stream = PascalStyleByteStream()
     kdf_options_byte_stream.write_from_format_instructions_dict(
-        create_kdf(kdf).options_format_instructions_dict(),
+        create_kdf(kdf).OPTIONS_FORMAT_INSTRUCTIONS_DICT,
         kdf_options
     )
     kdf_options_bytes = kdf_options_byte_stream.getvalue()

@@ -60,16 +60,10 @@ class KDF(abc.ABC):
             initialization_vector=b''
         )
 
-    @staticmethod
-    @abc.abstractmethod
-    def options_format_instructions_dict() -> FormatInstructionsDict:
-        """The Pascal-style byte stream format instructions for the parameters
-        to a key derivation function.
-
-        Returns:
-            The format instructions.
-        """
-        return {}
+    OPTIONS_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[FormatInstructionsDict]
+    """The Pascal-style byte stream format instructions for the parameters
+    to a key derivation function.
+    """
 
     @classmethod
     @abc.abstractmethod
@@ -113,14 +107,11 @@ class NoneKDF(KDF):
             initialization_vector=b''
         )
 
-    @staticmethod
-    def options_format_instructions_dict() -> FormatInstructionsDict:
-        """Empty format instructions.
-
-        Returns:
-            An empty ``dict``.
-        """
-        return {}
+    OPTIONS_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
+        FormatInstructionsDict
+    ] = {}
+    """Empty format instructions.
+    """
 
     @classmethod
     def generate_options(
@@ -181,18 +172,15 @@ class BcryptKDF(KDF):
             initialization_vector=bcrypt_result[-BcryptKDF.IV_LENGTH:]
         )
 
-    @staticmethod
-    def options_format_instructions_dict() -> FormatInstructionsDict:
-        """The Pascal-style byte stream format instructions for the parameters
-        to bcrypt-PBKDF2.
-
-        Returns:
-            The format instructions.
-        """
-        return {
-            'salt': PascalStyleFormatInstruction.BYTES,
-            'rounds': '>I'
-        }
+    OPTIONS_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
+        FormatInstructionsDict
+    ] = {
+        'salt': PascalStyleFormatInstruction.BYTES,
+        'rounds': '>I'
+    }
+    """The Pascal-style byte stream format instructions for the parameters
+    to bcrypt-PBKDF2.
+    """
 
     @classmethod
     def generate_options(

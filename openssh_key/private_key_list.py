@@ -196,7 +196,7 @@ class PrivateKeyList(BaseList):
         kdf_options = PascalStyleByteStream(
             header['kdf_options']
         ).read_from_format_instructions_dict(
-            kdf_class.options_format_instructions_dict()
+            kdf_class.OPTIONS_FORMAT_INSTRUCTIONS_DICT
         )
 
         cipher_class = create_cipher(header['cipher'])
@@ -428,7 +428,7 @@ class PrivateKeyList(BaseList):
         kdf_options_write_byte_stream = PascalStyleByteStream()
 
         kdf_options_write_byte_stream.write_from_format_instructions_dict(
-            create_kdf(kdf).options_format_instructions_dict(),
+            create_kdf(kdf).OPTIONS_FORMAT_INSTRUCTIONS_DICT,
             kdf_options
         )
         kdf_options_bytes = kdf_options_write_byte_stream.getvalue()
