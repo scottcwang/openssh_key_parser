@@ -56,10 +56,10 @@ class Key(typing.Generic[PublicKeyParamsTypeVar]):
 
     def __init__(
         self,
-        header: typing.Mapping[str, typing.Any],
-        params: typing.Mapping[str, typing.Any],
-        footer: typing.Mapping[str, typing.Any],
-        clear: typing.Optional[typing.Mapping[str, typing.Any]] = None
+        header: ValuesDict,
+        params: ValuesDict,
+        footer: ValuesDict,
+        clear: typing.Optional[ValuesDict] = None
     ):
         self.header = dict(header)
         PascalStyleByteStream.check_dict_matches_format_instructions_dict(
@@ -82,7 +82,7 @@ class Key(typing.Generic[PublicKeyParamsTypeVar]):
     def from_byte_stream(
         cls: typing.Type[KeyTypeVar],
         byte_stream: PascalStyleByteStream,
-        clear: typing.Optional[typing.Mapping[str, typing.Any]] = None
+        clear: typing.Optional[ValuesDict] = None
     ) -> KeyTypeVar:
         header = byte_stream.read_from_format_instructions_dict(
             cls.header_format_instructions_dict()
@@ -103,7 +103,7 @@ class Key(typing.Generic[PublicKeyParamsTypeVar]):
     def from_bytes(
         cls: typing.Type[KeyTypeVar],
         byte_string: bytes,
-        clear: typing.Optional[typing.Mapping[str, typing.Any]] = None
+        clear: typing.Optional[ValuesDict] = None
     ) -> KeyTypeVar:
         byte_stream = PascalStyleByteStream(byte_string)
 

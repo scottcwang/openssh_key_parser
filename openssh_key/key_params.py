@@ -34,14 +34,14 @@ class ConversionFunctions(typing.NamedTuple):
     """
     object_to_mapping: typing.Callable[
         [typing.Any],
-        typing.Mapping[str, typing.Any]
+        ValuesDict
     ]
     """Functions to convert an object of a certain type to a
     :any:`typing.Mapping` representing the parameter values in the object.
     """
 
     mapping_to_object: typing.Callable[
-        [typing.Mapping[str, typing.Any]],
+        [ValuesDict],
         typing.Any
     ]
     """Functions to convert a :any:`typing.Mapping` containing parameter
@@ -76,7 +76,7 @@ class PublicKeyParams(BaseDict, abc.ABC):
             that matches the format instructions for this key type.
     """
 
-    def __init__(self, params: typing.Mapping[str, typing.Any]):
+    def __init__(self, params: ValuesDict):
         super().__init__(params)
         self.check_params_are_valid()
 
@@ -103,7 +103,7 @@ class PublicKeyParams(BaseDict, abc.ABC):
                 or it does not contain the attributes necessary to construct
                 a parameters object of this class.
         """
-        params_dict: typing.Optional[typing.Mapping[str, typing.Any]] = None
+        params_dict: typing.Optional[ValuesDict] = None
         for k, v in cls.conversion_functions().items():
             if isinstance(key_object, k):
                 params_dict = v.object_to_mapping(key_object)
@@ -296,7 +296,7 @@ class RSAPublicKeyParams(PublicKeyParams):
         """
         def rsa_public_key_convert_from_cryptography(
             key_object: rsa.RSAPublicKey
-        ) -> typing.Mapping[str, typing.Any]:
+        ) -> ValuesDict:
             public_numbers = key_object.public_numbers()
             return {
                 'e': public_numbers.e,
@@ -304,7 +304,7 @@ class RSAPublicKeyParams(PublicKeyParams):
             }
 
         def rsa_public_key_convert_to_cryptography(
-            key_params: typing.Mapping[str, typing.Any]
+            key_params: ValuesDict
         ) -> rsa.RSAPublicKey:
             return rsa.RSAPublicNumbers(
                 key_params['e'],
@@ -420,7 +420,7 @@ class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
         """
         def rsa_private_key_convert_from_cryptography(
             key_object: rsa.RSAPrivateKeyWithSerialization
-        ) -> typing.Mapping[str, typing.Any]:
+        ) -> ValuesDict:
             private_numbers = key_object.private_numbers()
             return {
                 'n': private_numbers.public_numbers.n,
@@ -432,7 +432,7 @@ class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
             }
 
         def rsa_private_key_convert_to_cryptography(
-            key_params: typing.Mapping[str, typing.Any]
+            key_params: ValuesDict
         ) -> rsa.RSAPrivateKeyWithSerialization:
             key_object = rsa.RSAPrivateNumbers(
                 key_params['p'],
@@ -519,7 +519,7 @@ class Ed25519PublicKeyParams(PublicKeyParams):
         """
         def ed25519_public_key_convert_from_cryptography(
             key_object: ed25519.Ed25519PublicKey
-        ) -> typing.Mapping[str, typing.Any]:
+        ) -> ValuesDict:
             return {
                 'public': key_object.public_bytes(
                     encoding=serialization.Encoding.Raw,
@@ -528,7 +528,7 @@ class Ed25519PublicKeyParams(PublicKeyParams):
             }
 
         def ed25519_public_key_convert_to_cryptography(
-            key_params: typing.Mapping[str, typing.Any]
+            key_params: ValuesDict
         ) -> ed25519.Ed25519PublicKey:
             return ed25519.Ed25519PublicKey.from_public_bytes(
                 key_params['public']
@@ -536,13 +536,13 @@ class Ed25519PublicKeyParams(PublicKeyParams):
 
         def ed25519_public_key_convert_from_bytes(
             key_object: bytes
-        ) -> typing.Mapping[str, typing.Any]:
+        ) -> ValuesDict:
             return {
                 'public': key_object
             }
 
         def ed25519_public_key_convert_to_bytes(
-            key_params: typing.Mapping[str, typing.Any]
+            key_params: ValuesDict
         ) -> bytes:
             return bytes(key_params['public'])
 
@@ -565,13 +565,13 @@ class Ed25519PublicKeyParams(PublicKeyParams):
 
             def ed25519_public_key_convert_from_pynacl(
                 key_object: nacl.signing.VerifyKey
-            ) -> typing.Mapping[str, typing.Any]:
+            ) -> ValuesDict:
                 return {
                     'public': bytes(key_object)
                 }
 
             def ed25519_public_key_convert_to_pynacl(
-                key_params: typing.Mapping[str, typing.Any]
+                key_params: ValuesDict
             ) -> nacl.signing.VerifyKey:
                 return nacl.signing.VerifyKey(key_params['public'])
 
@@ -703,7 +703,7 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
         """
         def ed25519_private_key_convert_from_cryptography(
             key_object: ed25519.Ed25519PrivateKey
-        ) -> typing.Mapping[str, typing.Any]:
+        ) -> ValuesDict:
             private_bytes = key_object.private_bytes(
                 encoding=serialization.Encoding.Raw,
                 format=serialization.PrivateFormat.Raw,
@@ -719,7 +719,7 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
             }
 
         def ed25519_private_key_convert_to_cryptography(
-            key_params: typing.Mapping[str, typing.Any]
+            key_params: ValuesDict
         ) -> ed25519.Ed25519PrivateKey:
             return ed25519.Ed25519PrivateKey.from_private_bytes(
                 key_params[
@@ -729,7 +729,7 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
 
         def ed25519_private_key_convert_from_bytes(
             key_object: bytes
-        ) -> typing.Mapping[str, typing.Any]:
+        ) -> ValuesDict:
             private_bytes = key_object
             public_bytes = ed25519.Ed25519PrivateKey.from_private_bytes(
                 key_object
@@ -743,7 +743,7 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
             }
 
         def ed25519_private_key_convert_to_bytes(
-            key_params: typing.Mapping[str, typing.Any]
+            key_params: ValuesDict
         ) -> bytes:
             return bytes(
                 key_params[
@@ -770,7 +770,7 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
 
             def ed25519_private_key_convert_from_pynacl(
                 key_object: nacl.signing.SigningKey
-            ) -> typing.Mapping[str, typing.Any]:
+            ) -> ValuesDict:
                 private_bytes = bytes(key_object)
                 public_bytes = bytes(key_object.verify_key)
                 return {
@@ -779,7 +779,7 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
                 }
 
             def ed25519_private_key_convert_to_pynacl(
-                key_params: typing.Mapping[str, typing.Any]
+                key_params: ValuesDict
             ) -> nacl.signing.SigningKey:
                 return nacl.signing.SigningKey(
                     key_params[
