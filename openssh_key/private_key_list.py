@@ -23,14 +23,9 @@ from openssh_key.kdf import (
 from openssh_key.cipher import create_cipher
 
 
-class PublicPrivateKeyPair:
-    def __init__(
-        self,
-        public: PublicKey,
-        private: PrivateKey
-    ):
-        self.public = public
-        self.private = private
+class PublicPrivateKeyPair(typing.NamedTuple):
+    public: PublicKey
+    private: PrivateKey
 
     def __eq__(self, other: typing.Any) -> bool:
         return (
