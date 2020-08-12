@@ -244,9 +244,9 @@ class Key(typing.Generic[PublicKeyParamsTypeVar]):
             self.header
         )
 
-        self_params_types: typing.Sequence[typing.Type[PublicKeyParams]] = \
+        self_params_types: typing.Sequence[typing.Type[typing.Any]] = \
             type(self.params).mro()
-        first_public_key_params_type = next(
+        first_public_key_params_type = next(  # pragma: no cover
             (
                 params_type for params_type in self_params_types
                 if not issubclass(params_type, PrivateKeyParams)
