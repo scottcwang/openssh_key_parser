@@ -42,27 +42,21 @@ class Key(typing.Generic[PublicKeyParamsTypeVar]):
         clear
             A :any:`typing.Mapping` with cleartext key details, if any.
     """
-    @staticmethod
-    def header_format_instructions_dict() -> FormatInstructionsDict:
-        """The Pascal-style byte stream format instructions for the encoded
-        header.
+    HEADER_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
+        FormatInstructionsDict
+    ] = {
+        'key_type': PascalStyleFormatInstruction.STRING
+    }
+    """The Pascal-style byte stream format instructions for the encoded
+    header.
+    """
 
-        Returns:
-            The format instructions.
-        """
-        return {
-            'key_type': PascalStyleFormatInstruction.STRING
-        }
-
-    @staticmethod
-    def footer_format_instructions_dict() -> FormatInstructionsDict:
-        """The Pascal-style byte stream format instructions for the encoded
-        footer.
-
-        Returns:
-            The format instructions.
-        """
-        return {}
+    FOOTER_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
+        FormatInstructionsDict
+    ] = {}
+    """The Pascal-style byte stream format instructions for the encoded
+    footer.
+    """
 
     @staticmethod
     def create_key_params_dict(
@@ -116,7 +110,7 @@ class Key(typing.Generic[PublicKeyParamsTypeVar]):
         self.header = dict(header)
         PascalStyleByteStream.check_dict_matches_format_instructions_dict(
             self.header,
-            self.header_format_instructions_dict()
+            self.HEADER_FORMAT_INSTRUCTIONS_DICT
         )
 
         self.params = self.create_key_params(header['key_type'], params)
@@ -125,7 +119,7 @@ class Key(typing.Generic[PublicKeyParamsTypeVar]):
 
         PascalStyleByteStream.check_dict_matches_format_instructions_dict(
             self.footer,
-            self.footer_format_instructions_dict()
+            self.FOOTER_FORMAT_INSTRUCTIONS_DICT
         )
 
         self.clear = dict(clear) if clear is not None else {}
@@ -150,7 +144,7 @@ class Key(typing.Generic[PublicKeyParamsTypeVar]):
             header, encoded footer, and cleartext key details.
         """
         header = byte_stream.read_from_format_instructions_dict(
-            cls.header_format_instructions_dict()
+            cls.HEADER_FORMAT_INSTRUCTIONS_DICT
         )
 
         params = cls.create_key_params_dict(
@@ -159,7 +153,7 @@ class Key(typing.Generic[PublicKeyParamsTypeVar]):
         )
 
         footer = byte_stream.read_from_format_instructions_dict(
-            cls.footer_format_instructions_dict()
+            cls.FOOTER_FORMAT_INSTRUCTIONS_DICT
         )
 
         return cls(header, params, footer, clear)
@@ -246,7 +240,7 @@ class Key(typing.Generic[PublicKeyParamsTypeVar]):
         key_byte_stream = PascalStyleByteStream()
 
         key_byte_stream.write_from_format_instructions_dict(
-            Key.header_format_instructions_dict(),
+            Key.HEADER_FORMAT_INSTRUCTIONS_DICT,
             self.header
         )
 
@@ -266,7 +260,7 @@ class Key(typing.Generic[PublicKeyParamsTypeVar]):
         )
 
         key_byte_stream.write_from_format_instructions_dict(
-            Key.footer_format_instructions_dict(),
+            Key.FOOTER_FORMAT_INSTRUCTIONS_DICT,
             self.footer
         )
 
@@ -328,17 +322,23 @@ class PublicKey(Key[PublicKeyParams]):
 
 
 class PrivateKey(Key[PrivateKeyParams]):
-    @staticmethod
-    def header_format_instructions_dict() -> FormatInstructionsDict:
-        return {
-            'key_type': PascalStyleFormatInstruction.STRING
-        }
+    HEADER_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
+        FormatInstructionsDict
+    ] = {
+        'key_type': PascalStyleFormatInstruction.STRING
+    }
+    """The Pascal-style byte stream format instructions for the encoded
+    header.
+    """
 
-    @staticmethod
-    def footer_format_instructions_dict() -> FormatInstructionsDict:
-        return {
-            'comment': PascalStyleFormatInstruction.STRING
-        }
+    FOOTER_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
+        FormatInstructionsDict
+    ] = {
+        'comment': PascalStyleFormatInstruction.STRING
+    }
+    """The Pascal-style byte stream format instructions for the encoded
+    footer.
+    """
 
     @staticmethod
     def create_key_params_dict(
@@ -382,7 +382,7 @@ class PrivateKey(Key[PrivateKeyParams]):
         key_byte_stream = PascalStyleByteStream()
 
         key_byte_stream.write_from_format_instructions_dict(
-            PrivateKey.header_format_instructions_dict(),
+            PrivateKey.HEADER_FORMAT_INSTRUCTIONS_DICT,
             self.header
         )
 
@@ -392,7 +392,7 @@ class PrivateKey(Key[PrivateKeyParams]):
         )
 
         key_byte_stream.write_from_format_instructions_dict(
-            PrivateKey.footer_format_instructions_dict(),
+            PrivateKey.FOOTER_FORMAT_INSTRUCTIONS_DICT,
             self.footer
         )
 

@@ -19,23 +19,23 @@ from openssh_key.key import (
 
 
 def test_public_key_header_format_instructions_dict():
-    assert PublicKey.header_format_instructions_dict() == {
+    assert PublicKey.HEADER_FORMAT_INSTRUCTIONS_DICT == {
         'key_type': PascalStyleFormatInstruction.STRING
     }
 
 
 def test_public_key_footer_format_instructions_dict():
-    assert PublicKey.footer_format_instructions_dict() == {}
+    assert PublicKey.FOOTER_FORMAT_INSTRUCTIONS_DICT == {}
 
 
 def test_private_key_header_format_instructions_dict():
-    assert PrivateKey.header_format_instructions_dict() == {
+    assert PrivateKey.HEADER_FORMAT_INSTRUCTIONS_DICT == {
         'key_type': PascalStyleFormatInstruction.STRING
     }
 
 
 def test_private_key_footer_format_instructions_dict():
-    assert PrivateKey.footer_format_instructions_dict() == {
+    assert PrivateKey.FOOTER_FORMAT_INSTRUCTIONS_DICT == {
         'comment': PascalStyleFormatInstruction.STRING
     }
 
@@ -137,7 +137,7 @@ RSA_TEST_PRIVATE = {
 def correct_public_key_bytes_ed25519(write_byte_stream=None):
     public_key_write_byte_stream = PascalStyleByteStream()
     public_key_write_byte_stream.write_from_format_instructions_dict(
-        PublicKey.header_format_instructions_dict(),
+        PublicKey.HEADER_FORMAT_INSTRUCTIONS_DICT,
         ED25519_TEST_HEADER
     )
     public_key_write_byte_stream.write_from_format_instructions_dict(
@@ -157,7 +157,7 @@ def correct_public_key_bytes_ed25519(write_byte_stream=None):
 def correct_private_key_bytes_ed25519(decipher_byte_stream=None):
     private_key_write_byte_stream = PascalStyleByteStream()
     private_key_write_byte_stream.write_from_format_instructions_dict(
-        PrivateKey.header_format_instructions_dict(),
+        PrivateKey.HEADER_FORMAT_INSTRUCTIONS_DICT,
         ED25519_TEST_HEADER
     )
     private_key_write_byte_stream.write_from_format_instructions_dict(
@@ -165,7 +165,7 @@ def correct_private_key_bytes_ed25519(decipher_byte_stream=None):
         ED25519_TEST_PRIVATE
     )
     private_key_write_byte_stream.write_from_format_instructions_dict(
-        PrivateKey.footer_format_instructions_dict(),
+        PrivateKey.FOOTER_FORMAT_INSTRUCTIONS_DICT,
         PRIVATE_TEST_FOOTER
     )
     private_key_bytes = private_key_write_byte_stream.getvalue()
@@ -178,7 +178,7 @@ def correct_private_key_bytes_ed25519(decipher_byte_stream=None):
 def correct_public_key_bytes_rsa(write_byte_stream=None):
     public_key_write_byte_stream = PascalStyleByteStream()
     public_key_write_byte_stream.write_from_format_instructions_dict(
-        PublicKey.header_format_instructions_dict(),
+        PublicKey.HEADER_FORMAT_INSTRUCTIONS_DICT,
         RSA_TEST_HEADER
     )
     public_key_write_byte_stream.write_from_format_instructions_dict(
@@ -198,7 +198,7 @@ def correct_public_key_bytes_rsa(write_byte_stream=None):
 def correct_private_key_bytes_rsa(decipher_byte_stream=None):
     private_key_write_byte_stream = PascalStyleByteStream()
     private_key_write_byte_stream.write_from_format_instructions_dict(
-        PrivateKey.header_format_instructions_dict(),
+        PrivateKey.HEADER_FORMAT_INSTRUCTIONS_DICT,
         RSA_TEST_HEADER
     )
     private_key_write_byte_stream.write_from_format_instructions_dict(
@@ -206,7 +206,7 @@ def correct_private_key_bytes_rsa(decipher_byte_stream=None):
         RSA_TEST_PRIVATE
     )
     private_key_write_byte_stream.write_from_format_instructions_dict(
-        PrivateKey.footer_format_instructions_dict(),
+        PrivateKey.FOOTER_FORMAT_INSTRUCTIONS_DICT,
         PRIVATE_TEST_FOOTER
     )
     private_key_bytes = private_key_write_byte_stream.getvalue()
@@ -313,13 +313,13 @@ def test_public_key_pack_public_bytes():
     public_key_bytes = public_key.pack_public_bytes()
     public_key_byte_stream = PascalStyleByteStream(public_key_bytes)
     assert public_key_byte_stream.read_from_format_instructions_dict(
-        PublicKey.header_format_instructions_dict()
+        PublicKey.HEADER_FORMAT_INSTRUCTIONS_DICT
     ) == ED25519_TEST_HEADER
     assert public_key_byte_stream.read_from_format_instructions_dict(
         Ed25519PublicKeyParams.FORMAT_INSTRUCTIONS_DICT
     ) == ED25519_TEST_PUBLIC
     assert public_key_byte_stream.read_from_format_instructions_dict(
-        PublicKey.footer_format_instructions_dict()
+        PublicKey.FOOTER_FORMAT_INSTRUCTIONS_DICT
     ) == {}
 
 
@@ -406,13 +406,13 @@ def test_private_key_pack_public():
     public_key_bytes = private_key.pack_public_bytes()
     public_key_byte_stream = PascalStyleByteStream(public_key_bytes)
     assert public_key_byte_stream.read_from_format_instructions_dict(
-        PublicKey.header_format_instructions_dict()
+        PublicKey.HEADER_FORMAT_INSTRUCTIONS_DICT
     ) == ED25519_TEST_HEADER
     assert public_key_byte_stream.read_from_format_instructions_dict(
         Ed25519PublicKeyParams.FORMAT_INSTRUCTIONS_DICT
     ) == ED25519_TEST_PUBLIC
     assert public_key_byte_stream.read_from_format_instructions_dict(
-        PublicKey.footer_format_instructions_dict()
+        PublicKey.FOOTER_FORMAT_INSTRUCTIONS_DICT
     ) == {}
 
 
@@ -421,13 +421,13 @@ def test_private_key_pack_private_bytes():
     private_key_bytes = private_key.pack_private_bytes()
     private_key_byte_stream = PascalStyleByteStream(private_key_bytes)
     assert private_key_byte_stream.read_from_format_instructions_dict(
-        PrivateKey.header_format_instructions_dict()
+        PrivateKey.HEADER_FORMAT_INSTRUCTIONS_DICT
     ) == ED25519_TEST_HEADER
     assert private_key_byte_stream.read_from_format_instructions_dict(
         Ed25519PrivateKeyParams.FORMAT_INSTRUCTIONS_DICT
     ) == ED25519_TEST_PRIVATE
     assert private_key_byte_stream.read_from_format_instructions_dict(
-        PrivateKey.footer_format_instructions_dict()
+        PrivateKey.FOOTER_FORMAT_INSTRUCTIONS_DICT
     ) == PRIVATE_TEST_FOOTER
 
 

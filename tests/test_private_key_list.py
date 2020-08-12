@@ -596,7 +596,7 @@ def test_private_key_list_from_bytes_one_key_none_inconsistent_key_params():
         'key_type': 'ssh-ed25519'
     }
     public_key_write_byte_stream.write_from_format_instructions_dict(
-        PublicKey.header_format_instructions_dict(),
+        PublicKey.HEADER_FORMAT_INSTRUCTIONS_DICT,
         public_key_header
     )
     public_key_params = {
@@ -1123,7 +1123,7 @@ def private_key_list_pack_bytes_test_assertions(
                 )
             )
         assert public_key_byte_stream.read_from_format_instructions_dict(
-            PublicKey.header_format_instructions_dict()
+            PublicKey.HEADER_FORMAT_INSTRUCTIONS_DICT
         ) == key_pair.public.header
         assert public_key_byte_stream.read_from_format_instructions_dict(
             create_public_key_params(
@@ -1131,7 +1131,7 @@ def private_key_list_pack_bytes_test_assertions(
             ).FORMAT_INSTRUCTIONS_DICT
         ) == key_pair.public.params
         assert public_key_byte_stream.read_from_format_instructions_dict(
-            PublicKey.footer_format_instructions_dict()
+            PublicKey.FOOTER_FORMAT_INSTRUCTIONS_DICT
         ) == key_pair.public.footer
         assert public_key_byte_stream.read() == b''
 
@@ -1154,7 +1154,7 @@ def private_key_list_pack_bytes_test_assertions(
 
     for key_pair in key_pairs:
         assert decipher_byte_stream.read_from_format_instructions_dict(
-            PrivateKey.header_format_instructions_dict()
+            PrivateKey.HEADER_FORMAT_INSTRUCTIONS_DICT
         ) == key_pair.private.header
         assert decipher_byte_stream.read_from_format_instructions_dict(
             create_private_key_params(
@@ -1162,7 +1162,7 @@ def private_key_list_pack_bytes_test_assertions(
             ).FORMAT_INSTRUCTIONS_DICT
         ) == key_pair.private.params
         assert decipher_byte_stream.read_from_format_instructions_dict(
-            PrivateKey.footer_format_instructions_dict()
+            PrivateKey.FOOTER_FORMAT_INSTRUCTIONS_DICT
         ) == key_pair.private.footer
 
     cipher_block_size = create_cipher(cipher).BLOCK_SIZE
