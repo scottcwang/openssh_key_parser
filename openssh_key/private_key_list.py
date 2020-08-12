@@ -47,7 +47,7 @@ PrivateKeyListTypeVar = typing.TypeVar(
 
 
 # https://github.com/python/mypy/issues/5264
-if typing.TYPE_CHECKING:
+if typing.TYPE_CHECKING:  # pragma: no cover
     BaseList = collections.UserList[  # pylint: disable=unsubscriptable-object
         PublicPrivateKeyPair
     ]

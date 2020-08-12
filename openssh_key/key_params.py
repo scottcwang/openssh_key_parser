@@ -50,7 +50,7 @@ class ConversionFunctions(typing.NamedTuple):
 
 
 # https://github.com/python/mypy/issues/5264
-if typing.TYPE_CHECKING:
+if typing.TYPE_CHECKING:  # pragma: no cover
     BaseDict = collections.UserDict[  # pylint: disable=unsubscriptable-object
         str, typing.Any
     ]
