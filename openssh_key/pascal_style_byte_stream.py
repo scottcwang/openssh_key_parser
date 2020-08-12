@@ -64,7 +64,7 @@ class PascalStyleByteStream(io.BytesIO):
     length of such variable-length value.
     """
 
-    OPENSSH_DEFAULT_STRING_LENGTH_SIZE = 4
+    OPENSSH_DEFAULT_STRING_LENGTH_SIZE: typing.ClassVar[int] = 4
 
     def read_from_format_instruction(
         self,
