@@ -1,4 +1,5 @@
 from openssh_key.cipher import create_cipher, NoneCipher, AES256_CTRCipher
+from openssh_key.kdf import KDFResult
 
 
 def test_factory_none():
@@ -11,12 +12,12 @@ def test_factory_aes256_ctr():
 
 def test_none_encrypt():
     test_bytes = b'abcd'
-    assert NoneCipher.encrypt(None, None, test_bytes) == test_bytes
+    assert NoneCipher.encrypt(None, test_bytes) == test_bytes
 
 
 def test_none_decrypt():
     test_bytes = b'abcd'
-    assert NoneCipher.decrypt(None, None, test_bytes) == test_bytes
+    assert NoneCipher.decrypt(None, test_bytes) == test_bytes
 
 
 def test_none_block_size():
@@ -66,16 +67,20 @@ AES256_CTR_TEST_VECTORS = [
 
 def aes256_ctr_encrypt(i):
     return AES256_CTRCipher.encrypt(
-        AES256_CTR_TEST_VECTORS[i]['key'],
-        AES256_CTR_TEST_VECTORS[i]['iv'],
+        KDFResult(
+            AES256_CTR_TEST_VECTORS[i]['key'],
+            AES256_CTR_TEST_VECTORS[i]['iv']
+        ),
         AES256_CTR_TEST_VECTORS[i]['plaintext']
     ) == AES256_CTR_TEST_VECTORS[i]['ciphertext']
 
 
 def aes256_ctr_decrypt(i):
     return AES256_CTRCipher.decrypt(
-        AES256_CTR_TEST_VECTORS[i]['key'],
-        AES256_CTR_TEST_VECTORS[i]['iv'],
+        KDFResult(
+            AES256_CTR_TEST_VECTORS[i]['key'],
+            AES256_CTR_TEST_VECTORS[i]['iv']
+        ),
         AES256_CTR_TEST_VECTORS[i]['ciphertext']
     ) == AES256_CTR_TEST_VECTORS[i]['plaintext']
 

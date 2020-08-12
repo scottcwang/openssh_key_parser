@@ -11,6 +11,9 @@ import cryptography.hazmat.primitives.ciphers.algorithms as algorithms
 import cryptography.hazmat.primitives.ciphers.modes as modes
 from cryptography.hazmat.backends import default_backend
 
+from openssh_key.kdf import (
+    KDFResult
+)
 
 class Cipher(abc.ABC):
     """An abstract symmetric-key cipher.
@@ -22,18 +25,15 @@ class Cipher(abc.ABC):
     @staticmethod
     @abc.abstractmethod
     def encrypt(
-        cipher_key: bytes,
-        initialization_vector: bytes,
+        kdf_result: KDFResult,
         plain_bytes: bytes
     ) -> bytes:
-        """Encrypts the given plaintext bytes using the given key and
-        initialization vector.
+        """Encrypts the given plaintext bytes using the given result from a
+        key derivation function.
 
         Args:
-            cipher_key
-                Symmetric key.
-            initialization_vector
-                Cipher initialization vector.
+            kdf_result
+                The result of a key derivation function.
             plain_bytes
                 Plaintext bytes to be encrypted.
 
@@ -44,18 +44,15 @@ class Cipher(abc.ABC):
     @staticmethod
     @abc.abstractmethod
     def decrypt(
-        cipher_key: bytes,
-        initialization_vector: bytes,
+        kdf_result: KDFResult,
         cipher_bytes: bytes
     ) -> bytes:
-        """Decrypts the given ciphertext bytes using the given key and
-        initialization vector.
+        """Decrypts the given ciphertext bytes using the given result from a
+        key derivation function.
 
         Args:
-            cipher_key
-                Symmetric key.
-            initialization_vector
-                Cipher initialization vector.
+            kdf_result
+                The result of a key derivation function.
             cipher_bytes
                 Ciphertext bytes to be decrypted.
 
@@ -73,16 +70,13 @@ class NoneCipher(Cipher):
     """
     @staticmethod
     def encrypt(
-        cipher_key: bytes,
-        initialization_vector: bytes,
+        kdf_result: KDFResult,
         plain_bytes: bytes
     ) -> bytes:
         """Returns the plaintext bytes as given.
 
         Args:
-            cipher_key
-                Ignored.
-            initialization_vector
+            kdf_result
                 Ignored.
             plain_bytes
                 Plaintext bytes to be returned.
@@ -94,16 +88,13 @@ class NoneCipher(Cipher):
 
     @staticmethod
     def decrypt(
-        cipher_key: bytes,
-        initialization_vector: bytes,
+        kdf_result: KDFResult,
         cipher_bytes: bytes
     ) -> bytes:
         """Returns the ciphertext bytes as given.
 
         Args:
-            cipher_key
-                Ignored.
-            initialization_vector
+            kdf_result
                 Ignored.
             cipher_bytes
                 Ciphertext bytes to be returned.
@@ -127,18 +118,15 @@ class AES256_CTRCipher(Cipher):
     """
     @staticmethod
     def encrypt(
-        cipher_key: bytes,
-        initialization_vector: bytes,
+        kdf_result: KDFResult,
         plain_bytes: bytes
     ) -> bytes:
         """Encrypts the given plaintext bytes using the given key and
         initialization vector.
 
         Args:
-            cipher_key
-                Symmetric key.
-            initialization_vector
-                Cipher initialization vector.
+            kdf_result
+                The result of a key derivation function.
             plain_bytes
                 Plaintext bytes to be encrypted.
 
@@ -150,8 +138,8 @@ class AES256_CTRCipher(Cipher):
             Ciphertext bytes.
         """
         cipher = ciphers.Cipher(
-            algorithms.AES(cipher_key),
-            modes.CTR(initialization_vector),
+            algorithms.AES(kdf_result.cipher_key),
+            modes.CTR(kdf_result.initialization_vector),
             backend=default_backend()
         )
         encryptor = cipher.encryptor()
@@ -159,18 +147,15 @@ class AES256_CTRCipher(Cipher):
 
     @staticmethod
     def decrypt(
-        cipher_key: bytes,
-        initialization_vector: bytes,
+        kdf_result: KDFResult,
         cipher_bytes: bytes
     ) -> bytes:
         """Decrypts the given ciphertext bytes using the given key and
         initialization vector.
 
         Args:
-            cipher_key
-                Symmetric key.
-            initialization_vector
-                Cipher initialization vector.
+            kdf_result
+                The result of a key derivation function.
             cipher_bytes
                 Ciphertext bytes to be decrypted.
 
@@ -182,8 +167,8 @@ class AES256_CTRCipher(Cipher):
             Plaintext bytes.
         """
         cipher = ciphers.Cipher(
-            algorithms.AES(cipher_key),
-            modes.CTR(initialization_vector),
+            algorithms.AES(kdf_result.cipher_key),
+            modes.CTR(kdf_result.initialization_vector),
             backend=default_backend()
         )
         decryptor = cipher.decryptor()

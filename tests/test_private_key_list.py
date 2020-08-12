@@ -134,8 +134,7 @@ def correct_cipher_bytes(
 ):
     kdf_result = create_kdf(kdf).derive_key(kdf_options, passphrase)
     cipher_bytes = create_cipher(cipher).encrypt(
-        kdf_result.cipher_key,
-        kdf_result.initialization_vector,
+        kdf_result,
         decipher_byte_stream.getvalue()
     )
     if write_byte_stream is not None:
@@ -1141,8 +1140,7 @@ def private_key_list_pack_bytes_test_assertions(
     kdf_result = create_kdf(kdf).derive_key(kdf_options, passphrase)
 
     decipher_bytes = create_cipher(cipher).decrypt(
-        kdf_result.cipher_key,
-        kdf_result.initialization_vector,
+        kdf_result,
         cipher_bytes
     )
 
