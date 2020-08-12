@@ -270,10 +270,12 @@ class PrivateKeyList(BaseList):
             decipher_padding
         )
 
-    OPENSSH_PRIVATE_KEY_HEADER = '-----BEGIN OPENSSH PRIVATE KEY-----'
-    OPENSSH_PRIVATE_KEY_FOOTER = '-----END OPENSSH PRIVATE KEY-----'
+    OPENSSH_PRIVATE_KEY_HEADER: typing.ClassVar[str] = \
+        '-----BEGIN OPENSSH PRIVATE KEY-----'
+    OPENSSH_PRIVATE_KEY_FOOTER: typing.ClassVar[str] = \
+        '-----END OPENSSH PRIVATE KEY-----'
 
-    WRAP_COL = 70
+    WRAP_COL: typing.ClassVar[int] = 70
 
     @classmethod
     def from_string(
