@@ -6,13 +6,8 @@ if __name__ == "__main__":
     import json
     import typing
 
-    from openssh_key.private_key_list import (
-        OPENSSH_PRIVATE_KEY_HEADER,
-        PrivateKeyList
-    )
-    from openssh_key.key import (
-        PublicKey
-    )
+    from openssh_key.private_key_list import PrivateKeyList
+    from openssh_key.key import PublicKey
 
     JSON_INDENT = 4
 
@@ -23,7 +18,7 @@ if __name__ == "__main__":
     file_contents = open(args.filename).read()
 
     parsed_contents: typing.Union[PrivateKeyList, typing.List[PublicKey]]
-    if file_contents.startswith(OPENSSH_PRIVATE_KEY_HEADER):
+    if file_contents.startswith(PrivateKeyList.OPENSSH_PRIVATE_KEY_HEADER):
         parsed_contents = PrivateKeyList.from_string(file_contents)
     else:
         parsed_contents = []

@@ -23,12 +23,6 @@ from openssh_key.kdf import (
 from openssh_key.cipher import create_cipher
 
 
-OPENSSH_PRIVATE_KEY_HEADER = '-----BEGIN OPENSSH PRIVATE KEY-----'
-OPENSSH_PRIVATE_KEY_FOOTER = '-----END OPENSSH PRIVATE KEY-----'
-
-WRAP_COL = 70
-
-
 class PublicPrivateKeyPair:
     def __init__(
         self,
@@ -217,6 +211,11 @@ class PrivateKeyList(BaseList):
             decipher_padding
         )
 
+    OPENSSH_PRIVATE_KEY_HEADER = '-----BEGIN OPENSSH PRIVATE KEY-----'
+    OPENSSH_PRIVATE_KEY_FOOTER = '-----END OPENSSH PRIVATE KEY-----'
+
+    WRAP_COL = 70
+
     @classmethod
     def from_string(
         cls: typing.Type[PrivateKeyListTypeVar],
@@ -225,8 +224,8 @@ class PrivateKeyList(BaseList):
     ) -> PrivateKeyListTypeVar:
         key_lines = string.splitlines()
 
-        if key_lines[0] != OPENSSH_PRIVATE_KEY_HEADER or \
-                key_lines[-1] != OPENSSH_PRIVATE_KEY_FOOTER:
+        if key_lines[0] != cls.OPENSSH_PRIVATE_KEY_HEADER or \
+                key_lines[-1] != cls.OPENSSH_PRIVATE_KEY_FOOTER:
             raise ValueError('Not an openssh private key')
         key_b64 = ''.join(key_lines[1:-1])
         key_bytes = base64.b64decode(key_b64)
@@ -365,7 +364,7 @@ class PrivateKeyList(BaseList):
         override_public_with_private: bool = True,
         retain_kdf_options_if_present: bool = False
     ) -> str:
-        text = OPENSSH_PRIVATE_KEY_HEADER + '\n'
+        text = self.OPENSSH_PRIVATE_KEY_HEADER + '\n'
         private_keys_bytes = self.pack_bytes(
             passphrase,
             include_indices,
@@ -377,12 +376,12 @@ class PrivateKeyList(BaseList):
             (
                 private_keys_b64[
                     i:
-                    min(i + WRAP_COL, len(private_keys_b64))
+                    min(i + self.WRAP_COL, len(private_keys_b64))
                 ]
             )
-            for i in range(0, len(private_keys_b64), WRAP_COL)
+            for i in range(0, len(private_keys_b64), self.WRAP_COL)
         ])
         text += private_keys_wrapped
-        text += '\n' + OPENSSH_PRIVATE_KEY_FOOTER
+        text += '\n' + self.OPENSSH_PRIVATE_KEY_FOOTER
 
         return text

@@ -11,10 +11,7 @@ from openssh_key.key import (
 )
 from openssh_key.private_key_list import (
     PublicPrivateKeyPair,
-    PrivateKeyList,
-    OPENSSH_PRIVATE_KEY_HEADER,
-    OPENSSH_PRIVATE_KEY_FOOTER,
-    WRAP_COL
+    PrivateKeyList
 )
 from openssh_key.pascal_style_byte_stream import (
     PascalStyleByteStream,
@@ -890,28 +887,30 @@ def test_private_key_list_from_string():
     private_keys_wrapped = ''.join([
         (
             private_keys_b64[
-                i:min(i + WRAP_COL, len(private_keys_b64))
+                i:min(i + PrivateKeyList.WRAP_COL, len(private_keys_b64))
             ] + '\n'
         )
-        for i in range(0, len(private_keys_b64), WRAP_COL)
+        for i in range(0, len(private_keys_b64), PrivateKeyList.WRAP_COL)
     ])
-    private_keys_string = OPENSSH_PRIVATE_KEY_HEADER + '\n' + \
+    private_keys_string = PrivateKeyList.OPENSSH_PRIVATE_KEY_HEADER + '\n' + \
         private_keys_wrapped + '\n' + \
-        OPENSSH_PRIVATE_KEY_FOOTER
+        PrivateKeyList.OPENSSH_PRIVATE_KEY_FOOTER
     assert PrivateKeyList.from_string(private_keys_string) == private_key_list
 
 
 def test_private_key_list_from_string_incorrect_header():
     with pytest.raises(ValueError, match='Not an openssh private key'):
         PrivateKeyList.from_string(
-            'not an openssh private key\n' + OPENSSH_PRIVATE_KEY_FOOTER
+            'not an openssh private key\n' +
+            PrivateKeyList.OPENSSH_PRIVATE_KEY_FOOTER
         )
 
 
 def test_private_key_list_from_string_incorrect_footer():
     with pytest.raises(ValueError, match='Not an openssh private key'):
         PrivateKeyList.from_string(
-            OPENSSH_PRIVATE_KEY_HEADER + '\nnot an openssh private key'
+            PrivateKeyList.OPENSSH_PRIVATE_KEY_HEADER +
+            '\nnot an openssh private key'
         )
 
 
@@ -943,14 +942,14 @@ def test_private_key_list_from_string_passphrase(mocker):
     private_keys_wrapped = ''.join([
         (
             private_keys_b64[
-                i:min(i + WRAP_COL, len(private_keys_b64))
+                i:min(i + PrivateKeyList.WRAP_COL, len(private_keys_b64))
             ] + '\n'
         )
-        for i in range(0, len(private_keys_b64), WRAP_COL)
+        for i in range(0, len(private_keys_b64), PrivateKeyList.WRAP_COL)
     ])
-    private_keys_string = OPENSSH_PRIVATE_KEY_HEADER + '\n' + \
+    private_keys_string = PrivateKeyList.OPENSSH_PRIVATE_KEY_HEADER + '\n' + \
         private_keys_wrapped + '\n' + \
-        OPENSSH_PRIVATE_KEY_FOOTER
+        PrivateKeyList.OPENSSH_PRIVATE_KEY_FOOTER
 
     mocker.patch.object(getpass, 'getpass', return_value=passphrase)
 
@@ -1712,8 +1711,8 @@ def private_key_list_pack_string_test_assertions(
     *args
 ):
     pack_string_lines = pack_string.splitlines()
-    assert pack_string_lines[0] == OPENSSH_PRIVATE_KEY_HEADER
-    assert pack_string_lines[-1] == OPENSSH_PRIVATE_KEY_FOOTER
+    assert pack_string_lines[0] == PrivateKeyList.OPENSSH_PRIVATE_KEY_HEADER
+    assert pack_string_lines[-1] == PrivateKeyList.OPENSSH_PRIVATE_KEY_FOOTER
     pack_bytes = base64.b64decode(
         ''.join(pack_string_lines[1:-1])
     )
