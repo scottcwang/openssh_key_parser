@@ -1,3 +1,8 @@
+"""A class representing a container for serializing and deserializing a list of
+private keys, as well as the metadata needed to encrypt and decrypt private
+bytes.
+"""
+
 import collections
 import warnings
 import getpass
@@ -51,8 +56,45 @@ else:
 
 
 class PrivateKeyList(BaseList):
+    """A container for multiple pairs of :any:`PublicKey` and
+    :any:`PrivateKey`.
+
+    The format of an OpenSSH private key list file is specified in the
+    `openssh-key-v1 vendor extension <https://github.com/openssh/openssh-portable/blob/bcd00abd8451f36142ae2ee10cc657202149201e/PROTOCOL.key>`_,
+    base64-encoded with a
+    `PEM-style header and footer <https://github.com/openssh/openssh-portable/blob/e073106f370cdd2679e41f6f55a37b491f0e82fe/sshkey.c#L69>`_
+    (wrapped at `70 characters per line <https://github.com/openssh/openssh-portable/blob/bb52e70fa5330070ec9a23069c311d9e277bbd6f/sshbuf-misc.c#L114>`_).
+
+    At present, `OpenSSH only supports one key in a private key list file
+    <https://github.com/openssh/openssh-portable/blob/master/sshkey.c#L4067>`_.
+
+    Args:
+        initlist
+            A list of pairs of :any:`PublicKey` and :any:`PrivateKey`.
+        byte_string
+            The original byte string from which ``initlist`` was parsed.
+        header
+            The values in the encoded header of the key list.
+        cipher_bytes
+            The original encrypted private byte string.
+        kdf_options
+            The values in the key derivation function parameters.
+        decipher_bytes
+            The original decrypted private byte string.
+        decipher_bytes_header
+            The values in the header of the decrypted private byte string.
+        decipher_padding
+            The values that pad the decrypted private byte string.
+    """
+
     @staticmethod
     def header_format_instructions_dict() -> FormatInstructionsDict:
+        """The Pascal-style byte stream format instructions for the encoded
+        header of the key list.
+
+        Returns:
+            The format instructions.
+        """
         return {
             'auth_magic': '15s',
             'cipher': PascalStyleFormatInstruction.STRING,
@@ -64,6 +106,12 @@ class PrivateKeyList(BaseList):
     @staticmethod
     def decipher_bytes_header_format_instructions_dict() \
             -> FormatInstructionsDict:
+        """The Pascal-style byte stream format instructions for the header of
+        the decrypted private byte string.
+
+        Returns:
+            The format instructions.
+        """
         return {
             'check_int_1': '>I',
             'check_int_2': '>I'
@@ -95,6 +143,28 @@ class PrivateKeyList(BaseList):
         byte_string: bytes,
         passphrase: typing.Optional[str] = None
     ) -> PrivateKeyListTypeVar:
+        """Parses a private key list from a given byte string.
+
+        Args:
+            byte_string
+                The byte string from which to parse.
+            passphrase
+                The passphrase with which to decrypt the private byte string.
+                If not provided, will be prompted for at standard input.
+
+        Returns:
+            A :any:`PrivateKeyList` object containing the private key list.
+
+        Raises:
+            ValueError: The provided byte string is not an ``openssh-key-v1``
+                key list or the declared key count is negative.
+            UserWarning: The check numbers in the decrypted private byte string
+                do not match (likely due to an incorrect passphrase), the key
+                type or parameter values of a private key do not match that of
+                the corresponding public key in the list, or the padding bytes
+                at the end of the decrypted private byte string are not as
+                expected.
+        """
         byte_stream = PascalStyleByteStream(byte_string)
 
         header = byte_stream.read_from_format_instructions_dict(
@@ -217,6 +287,30 @@ class PrivateKeyList(BaseList):
         string: str,
         passphrase: typing.Optional[str] = None
     ) -> PrivateKeyListTypeVar:
+        """Parses a private key list from a given string.
+
+        Args:
+            string
+                The string from which to parse.
+            passphrase
+                The passphrase with which to decrypt the private byte string.
+                If not provided, will be prompted for at standard input if
+                needed.
+
+        Returns:
+            A :any:`PrivateKeyList` object containing the private key list.
+
+        Raises:
+            ValueError: The file does not have the expected PEM-style headers,
+                the provided byte string is not an ``openssh-key-v1``
+                key list, or the declared key count is negative.
+            UserWarning: The check numbers in the decrypted private byte string
+                do not match (likely due to an incorrect passphrase), the key
+                type or parameter values of a private key do not match that of
+                the corresponding public key in the list, or the padding bytes
+                at the end of the decrypted private byte string are not as
+                expected.
+        """
         key_lines = string.splitlines()
 
         if key_lines[0] != cls.OPENSSH_PRIVATE_KEY_HEADER or \
@@ -234,6 +328,28 @@ class PrivateKeyList(BaseList):
         kdf: str = 'none',
         kdf_options: KDFOptions = None
     ) -> PrivateKeyListTypeVar:
+        """Constructs and initializes a private key list from a given list of
+        key pairs and metadata.
+
+        Args:
+            key_pair_list
+                The list of key pairs to add to the returned private key list.
+            cipher
+                The cipher type to add to the header of the private key list.
+            kdf
+                The key derivation function type to add to the header of the
+                private key list.
+            kdf_options
+                The key derivation function parameters to add to the private
+                key list.
+
+        Returns:
+            A :any:`PrivateKeyList` object containing the given list of key
+            pairs and metadata.
+
+        Raises:
+            ValueError: The given list contains an item that is not a key pair.
+        """
         header = {
             'cipher': cipher,
             'kdf': kdf
@@ -263,6 +379,33 @@ class PrivateKeyList(BaseList):
         override_public_with_private: bool = True,
         retain_kdf_options_if_present: bool = False
     ) -> bytes:
+        """Packs the private key list into a byte string.
+
+        Args:
+            passphrase
+                The passphrase with which to encrypt the private byte string.
+                If not provided, will be prompted for at standard input if
+                needed.
+            include_indices
+                A list of indices into the private key list for the key pairs
+                to include in the returned byte string.
+            override_public_with_private
+                If ``False``, packs the public bytes of each key from the
+                public key of each key pair. If ``True``, ignores the public
+                key of each key pair, instead packing the public bytes from the
+                public parameters of the private key.
+            retain_kdf_options_if_present
+                If ``False``, packs the key derivation function parameters
+                in this private key list object. If ``True``, generates and
+                packs new key derivation function parameters.
+
+        Returns:
+            A byte string containing the private key list.
+
+        Raises:
+            IndexError: ``include_indices`` contains an index that is out of
+                range for this private key list.
+        """
         if isinstance(self.header, collections.abc.Mapping) \
                 and 'cipher' in self.header and 'kdf' in self.header:
             cipher = self.header['cipher']
@@ -359,6 +502,33 @@ class PrivateKeyList(BaseList):
         override_public_with_private: bool = True,
         retain_kdf_options_if_present: bool = False
     ) -> str:
+        """Packs the private key list into a string.
+
+        Args:
+            passphrase
+                The passphrase with which to encrypt the private byte string.
+                If not provided, will be prompted for at standard input if
+                needed.
+            include_indices
+                A list of indices into the private key list for the key pairs
+                to include in the returned byte string.
+            override_public_with_private
+                If ``False``, packs the public bytes of each key from the
+                public key of each key pair. If ``True``, ignores the public
+                key of each key pair, instead packing the public bytes from the
+                public parameters of the private key.
+            retain_kdf_options_if_present
+                If ``False``, packs the key derivation function parameters
+                in this private key list object. If ``True``, generates and
+                packs new key derivation function parameters.
+
+        Returns:
+            A string containing the private key list.
+
+        Raises:
+            IndexError: ``include_indices`` contains an index that is out of
+                range for this private key list.
+        """
         text = self.OPENSSH_PRIVATE_KEY_HEADER + '\n'
         private_keys_bytes = self.pack_bytes(
             passphrase,
