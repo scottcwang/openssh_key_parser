@@ -13,13 +13,17 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument('filename')
+    parser.add_argument('--passphrase')
     args = parser.parse_args()
 
     file_contents = open(args.filename).read()
 
     parsed_contents: typing.Union[PrivateKeyList, typing.List[PublicKey]]
     if file_contents.startswith(PrivateKeyList.OPENSSH_PRIVATE_KEY_HEADER):
-        parsed_contents = PrivateKeyList.from_string(file_contents)
+        parsed_contents = PrivateKeyList.from_string(
+            file_contents,
+            args.passphrase
+        )
     else:
         parsed_contents = []
         for i, file_line in enumerate(file_contents.splitlines()):
