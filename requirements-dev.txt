@@ -7,5 +7,5 @@ pytest-mock
 pytest-mypy
 pynacl
 
-sphinx
+sphinx>=3.0.0
 sphinx-autodoc-typehints
