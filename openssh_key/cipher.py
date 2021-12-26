@@ -6,9 +6,9 @@ The abstract base class is :py:class:`Cipher`.
 import abc
 import typing
 
-import cryptography.hazmat.primitives.ciphers as ciphers
-import cryptography.hazmat.primitives.ciphers.algorithms as algorithms
-import cryptography.hazmat.primitives.ciphers.modes as modes
+from cryptography.hazmat.primitives import ciphers
+from cryptography.hazmat.primitives.ciphers import algorithms
+from cryptography.hazmat.primitives.ciphers import modes
 from cryptography.hazmat.backends import default_backend
 
 from openssh_key.kdf import (
