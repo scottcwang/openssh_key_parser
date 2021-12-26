@@ -232,7 +232,7 @@ class PrivateKeyList(BaseList):
                     f'Inconsistency between private and public '
                     f'key types for key {i}'
                 )
-            if not all([
+            if not all(
                 (
                     initlist[i].public.params[k] ==
                     initlist[i].private.params[k]
@@ -240,7 +240,7 @@ class PrivateKeyList(BaseList):
                     initlist[i].public.params.keys() &
                     initlist[i].private.params.keys()
                 )
-            ]):
+            ):
                 warnings.warn(
                     f'Inconsistency between private and public '
                     f'values for key {i}'
