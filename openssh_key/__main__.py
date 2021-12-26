@@ -16,7 +16,7 @@ if __name__ == "__main__":
     parser.add_argument('--passphrase')
     args = parser.parse_args()
 
-    with open(args.filename) as f:
+    with open(args.filename, encoding='utf8') as f:
         file_contents = f.read()
 
         parsed_contents: typing.Union[PrivateKeyList, typing.List[PublicKey]]
