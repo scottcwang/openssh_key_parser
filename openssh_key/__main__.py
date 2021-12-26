@@ -16,29 +16,30 @@ if __name__ == "__main__":
     parser.add_argument('--passphrase')
     args = parser.parse_args()
 
-    file_contents = open(args.filename).read()
+    with open(args.filename) as f:
+        file_contents = f.read()
 
-    parsed_contents: typing.Union[PrivateKeyList, typing.List[PublicKey]]
-    if file_contents.startswith(PrivateKeyList.OPENSSH_PRIVATE_KEY_HEADER):
-        parsed_contents = PrivateKeyList.from_string(
-            file_contents,
-            args.passphrase
-        )
-    else:
-        parsed_contents = []
-        for i, file_line in enumerate(file_contents.splitlines()):
-            try:
-                parsed_contents.append(PublicKey.from_string(file_line))
-            except (ValueError, NotImplementedError, EOFError):
-                warnings.warn(f'Could not parse line {i}')
+        parsed_contents: typing.Union[PrivateKeyList, typing.List[PublicKey]]
+        if file_contents.startswith(PrivateKeyList.OPENSSH_PRIVATE_KEY_HEADER):
+            parsed_contents = PrivateKeyList.from_string(
+                file_contents,
+                args.passphrase
+            )
+        else:
+            parsed_contents = []
+            for i, file_line in enumerate(file_contents.splitlines()):
+                try:
+                    parsed_contents.append(PublicKey.from_string(file_line))
+                except (ValueError, NotImplementedError, EOFError):
+                    warnings.warn(f'Could not parse line {i}')
 
-    class KeyJSONEncoder(json.JSONEncoder):
-        def default(self, o: object) -> typing.Any:
-            if hasattr(o, '__dict__'):
-                return o.__dict__
-            if hasattr(o, '__str__'):
-                return str(o)
-            else:
-                return super().default(o)
+        class KeyJSONEncoder(json.JSONEncoder):
+            def default(self, o: object) -> typing.Any:
+                if hasattr(o, '__dict__'):
+                    return o.__dict__
+                if hasattr(o, '__str__'):
+                    return str(o)
+                else:
+                    return super().default(o)
 
-    print(KeyJSONEncoder(indent=JSON_INDENT).encode(parsed_contents))
+        print(KeyJSONEncoder(indent=JSON_INDENT).encode(parsed_contents))
