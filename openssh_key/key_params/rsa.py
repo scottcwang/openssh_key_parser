@@ -1,6 +1,5 @@
 import typing
 
-from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import rsa
 
 from openssh_key.pascal_style_byte_stream import (
@@ -78,7 +77,7 @@ class RSAPublicKeyParams(PublicKeyParams):
             return rsa.RSAPublicNumbers(
                 key_params['e'],
                 key_params['n']
-            ).public_key(default_backend())
+            ).public_key()
 
         return {
             rsa.RSAPublicKey: ConversionFunctions(
@@ -155,8 +154,7 @@ class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
             ),
             key_size=(
                 kwargs['key_size'] if 'key_size' in kwargs else cls.KEY_SIZE
-            ),
-            backend=default_backend()
+            )
         )
         private_key_numbers = private_key.private_numbers()
         return cls(
@@ -214,7 +212,7 @@ class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
                     key_params['e'],
                     key_params['n']
                 )
-            ).private_key(default_backend())
+            ).private_key()
             return typing.cast(rsa.RSAPrivateKeyWithSerialization, key_object)
 
         return {

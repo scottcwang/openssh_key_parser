@@ -3,7 +3,6 @@ import secrets
 import sys
 
 import pytest
-from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import (
     rsa,
@@ -175,8 +174,7 @@ def test_rsa_public_convert_from_unknown():
 def test_rsa_public_convert_from_cryptography_public():
     rsa_key_object = rsa.generate_private_key(
         RSAPrivateKeyParams.PUBLIC_EXPONENT,
-        RSAPrivateKeyParams.KEY_SIZE,
-        default_backend()
+        RSAPrivateKeyParams.KEY_SIZE
     ).public_key()
     rsa_numbers = rsa_key_object.public_numbers()
     converted = RSAPublicKeyParams.convert_from(rsa_key_object)
@@ -190,8 +188,7 @@ def test_rsa_public_convert_from_cryptography_public():
 def test_rsa_public_convert_from_cryptography_private():
     rsa_key_object = rsa.generate_private_key(
         RSAPrivateKeyParams.PUBLIC_EXPONENT,
-        RSAPrivateKeyParams.KEY_SIZE,
-        default_backend()
+        RSAPrivateKeyParams.KEY_SIZE
     )
     rsa_numbers = rsa_key_object.private_numbers()
     converted = RSAPublicKeyParams.convert_from(rsa_key_object)
@@ -270,7 +267,7 @@ def test_rsa_private_generate_private_params():
             rsa_private_params['n']
         )
     )
-    private_key = private_numbers.private_key(backend=default_backend())
+    private_key = private_numbers.private_key()
     assert private_key.key_size == RSAPrivateKeyParams.KEY_SIZE
 
 
@@ -293,7 +290,7 @@ def test_rsa_private_generate_private_params_valid_public_exponent():
             rsa_private_params['n']
         )
     )
-    private_key = private_numbers.private_key(backend=default_backend())
+    private_key = private_numbers.private_key()
     assert private_key.key_size == RSAPrivateKeyParams.KEY_SIZE
 
 
@@ -324,7 +321,7 @@ def test_rsa_private_generate_private_params_valid_key_size():
             rsa_private_params['n']
         )
     )
-    private_key = private_numbers.private_key(backend=default_backend())
+    private_key = private_numbers.private_key()
     assert private_key.key_size == key_size
 
 
@@ -342,8 +339,7 @@ def test_rsa_private_convert_from_unknown():
 def test_rsa_private_convert_from_cryptography_private():
     rsa_key_object = rsa.generate_private_key(
         RSAPrivateKeyParams.PUBLIC_EXPONENT,
-        RSAPrivateKeyParams.KEY_SIZE,
-        default_backend()
+        RSAPrivateKeyParams.KEY_SIZE
     )
     rsa_numbers = rsa_key_object.private_numbers()
     converted = RSAPrivateKeyParams.convert_from(rsa_key_object)

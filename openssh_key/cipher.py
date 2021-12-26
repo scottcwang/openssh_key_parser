@@ -9,7 +9,6 @@ import typing
 from cryptography.hazmat.primitives import ciphers
 from cryptography.hazmat.primitives.ciphers import algorithms
 from cryptography.hazmat.primitives.ciphers import modes
-from cryptography.hazmat.backends import default_backend
 
 from openssh_key.kdf import (
     KDFResult
@@ -139,8 +138,7 @@ class AES256_CTRCipher(Cipher):
         """
         cipher = ciphers.Cipher(
             algorithms.AES(kdf_result.cipher_key),
-            modes.CTR(kdf_result.initialization_vector),
-            backend=default_backend()
+            modes.CTR(kdf_result.initialization_vector)
         )
         encryptor = cipher.encryptor()
         return encryptor.update(plain_bytes) + encryptor.finalize()
@@ -168,8 +166,7 @@ class AES256_CTRCipher(Cipher):
         """
         cipher = ciphers.Cipher(
             algorithms.AES(kdf_result.cipher_key),
-            modes.CTR(kdf_result.initialization_vector),
-            backend=default_backend()
+            modes.CTR(kdf_result.initialization_vector)
         )
         decryptor = cipher.decryptor()
         return decryptor.update(cipher_bytes) + decryptor.finalize()

@@ -1,7 +1,6 @@
 import typing
 
 from cryptography.hazmat.primitives.asymmetric import dsa
-from cryptography.hazmat.backends import default_backend
 
 from openssh_key.pascal_style_byte_stream import (
     PascalStyleFormatInstruction,
@@ -86,7 +85,7 @@ class DSSPublicKeyParams(PublicKeyParams):
                     key_params['q'],
                     key_params['g']
                 )
-            ).public_key(default_backend())
+            ).public_key()
 
         return {
             dsa.DSAPublicKey: ConversionFunctions(
@@ -213,7 +212,7 @@ class DSSPrivateKeyParams(PrivateKeyParams, DSSPublicKeyParams):
                         key_params['g']
                     )
                 )
-            ).private_key(default_backend())
+            ).private_key()
 
         return {
             dsa.DSAPrivateKey: ConversionFunctions(
