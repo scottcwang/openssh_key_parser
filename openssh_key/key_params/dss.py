@@ -48,8 +48,9 @@ class DSSPublicKeyParams(PublicKeyParams):
         'y': PascalStyleFormatInstruction.MPINT,
     }
 
-    @staticmethod
+    @classmethod
     def conversion_functions(
+        cls
     ) -> typing.Mapping[
         typing.Type[typing.Any],
         ConversionFunctions
@@ -170,8 +171,9 @@ class DSSPrivateKeyParams(PrivateKeyParams, DSSPublicKeyParams):
             'x': private_numbers.x,
         })
 
-    @staticmethod
+    @classmethod
     def conversion_functions(
+        cls
     ) -> typing.Mapping[
         typing.Type[typing.Any],
         ConversionFunctions

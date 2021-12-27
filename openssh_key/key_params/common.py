@@ -114,8 +114,9 @@ class PublicKeyParams(BaseDict, abc.ABC):
             })
         raise NotImplementedError()
 
-    @staticmethod
+    @classmethod
     def conversion_functions(
+        cls
     ) -> typing.Mapping[
         typing.Type[typing.Any],
         ConversionFunctions

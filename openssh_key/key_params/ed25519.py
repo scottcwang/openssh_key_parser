@@ -57,8 +57,9 @@ class Ed25519PublicKeyParams(PublicKeyParams):
                 and len(self.data['public']) != self.KEY_SIZE:
             warnings.warn('Public key not of length ' + str(self.KEY_SIZE))
 
-    @staticmethod
+    @classmethod
     def conversion_functions(
+        cls
     ) -> typing.Mapping[
         typing.Type[typing.Any],
         ConversionFunctions
@@ -239,8 +240,9 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
             'private_public': private_bytes + public_bytes
         })
 
-    @staticmethod
+    @classmethod
     def conversion_functions(
+        cls
     ) -> typing.Mapping[
         typing.Type[typing.Any],
         ConversionFunctions

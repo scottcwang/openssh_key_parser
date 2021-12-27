@@ -47,8 +47,9 @@ class RSAPublicKeyParams(PublicKeyParams):
         'n': PascalStyleFormatInstruction.MPINT,
     }
 
-    @staticmethod
+    @classmethod
     def conversion_functions(
+        cls
     ) -> typing.Mapping[
         typing.Type[typing.Any],
         ConversionFunctions
@@ -168,8 +169,9 @@ class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
             }
         )
 
-    @staticmethod
+    @classmethod
     def conversion_functions(
+        cls
     ) -> typing.Mapping[
         typing.Type[typing.Any],
         ConversionFunctions
