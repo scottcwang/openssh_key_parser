@@ -1,6 +1,14 @@
 openssh\_key package
 ====================
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   openssh_key.key_params
+
 Submodules
 ----------
 
@@ -28,14 +36,6 @@ openssh\_key.key module
    :undoc-members:
    :show-inheritance:
 
-openssh\_key.key\_params module
--------------------------------
-
-.. automodule:: openssh_key.key_params
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 openssh\_key.pascal\_style\_byte\_stream module
 -----------------------------------------------
 
@@ -51,7 +51,6 @@ openssh\_key.private\_key\_list module
    :members:
    :undoc-members:
    :show-inheritance:
-
 
 Module contents
 ---------------
