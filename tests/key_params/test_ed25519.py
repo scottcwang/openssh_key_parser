@@ -23,7 +23,15 @@ PARAMS_TEST_CASES = [
         },
         'valid_values': [{
             'public': test_cases_public_bytes
-        }]
+        }],
+        'invalid_values': [(
+            {
+                'public': secrets.token_bytes(
+                    Ed25519PublicKeyParams.KEY_SIZE - 1
+                )
+            },
+            'Public key not of length ' + str(Ed25519PublicKeyParams.KEY_SIZE)
+        )]
     },
     {
         'cls': Ed25519PrivateKeyParams,
@@ -34,9 +42,29 @@ PARAMS_TEST_CASES = [
         'valid_values': [{
             'public': test_cases_public_bytes,
             'private_public': secrets.token_bytes(
-                    Ed25519PublicKeyParams.KEY_SIZE
-                ) + test_cases_public_bytes
-        }]
+                Ed25519PublicKeyParams.KEY_SIZE
+            ) + test_cases_public_bytes
+        }],
+        'invalid_values': [
+            (
+                {
+                    'public': test_cases_public_bytes,
+                    'private_public': secrets.token_bytes(
+                        Ed25519PublicKeyParams.KEY_SIZE
+                    ) + b'\x00' * Ed25519PublicKeyParams.KEY_SIZE
+                },
+                'Public key does not match'
+            ), (
+                {
+                    'public': test_cases_public_bytes,
+                    'private_public': secrets.token_bytes(
+                        Ed25519PublicKeyParams.KEY_SIZE - 1
+                    ) + test_cases_public_bytes
+                },
+                'Private key not of length '
+                + str(Ed25519PublicKeyParams.KEY_SIZE)
+            )
+        ]
     }
 ]
 

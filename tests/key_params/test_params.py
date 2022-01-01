@@ -73,6 +73,18 @@ def test_bad_type_params_are_not_valid(key_params_test):
 
 
 @pytest.mark.parametrize('key_params_test', _TEST_CASES)
+def test_invalid_params_are_not_valid(key_params_test):
+    if 'invalid_values' not in key_params_test:
+        return
+    for invalid_value, expected_warning_message \
+        in key_params_test['invalid_values']:
+        with pytest.warns(UserWarning, match=expected_warning_message):
+            key_params_object = key_params_test['cls'](invalid_value)
+        with pytest.warns(UserWarning, match=expected_warning_message):
+            key_params_object.check_params_are_valid()
+
+
+@pytest.mark.parametrize('key_params_test', _TEST_CASES)
 def test_equals_dict(key_params_test):
     for valid_value in key_params_test['valid_values']:
         key_params_object = key_params_test['cls'](valid_value)
