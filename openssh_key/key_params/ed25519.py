@@ -53,8 +53,9 @@ class Ed25519PublicKeyParams(PublicKeyParams):
                 key size is incorrect.
         """
         super().check_params_are_valid()
-        if 'public' in self.data \
-                and len(self.data['public']) != self.KEY_SIZE:
+        if 'public' not in self.data or type(self.data['public']) != bytes:
+            return
+        if len(self.data['public']) != self.KEY_SIZE:
             warnings.warn('Public key not of length ' + str(self.KEY_SIZE))
 
     @classmethod
@@ -194,7 +195,8 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
         """
         Ed25519PublicKeyParams.check_params_are_valid(self)
         PrivateKeyParams.check_params_are_valid(self)
-        if 'private_public' not in self.data:
+        if 'private_public' not in self.data or type(self.data['private_public']) != bytes \
+                or 'public' not in self.data or type(self.data['public']) != bytes:
             return
         if self.data['private_public'][self.KEY_SIZE:] \
                 != self.data['public']:
