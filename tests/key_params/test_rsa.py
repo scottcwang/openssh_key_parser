@@ -1,5 +1,4 @@
 import pytest
-import warnings
 
 from cryptography.hazmat.primitives.asymmetric import rsa
 
@@ -10,138 +9,38 @@ from openssh_key.key_params import (
 from openssh_key.pascal_style_byte_stream import PascalStyleFormatInstruction
 
 
-def test_rsa_public_format_instructions_dict():
-    assert RSAPublicKeyParams.FORMAT_INSTRUCTIONS_DICT == {
-        'e': PascalStyleFormatInstruction.MPINT,
-        'n': PascalStyleFormatInstruction.MPINT,
-    }
-
-
-def test_rsa_private_format_instructions_dict():
-    assert RSAPrivateKeyParams.FORMAT_INSTRUCTIONS_DICT == {
-        'n': PascalStyleFormatInstruction.MPINT,
-        'e': PascalStyleFormatInstruction.MPINT,
-        'd': PascalStyleFormatInstruction.MPINT,
-        'iqmp': PascalStyleFormatInstruction.MPINT,
-        'p': PascalStyleFormatInstruction.MPINT,
-        'q': PascalStyleFormatInstruction.MPINT,
-    }
-
-
-def test_rsa_public_check_params_are_valid():
-    rsa_public = RSAPublicKeyParams({
-        'e': 1,
-        'n': 2
-    })
-    with pytest.warns(None) as warnings_list:
-        rsa_public.check_params_are_valid()
-    assert not warnings_list
-
-
-def test_rsa_public_check_extra_params_are_valid():
-    rsa_public = RSAPublicKeyParams({
-        'e': 1,
-        'n': 2,
-        'random': 3
-    })
-    with pytest.warns(None) as warnings_list:
-        rsa_public.check_params_are_valid()
-    assert not warnings_list
-
-
-def test_rsa_public_missing_params_are_not_valid():
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        rsa_public = RSAPublicKeyParams({
-            'e': 1
-        })
-    with pytest.warns(UserWarning, match='n missing'):
-        rsa_public.check_params_are_valid()
-
-
-def test_rsa_public_bad_type_params_are_not_valid():
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        rsa_public = RSAPublicKeyParams({
+PARAMS_TEST_CASES = [
+    {
+        'cls': RSAPublicKeyParams,
+        'format_instructions_dict': {
+            'e': PascalStyleFormatInstruction.MPINT,
+            'n': PascalStyleFormatInstruction.MPINT,
+        },
+        'valid_values': [{
             'e': 1,
-            'n': b'bad'
-        })
-    with pytest.warns(UserWarning, match='n should be of class int'):
-        rsa_public.check_params_are_valid()
-
-
-def test_rsa_private_check_params_are_valid():
-    rsa_private = RSAPrivateKeyParams({
-        'n': 1,
-        'e': 2,
-        'd': 3,
-        'iqmp': 4,
-        'p': 5,
-        'q': 6
-    })
-    with pytest.warns(None) as warnings_list:
-        rsa_private.check_params_are_valid()
-    assert not warnings_list
-
-
-def test_rsa_private_check_extra_params_are_valid():
-    rsa_private = RSAPrivateKeyParams({
-        'n': 1,
-        'e': 2,
-        'd': 3,
-        'iqmp': 4,
-        'p': 5,
-        'q': 6,
-        'random': 7
-    })
-    with pytest.warns(None) as warnings_list:
-        rsa_private.check_params_are_valid()
-    assert not warnings_list
-
-
-def test_rsa_private_missing_params_are_not_valid():
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        rsa_private = RSAPrivateKeyParams({
-            'n': 1,
-            'e': 2,
-            'd': 3,
-            'iqmp': 4,
-            'p': 5
-        })
-    with pytest.warns(UserWarning, match='q missing'):
-        rsa_private.check_params_are_valid()
-
-
-def test_rsa_private_bad_type_params_are_not_valid():
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        rsa_private = RSAPrivateKeyParams({
+            'n': 2
+        }]
+    },
+    {
+        'cls': RSAPrivateKeyParams,
+        'format_instructions_dict': {
+            'n': PascalStyleFormatInstruction.MPINT,
+            'e': PascalStyleFormatInstruction.MPINT,
+            'd': PascalStyleFormatInstruction.MPINT,
+            'iqmp': PascalStyleFormatInstruction.MPINT,
+            'p': PascalStyleFormatInstruction.MPINT,
+            'q': PascalStyleFormatInstruction.MPINT,
+        },
+        'valid_values': [{
             'n': 1,
             'e': 2,
             'd': 3,
             'iqmp': 4,
             'p': 5,
-            'q': b'bad'
-        })
-    with pytest.warns(UserWarning, match='q should be of class int'):
-        rsa_private.check_params_are_valid()
-
-
-def test_rsa_public():
-    rsa_public_dict = {
-        'e': 1,
-        'n': 2
+            'q': 6
+        }]
     }
-    rsa_public = RSAPublicKeyParams(rsa_public_dict)
-    assert rsa_public.params == rsa_public_dict
-
-
-def test_rsa_public_missing_params():
-    with pytest.warns(UserWarning, match='n missing'):
-        RSAPublicKeyParams({
-            'e': 1
-        })
+]
 
 
 def test_rsa_public_convert_from_unknown():
@@ -189,42 +88,6 @@ def test_rsa_public_convert_to_cryptography_public():
         rsa_public['e'],
         rsa_public['n']
     )
-
-
-def test_rsa_private():
-    rsa_private_dict = {
-        'n': 1,
-        'e': 2,
-        'd': 3,
-        'iqmp': 4,
-        'p': 5,
-        'q': 6
-    }
-    rsa_private = RSAPrivateKeyParams(rsa_private_dict)
-    assert rsa_private.params == rsa_private_dict
-
-
-def test_rsa_private_missing_params():
-    with pytest.warns(UserWarning, match='q missing'):
-        RSAPrivateKeyParams({
-            'n': 1,
-            'e': 2,
-            'd': 3,
-            'iqmp': 4,
-            'p': 5
-        })
-
-
-def test_rsa_private_bad_type_params():
-    with pytest.warns(UserWarning, match='q should be of class int'):
-        RSAPrivateKeyParams({
-            'n': 1,
-            'e': 2,
-            'd': 3,
-            'iqmp': 4,
-            'p': 5,
-            'q': b'bad'
-        })
 
 
 def test_rsa_private_generate_private_params():

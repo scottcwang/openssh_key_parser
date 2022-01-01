@@ -1,7 +1,6 @@
 import pytest
 import secrets
 import sys
-import warnings
 
 from cryptography.hazmat.primitives.asymmetric import ed25519
 from cryptography.hazmat.primitives import serialization
@@ -14,115 +13,32 @@ from openssh_key.key_params import (
 )
 from openssh_key.pascal_style_byte_stream import PascalStyleFormatInstruction
 
+test_cases_public_bytes = secrets.token_bytes(Ed25519PublicKeyParams.KEY_SIZE)
 
-def test_ed25519_public_format_instructions_dict():
-    assert Ed25519PublicKeyParams.FORMAT_INSTRUCTIONS_DICT == {
-        'public': PascalStyleFormatInstruction.BYTES
-    }
-
-
-def test_ed25519_private_format_instructions_dict():
-    assert Ed25519PrivateKeyParams.FORMAT_INSTRUCTIONS_DICT == {
-        'public': PascalStyleFormatInstruction.BYTES,
-        'private_public': PascalStyleFormatInstruction.BYTES
-    }
-
-
-def test_ed25519_public_check_params_are_valid():
-    ed25519_public = Ed25519PublicKeyParams({
-        'public': secrets.token_bytes(Ed25519PublicKeyParams.KEY_SIZE)
-    })
-    with pytest.warns(None) as warnings_list:
-        ed25519_public.check_params_are_valid()
-    assert not warnings_list
-
-
-def test_ed25519_public_check_extra_params_are_valid():
-    ed25519_public = Ed25519PublicKeyParams({
-        'public': secrets.token_bytes(Ed25519PublicKeyParams.KEY_SIZE),
-        'random': b'\x02'
-    })
-    with pytest.warns(None) as warnings_list:
-        ed25519_public.check_params_are_valid()
-    assert not warnings_list
-
-
-def test_ed25519_public_missing_params_are_not_valid():
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        ed25519_public = Ed25519PublicKeyParams({})
-    with pytest.warns(UserWarning, match='public missing'):
-        ed25519_public.check_params_are_valid()
-
-
-def test_ed25519_public_bad_type_params_are_not_valid():
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        ed25519_public = Ed25519PublicKeyParams({
-            'public': 'bad'
-        })
-    with pytest.warns(UserWarning, match='public should be of class bytes'):
-        ed25519_public.check_params_are_valid()
-
-
-def test_ed25519_private_check_params_are_valid():
-    public_bytes = secrets.token_bytes(Ed25519PublicKeyParams.KEY_SIZE)
-    with pytest.warns(None) as warnings_list:
-        Ed25519PrivateKeyParams({
-            'public': public_bytes,
+PARAMS_TEST_CASES = [
+    {
+        'cls': Ed25519PublicKeyParams,
+        'format_instructions_dict': {
+            'public': PascalStyleFormatInstruction.BYTES
+        },
+        'valid_values': [{
+            'public': test_cases_public_bytes
+        }]
+    },
+    {
+        'cls': Ed25519PrivateKeyParams,
+        'format_instructions_dict': {
+            'public': PascalStyleFormatInstruction.BYTES,
+            'private_public': PascalStyleFormatInstruction.BYTES
+        },
+        'valid_values': [{
+            'public': test_cases_public_bytes,
             'private_public': secrets.token_bytes(
-                Ed25519PublicKeyParams.KEY_SIZE) + public_bytes
-        })
-    assert not warnings_list
-
-
-def test_ed25519_private_check_extra_params_are_valid():
-    public_bytes = secrets.token_bytes(Ed25519PublicKeyParams.KEY_SIZE)
-    with pytest.warns(None) as warnings_list:
-        Ed25519PrivateKeyParams({
-            'public': public_bytes,
-            'private_public': secrets.token_bytes(
-                Ed25519PublicKeyParams.KEY_SIZE) + public_bytes,
-            'random': b'\x03'
-        })
-    assert not warnings_list
-
-
-def test_ed25519_private_missing_params_are_not_valid():
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        ed25519_private = Ed25519PrivateKeyParams({
-            'public': secrets.token_bytes(Ed25519PublicKeyParams.KEY_SIZE)
-        })
-    with pytest.warns(UserWarning, match='private_public missing'):
-        ed25519_private.check_params_are_valid()
-
-
-def test_ed25519_private_bad_type_params_are_not_valid():
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        ed25519_private = Ed25519PrivateKeyParams({
-            'public': secrets.token_bytes(Ed25519PublicKeyParams.KEY_SIZE),
-            'private_public': 'bad'
-        })
-    with pytest.warns(
-        UserWarning,
-        match='private_public should be of class bytes'
-    ):
-        ed25519_private.check_params_are_valid()
-
-
-def test_ed25519_public():
-    ed25519_public_dict = {
-        'public': secrets.token_bytes(Ed25519PublicKeyParams.KEY_SIZE)
+                    Ed25519PublicKeyParams.KEY_SIZE
+                ) + test_cases_public_bytes
+        }]
     }
-    ed25519_public = Ed25519PublicKeyParams(ed25519_public_dict)
-    assert ed25519_public.params == ed25519_public_dict
-
-
-def test_ed25519_public_missing_params():
-    with pytest.warns(UserWarning, match='public missing'):
-        Ed25519PublicKeyParams({})
+]
 
 
 def test_ed25519_public_convert_from_unknown():
@@ -224,36 +140,6 @@ def test_ed25519_public_convert_to_missing_pynacl(mocker):
     })
     with pytest.raises(NotImplementedError):
         ed25519_public.convert_to(nacl.signing.VerifyKey)
-
-
-def test_ed25519_private():
-    public_bytes = secrets.token_bytes(Ed25519PublicKeyParams.KEY_SIZE)
-    ed25519_private_dict = {
-        'public': public_bytes,
-        'private_public': secrets.token_bytes(
-            Ed25519PublicKeyParams.KEY_SIZE
-        ) + public_bytes
-    }
-    ed25519_private = Ed25519PrivateKeyParams(ed25519_private_dict)
-    assert ed25519_private.params == ed25519_private_dict
-
-
-def test_ed25519_private_missing_params():
-    with pytest.warns(UserWarning, match='private_public missing'):
-        Ed25519PrivateKeyParams({
-            'public': secrets.token_bytes(Ed25519PublicKeyParams.KEY_SIZE)
-        })
-
-
-def test_ed25519_private_bad_type_params():
-    with pytest.warns(
-        UserWarning,
-        match='private_public should be of class bytes'
-    ):
-        Ed25519PrivateKeyParams({
-            'public': secrets.token_bytes(Ed25519PublicKeyParams.KEY_SIZE),
-            'private_public': 'bad'
-        })
 
 
 def test_ed25519_private_generate_private_params():
