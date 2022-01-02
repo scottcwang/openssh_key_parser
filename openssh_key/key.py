@@ -20,6 +20,7 @@ from openssh_key.key_params import (
     create_private_key_params,
     PrivateKeyParams
 )
+from openssh_key import utils
 
 
 KeyTypeVar = typing.TypeVar(
@@ -42,18 +43,40 @@ class Key(typing.Generic[PublicKeyParamsTypeVar], abc.ABC):
         clear
             A :any:`typing.Mapping` with cleartext key details, if any.
     """
-    HEADER_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
+    __HEADER_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
         FormatInstructionsDict
-    ] = {
-        'key_type': PascalStyleFormatInstruction.STRING
-    }
+    ] = {}
+
+    @staticmethod
+    @abc.abstractmethod
+    def get_header_format_instructions_dict():
+        """The Pascal-style byte stream format instructions for the encoded
+        header.
+        """
+        return Key.__HEADER_FORMAT_INSTRUCTIONS_DICT
+
+    HEADER_FORMAT_INSTRUCTIONS_DICT = utils.readonly_static_property(
+        'get_header_format_instructions_dict'
+    )
     """The Pascal-style byte stream format instructions for the encoded
     header.
     """
 
-    FOOTER_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
+    __FOOTER_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
         FormatInstructionsDict
     ] = {}
+
+    @staticmethod
+    @abc.abstractmethod
+    def get_footer_format_instructions_dict():
+        """The Pascal-style byte stream format instructions for the encoded
+        footer.
+        """
+        return Key.__FOOTER_FORMAT_INSTRUCTIONS_DICT
+
+    FOOTER_FORMAT_INSTRUCTIONS_DICT = utils.readonly_static_property(
+        'get_footer_format_instructions_dict'
+    )
     """The Pascal-style byte stream format instructions for the encoded
     footer.
     """
@@ -240,7 +263,7 @@ class Key(typing.Generic[PublicKeyParamsTypeVar], abc.ABC):
         key_byte_stream = PascalStyleByteStream()
 
         key_byte_stream.write_from_format_instructions_dict(
-            Key.HEADER_FORMAT_INSTRUCTIONS_DICT,
+            PublicKey.HEADER_FORMAT_INSTRUCTIONS_DICT,
             self.header
         )
 
@@ -260,7 +283,7 @@ class Key(typing.Generic[PublicKeyParamsTypeVar], abc.ABC):
         )
 
         key_byte_stream.write_from_format_instructions_dict(
-            Key.FOOTER_FORMAT_INSTRUCTIONS_DICT,
+            PublicKey.FOOTER_FORMAT_INSTRUCTIONS_DICT,
             self.footer
         )
 
@@ -313,6 +336,31 @@ class Key(typing.Generic[PublicKeyParamsTypeVar], abc.ABC):
 
 
 class PublicKey(Key[PublicKeyParams]):
+    __HEADER_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
+        FormatInstructionsDict
+    ] = {
+        'key_type': PascalStyleFormatInstruction.STRING
+    }
+
+    @staticmethod
+    def get_header_format_instructions_dict():
+        """The Pascal-style byte stream format instructions for the encoded
+        header.
+        """
+        return PublicKey.__HEADER_FORMAT_INSTRUCTIONS_DICT
+
+    __FOOTER_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
+        FormatInstructionsDict
+    ] = {}
+
+    @staticmethod
+    def get_footer_format_instructions_dict():
+        """The Pascal-style byte stream format instructions for the encoded
+        footer.
+        """
+        return PublicKey.__FOOTER_FORMAT_INSTRUCTIONS_DICT
+
+
     @staticmethod
     def create_key_params(
         key_type: str,
@@ -322,23 +370,25 @@ class PublicKey(Key[PublicKeyParams]):
 
 
 class PrivateKey(Key[PrivateKeyParams]):
-    HEADER_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
+    __HEADER_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
         FormatInstructionsDict
     ] = {
         'key_type': PascalStyleFormatInstruction.STRING
     }
-    """The Pascal-style byte stream format instructions for the encoded
-    header.
-    """
 
-    FOOTER_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
+    @staticmethod
+    def get_header_format_instructions_dict():
+        return PrivateKey.__HEADER_FORMAT_INSTRUCTIONS_DICT
+
+    __FOOTER_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
         FormatInstructionsDict
     ] = {
         'comment': PascalStyleFormatInstruction.STRING
     }
-    """The Pascal-style byte stream format instructions for the encoded
-    footer.
-    """
+    
+    @staticmethod
+    def get_footer_format_instructions_dict():
+        return PrivateKey.__FOOTER_FORMAT_INSTRUCTIONS_DICT
 
     @staticmethod
     def create_key_params_dict(
