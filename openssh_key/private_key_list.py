@@ -4,6 +4,7 @@ bytes.
 """
 
 import collections
+import types
 import warnings
 import getpass
 import secrets
@@ -103,7 +104,9 @@ class PrivateKeyList(BaseList):
         """The Pascal-style byte stream format instructions for the encoded
         header of the key list.
         """
-        return PrivateKeyList.__HEADER_FORMAT_INSTRUCTIONS_DICT
+        return types.MappingProxyType(
+            PrivateKeyList.__HEADER_FORMAT_INSTRUCTIONS_DICT
+        )
 
     HEADER_FORMAT_INSTRUCTIONS_DICT = utils.readonly_static_property(
         'get_header_format_instructions_dict'
@@ -124,7 +127,9 @@ class PrivateKeyList(BaseList):
         """The Pascal-style byte stream format instructions for the header of
         the decrypted private byte string.
         """
-        return PrivateKeyList.__DECIPHER_BYTES_HEADER_FORMAT_INSTRUCTIONS_DICT
+        return types.MappingProxyType(
+            PrivateKeyList.__DECIPHER_BYTES_HEADER_FORMAT_INSTRUCTIONS_DICT
+        )
 
     DECIPHER_BYTES_HEADER_FORMAT_INSTRUCTIONS_DICT = utils.readonly_static_property(
         'get_decipher_bytes_header_format_instructions_dict'

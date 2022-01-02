@@ -1,3 +1,4 @@
+import types
 import typing
 
 from cryptography.hazmat.primitives.asymmetric import rsa
@@ -50,7 +51,9 @@ class RSAPublicKeyParams(PublicKeyParams):
 
     @staticmethod
     def get_format_instructions_dict() -> FormatInstructionsDict:
-        return RSAPublicKeyParams.__FORMAT_INSTRUCTIONS_DICT
+        return types.MappingProxyType(
+            RSAPublicKeyParams.__FORMAT_INSTRUCTIONS_DICT
+        )
 
     @classmethod
     def conversion_functions(
@@ -134,7 +137,9 @@ class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
 
     @staticmethod
     def get_format_instructions_dict() -> FormatInstructionsDict:
-        return RSAPrivateKeyParams.__FORMAT_INSTRUCTIONS_DICT
+        return types.MappingProxyType(
+            RSAPrivateKeyParams.__FORMAT_INSTRUCTIONS_DICT
+        )
 
     @staticmethod
     def get_public_exponent() -> int:

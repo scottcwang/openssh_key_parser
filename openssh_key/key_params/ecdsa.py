@@ -1,4 +1,5 @@
 import abc
+import types
 import typing
 import warnings
 
@@ -52,7 +53,9 @@ class ECDSAPublicKeyParams(PublicKeyParams, abc.ABC):
 
     @staticmethod
     def get_format_instructions_dict() -> FormatInstructionsDict:
-        return ECDSAPublicKeyParams.__FORMAT_INSTRUCTIONS_DICT
+        return types.MappingProxyType(
+            ECDSAPublicKeyParams.__FORMAT_INSTRUCTIONS_DICT
+        )
 
     @staticmethod
     @abc.abstractmethod
@@ -228,7 +231,9 @@ class ECDSAPrivateKeyParams(PrivateKeyParams, ECDSAPublicKeyParams):
 
     @staticmethod
     def get_format_instructions_dict() -> FormatInstructionsDict:
-        return ECDSAPrivateKeyParams.__FORMAT_INSTRUCTIONS_DICT
+        return types.MappingProxyType(
+            ECDSAPrivateKeyParams.__FORMAT_INSTRUCTIONS_DICT
+        )
 
     @classmethod
     def generate_private_params(

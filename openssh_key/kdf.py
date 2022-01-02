@@ -5,6 +5,7 @@ The abstract base class is :py:class:`KDF`.
 
 import abc
 import secrets
+import types
 import typing
 
 import bcrypt
@@ -71,7 +72,9 @@ class KDF(abc.ABC):
         """The Pascal-style byte stream format instructions for the parameters
         to a key derivation function.
         """
-        return KDF.__OPTIONS_FORMAT_INSTRUCTIONS_DICT
+        return types.MappingProxyType(
+            KDF.__OPTIONS_FORMAT_INSTRUCTIONS_DICT
+        )
 
     OPTIONS_FORMAT_INSTRUCTIONS_DICT = utils.readonly_static_property(
         'get_options_format_instructions_dict'
@@ -130,7 +133,9 @@ class NoneKDF(KDF):
 
     @staticmethod
     def get_options_format_instructions_dict() -> FormatInstructionsDict:
-        return NoneKDF.__OPTIONS_FORMAT_INSTRUCTIONS_DICT
+        return types.MappingProxyType(
+            NoneKDF.__OPTIONS_FORMAT_INSTRUCTIONS_DICT
+        )
 
     @classmethod
     def generate_options(
@@ -222,7 +227,9 @@ class BcryptKDF(KDF):
 
     @staticmethod
     def get_options_format_instructions_dict() -> FormatInstructionsDict:
-        return BcryptKDF.__OPTIONS_FORMAT_INSTRUCTIONS_DICT
+        return types.MappingProxyType(
+            BcryptKDF.__OPTIONS_FORMAT_INSTRUCTIONS_DICT
+        )
 
     @classmethod
     def generate_options(

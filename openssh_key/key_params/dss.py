@@ -1,3 +1,4 @@
+import types
 import typing
 
 from cryptography.hazmat.primitives.asymmetric import dsa
@@ -51,7 +52,9 @@ class DSSPublicKeyParams(PublicKeyParams):
 
     @staticmethod
     def get_format_instructions_dict() -> FormatInstructionsDict:
-        return DSSPublicKeyParams.__FORMAT_INSTRUCTIONS_DICT
+        return types.MappingProxyType(
+            DSSPublicKeyParams.__FORMAT_INSTRUCTIONS_DICT
+        )
 
     @classmethod
     def conversion_functions(
@@ -145,7 +148,9 @@ class DSSPrivateKeyParams(PrivateKeyParams, DSSPublicKeyParams):
 
     @staticmethod
     def get_format_instructions_dict() -> FormatInstructionsDict:
-        return DSSPrivateKeyParams.__FORMAT_INSTRUCTIONS_DICT
+        return types.MappingProxyType(
+            DSSPrivateKeyParams.__FORMAT_INSTRUCTIONS_DICT
+        )
 
     @staticmethod
     def get_key_size() -> int:

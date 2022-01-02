@@ -5,6 +5,7 @@
 import warnings
 import base64
 import typing
+import types
 import abc
 
 from openssh_key.pascal_style_byte_stream import (
@@ -53,7 +54,9 @@ class Key(typing.Generic[PublicKeyParamsTypeVar], abc.ABC):
         """The Pascal-style byte stream format instructions for the encoded
         header.
         """
-        return Key.__HEADER_FORMAT_INSTRUCTIONS_DICT
+        return types.MappingProxyType(
+            Key.__HEADER_FORMAT_INSTRUCTIONS_DICT
+        )
 
     HEADER_FORMAT_INSTRUCTIONS_DICT = utils.readonly_static_property(
         'get_header_format_instructions_dict'
@@ -72,7 +75,9 @@ class Key(typing.Generic[PublicKeyParamsTypeVar], abc.ABC):
         """The Pascal-style byte stream format instructions for the encoded
         footer.
         """
-        return Key.__FOOTER_FORMAT_INSTRUCTIONS_DICT
+        return types.MappingProxyType(
+            Key.__FOOTER_FORMAT_INSTRUCTIONS_DICT
+        )
 
     FOOTER_FORMAT_INSTRUCTIONS_DICT = utils.readonly_static_property(
         'get_footer_format_instructions_dict'
@@ -347,7 +352,9 @@ class PublicKey(Key[PublicKeyParams]):
         """The Pascal-style byte stream format instructions for the encoded
         header.
         """
-        return PublicKey.__HEADER_FORMAT_INSTRUCTIONS_DICT
+        return types.MappingProxyType(
+            PublicKey.__HEADER_FORMAT_INSTRUCTIONS_DICT
+        )
 
     __FOOTER_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
         FormatInstructionsDict
@@ -358,7 +365,9 @@ class PublicKey(Key[PublicKeyParams]):
         """The Pascal-style byte stream format instructions for the encoded
         footer.
         """
-        return PublicKey.__FOOTER_FORMAT_INSTRUCTIONS_DICT
+        return types.MappingProxyType(
+            PublicKey.__FOOTER_FORMAT_INSTRUCTIONS_DICT
+        )
 
 
     @staticmethod
@@ -378,7 +387,9 @@ class PrivateKey(Key[PrivateKeyParams]):
 
     @staticmethod
     def get_header_format_instructions_dict() -> FormatInstructionsDict:
-        return PrivateKey.__HEADER_FORMAT_INSTRUCTIONS_DICT
+        return types.MappingProxyType(
+            PrivateKey.__HEADER_FORMAT_INSTRUCTIONS_DICT
+        )
 
     __FOOTER_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
         FormatInstructionsDict
@@ -388,7 +399,9 @@ class PrivateKey(Key[PrivateKeyParams]):
     
     @staticmethod
     def get_footer_format_instructions_dict() -> FormatInstructionsDict:
-        return PrivateKey.__FOOTER_FORMAT_INSTRUCTIONS_DICT
+        return types.MappingProxyType(
+            PrivateKey.__FOOTER_FORMAT_INSTRUCTIONS_DICT
+        )
 
     @staticmethod
     def create_key_params_dict(

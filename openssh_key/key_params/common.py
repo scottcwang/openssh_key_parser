@@ -4,6 +4,7 @@ cryptosystems.
 
 import collections
 import abc
+import types
 import typing
 
 from openssh_key.pascal_style_byte_stream import (
@@ -139,7 +140,9 @@ class PublicKeyParams(BaseDict, abc.ABC):
         """The Pascal-style byte stream format instructions for the parameters
         of a key of this type.
         """
-        return PublicKeyParams.__FORMAT_INSTRUCTIONS_DICT
+        return types.MappingProxyType(
+            PublicKeyParams.__FORMAT_INSTRUCTIONS_DICT
+        )
 
     FORMAT_INSTRUCTIONS_DICT = utils.readonly_static_property(
         'get_format_instructions_dict'

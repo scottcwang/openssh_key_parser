@@ -1,3 +1,4 @@
+import types
 import typing
 import warnings
 
@@ -43,7 +44,9 @@ class Ed25519PublicKeyParams(PublicKeyParams):
 
     @staticmethod
     def get_format_instructions_dict() -> FormatInstructionsDict:
-        return Ed25519PublicKeyParams.__FORMAT_INSTRUCTIONS_DICT
+        return types.MappingProxyType(
+            Ed25519PublicKeyParams.__FORMAT_INSTRUCTIONS_DICT
+        )
 
     @staticmethod
     def get_key_size() -> int:
@@ -192,7 +195,9 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
 
     @staticmethod
     def get_format_instructions_dict() -> FormatInstructionsDict:
-        return Ed25519PrivateKeyParams.__FORMAT_INSTRUCTIONS_DICT
+        return types.MappingProxyType(
+            Ed25519PrivateKeyParams.__FORMAT_INSTRUCTIONS_DICT
+        )
 
     def check_params_are_valid(self) -> None:
         """Checks whether the values within this parameters object conform to
