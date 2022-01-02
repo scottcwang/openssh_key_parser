@@ -128,8 +128,8 @@ def test_dss_private_convert_from_cryptography_private():
 
 def test_dss_private_convert_to_cryptography_private():
     dss_private = DSSPrivateKeyParams.generate_private_params()
-    converted = dss_private.convert_to(dsa.DSAPrivateKeyWithSerialization)
-    assert isinstance(converted, dsa.DSAPrivateKeyWithSerialization)
+    converted = dss_private.convert_to(dsa.DSAPrivateKey)
+    assert isinstance(converted, dsa.DSAPrivateKey)
     assert converted.private_numbers() == dsa.DSAPrivateNumbers(
         dss_private['x'],
         dsa.DSAPublicNumbers(

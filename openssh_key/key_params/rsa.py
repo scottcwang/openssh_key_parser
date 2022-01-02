@@ -178,7 +178,7 @@ class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
     ]:
         """Conversion functions for key objects of the following types:
 
-        * :any:`cryptography.hazmat.primitives.asymmetric.rsa.RSAPrivateKeyWithSerialization`
+        * :any:`cryptography.hazmat.primitives.asymmetric.rsa.RSAPrivateKey`
 
         Returns:
             A :py:class:`typing.Mapping` from the above types of key objects
@@ -186,7 +186,7 @@ class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
             parameter values.
         """
         def rsa_private_key_convert_from_cryptography(
-            key_object: rsa.RSAPrivateKeyWithSerialization
+            key_object: rsa.RSAPrivateKey
         ) -> ValuesDict:
             private_numbers = key_object.private_numbers()
             return {
@@ -200,8 +200,8 @@ class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
 
         def rsa_private_key_convert_to_cryptography(
             key_params: ValuesDict
-        ) -> rsa.RSAPrivateKeyWithSerialization:
-            key_object = rsa.RSAPrivateNumbers(
+        ) -> rsa.RSAPrivateKey:
+            return rsa.RSAPrivateNumbers(
                 key_params['p'],
                 key_params['q'],
                 key_params['d'],
@@ -215,10 +215,9 @@ class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
                     key_params['n']
                 )
             ).private_key()
-            return typing.cast(rsa.RSAPrivateKeyWithSerialization, key_object)
 
         return {
-            rsa.RSAPrivateKeyWithSerialization: ConversionFunctions(
+            rsa.RSAPrivateKey: ConversionFunctions(
                 rsa_private_key_convert_from_cryptography,
                 rsa_private_key_convert_to_cryptography
             )

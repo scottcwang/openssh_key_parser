@@ -197,8 +197,8 @@ def test_rsa_private_convert_from_cryptography_private():
 
 def test_rsa_private_convert_to_cryptography_private():
     rsa_private = RSAPrivateKeyParams.generate_private_params()
-    converted = rsa_private.convert_to(rsa.RSAPrivateKeyWithSerialization)
-    assert isinstance(converted, rsa.RSAPrivateKeyWithSerialization)
+    converted = rsa_private.convert_to(rsa.RSAPrivateKey)
+    assert isinstance(converted, rsa.RSAPrivateKey)
     assert converted.private_numbers() == rsa.RSAPrivateNumbers(
         rsa_private['p'],
         rsa_private['q'],
