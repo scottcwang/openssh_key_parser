@@ -28,7 +28,7 @@ KeyTypeVar = typing.TypeVar(
 )
 
 
-class Key(typing.Generic[PublicKeyParamsTypeVar]):
+class Key(typing.Generic[PublicKeyParamsTypeVar], abc.ABC):
     """A container for a :any:`PublicKeyParams`, an encoded header and footer,
     and cleartext key details.
 
