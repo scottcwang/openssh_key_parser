@@ -11,6 +11,7 @@ from openssh_key.pascal_style_byte_stream import (
     FormatInstructionsDict,
     ValuesDict
 )
+from openssh_key import utils
 
 
 PublicKeyParamsTypeVar = typing.TypeVar(
@@ -130,7 +131,19 @@ class PublicKeyParams(BaseDict, abc.ABC):
         """
         return {}
 
-    FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[FormatInstructionsDict]
+    __FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[FormatInstructionsDict] = {}
+
+    @staticmethod
+    @abc.abstractmethod
+    def get_format_instructions_dict() -> FormatInstructionsDict:
+        """The Pascal-style byte stream format instructions for the parameters
+        of a key of this type.
+        """
+        return PublicKeyParams.__FORMAT_INSTRUCTIONS_DICT
+
+    FORMAT_INSTRUCTIONS_DICT = utils.readonly_static_property(
+        'get_format_instructions_dict'
+    )
     """The Pascal-style byte stream format instructions for the parameters
     of a key of this type.
     """

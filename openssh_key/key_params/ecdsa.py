@@ -45,10 +45,14 @@ class ECDSAPublicKeyParams(PublicKeyParams, abc.ABC):
         UserWarning: A parameter value from the above list is missing from
             ``params`` or does not have the correct type.
     """
-    FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[FormatInstructionsDict] = {
+    __FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[FormatInstructionsDict] = {
         'identifier': PascalStyleFormatInstruction.STRING,
         'q': PascalStyleFormatInstruction.BYTES,
     }
+
+    @staticmethod
+    def get_format_instructions_dict() -> FormatInstructionsDict:
+        return ECDSAPublicKeyParams.__FORMAT_INSTRUCTIONS_DICT
 
     @property
     @classmethod
@@ -200,11 +204,15 @@ class ECDSAPrivateKeyParams(PrivateKeyParams, ECDSAPublicKeyParams):
             ``params`` or does not have the correct type.
     """
 
-    FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[FormatInstructionsDict] = {
+    __FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[FormatInstructionsDict] = {
         'identifier': PascalStyleFormatInstruction.STRING,
         'q': PascalStyleFormatInstruction.BYTES,
         'd': PascalStyleFormatInstruction.MPINT,
     }
+
+    @staticmethod
+    def get_format_instructions_dict() -> FormatInstructionsDict:
+        return ECDSAPrivateKeyParams.__FORMAT_INSTRUCTIONS_DICT
 
     @classmethod
     def generate_private_params(

@@ -42,10 +42,14 @@ class RSAPublicKeyParams(PublicKeyParams):
         UserWarning: A parameter value from the above list is missing from
             ``params`` or does not have the correct type.
     """
-    FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[FormatInstructionsDict] = {
+    __FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[FormatInstructionsDict] = {
         'e': PascalStyleFormatInstruction.MPINT,
         'n': PascalStyleFormatInstruction.MPINT,
     }
+
+    @staticmethod
+    def get_format_instructions_dict() -> FormatInstructionsDict:
+        return RSAPublicKeyParams.__FORMAT_INSTRUCTIONS_DICT
 
     @classmethod
     def conversion_functions(
@@ -118,7 +122,7 @@ class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
         UserWarning: A parameter value from the above list is missing from
             ``params`` or does not have the correct type.
     """
-    FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[FormatInstructionsDict] = {
+    __FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[FormatInstructionsDict] = {
         'n': PascalStyleFormatInstruction.MPINT,
         'e': PascalStyleFormatInstruction.MPINT,
         'd': PascalStyleFormatInstruction.MPINT,
@@ -126,6 +130,10 @@ class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
         'p': PascalStyleFormatInstruction.MPINT,
         'q': PascalStyleFormatInstruction.MPINT
     }
+
+    @staticmethod
+    def get_format_instructions_dict() -> FormatInstructionsDict:
+        return RSAPrivateKeyParams.__FORMAT_INSTRUCTIONS_DICT
 
     PUBLIC_EXPONENT = 65537
     KEY_SIZE = 4096

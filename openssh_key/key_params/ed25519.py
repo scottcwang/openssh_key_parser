@@ -36,9 +36,13 @@ class Ed25519PublicKeyParams(PublicKeyParams):
             ``params`` or does not have the correct type, or the key size is
             not valid for Ed25519 (32 bytes).
     """
-    FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[FormatInstructionsDict] = {
+    __FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[FormatInstructionsDict] = {
         'public': PascalStyleFormatInstruction.BYTES
     }
+
+    @staticmethod
+    def get_format_instructions_dict() -> FormatInstructionsDict:
+        return Ed25519PublicKeyParams.__FORMAT_INSTRUCTIONS_DICT
 
     KEY_SIZE = 32
 
@@ -176,10 +180,14 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
             parameter value.
     """
 
-    FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[FormatInstructionsDict] = {
+    __FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[FormatInstructionsDict] = {
         'public': PascalStyleFormatInstruction.BYTES,
         'private_public': PascalStyleFormatInstruction.BYTES
     }
+
+    @staticmethod
+    def get_format_instructions_dict() -> FormatInstructionsDict:
+        return Ed25519PrivateKeyParams.__FORMAT_INSTRUCTIONS_DICT
 
     def check_params_are_valid(self) -> None:
         """Checks whether the values within this parameters object conform to

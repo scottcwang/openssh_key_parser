@@ -41,12 +41,16 @@ class DSSPublicKeyParams(PublicKeyParams):
         UserWarning: A parameter value from the above list is missing from
             ``params`` or does not have the correct type.
     """
-    FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[FormatInstructionsDict] = {
+    __FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[FormatInstructionsDict] = {
         'p': PascalStyleFormatInstruction.MPINT,
         'q': PascalStyleFormatInstruction.MPINT,
         'g': PascalStyleFormatInstruction.MPINT,
         'y': PascalStyleFormatInstruction.MPINT,
     }
+
+    @staticmethod
+    def get_format_instructions_dict() -> FormatInstructionsDict:
+        return DSSPublicKeyParams.__FORMAT_INSTRUCTIONS_DICT
 
     @classmethod
     def conversion_functions(
@@ -130,13 +134,17 @@ class DSSPrivateKeyParams(PrivateKeyParams, DSSPublicKeyParams):
             ``params`` or does not have the correct type.
     """
 
-    FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[FormatInstructionsDict] = {
+    __FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[FormatInstructionsDict] = {
         'p': PascalStyleFormatInstruction.MPINT,
         'q': PascalStyleFormatInstruction.MPINT,
         'g': PascalStyleFormatInstruction.MPINT,
         'y': PascalStyleFormatInstruction.MPINT,
         'x': PascalStyleFormatInstruction.MPINT,
     }
+
+    @staticmethod
+    def get_format_instructions_dict() -> FormatInstructionsDict:
+        return DSSPrivateKeyParams.__FORMAT_INSTRUCTIONS_DICT
 
     KEY_SIZE = 1024
 
