@@ -26,6 +26,7 @@ from openssh_key.kdf import (
     KDFOptions
 )
 from openssh_key.cipher import create_cipher
+from openssh_key import utils
 
 
 class PublicPrivateKeyPair(typing.NamedTuple):
@@ -87,7 +88,7 @@ class PrivateKeyList(BaseList):
             The values that pad the decrypted private byte string.
     """
 
-    HEADER_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
+    __HEADER_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
         FormatInstructionsDict
     ] = {
         'auth_magic': '15s',
@@ -96,17 +97,38 @@ class PrivateKeyList(BaseList):
         'kdf_options': PascalStyleFormatInstruction.BYTES,
         'num_keys': '>i'
     }
+
+    @staticmethod
+    def get_header_format_instructions_dict():
+        """The Pascal-style byte stream format instructions for the encoded
+        header of the key list.
+        """
+        return PrivateKeyList.__HEADER_FORMAT_INSTRUCTIONS_DICT
+
+    HEADER_FORMAT_INSTRUCTIONS_DICT = utils.readonly_static_property(
+        'get_header_format_instructions_dict'
+    )
     """The Pascal-style byte stream format instructions for the encoded
     header of the key list.
     """
 
-
-    DECIPHER_BYTES_HEADER_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
+    __DECIPHER_BYTES_HEADER_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
         FormatInstructionsDict
     ] =  {
         'check_int_1': '>I',
         'check_int_2': '>I'
     }
+
+    @staticmethod
+    def get_decipher_bytes_header_format_instructions_dict():
+        """The Pascal-style byte stream format instructions for the header of
+        the decrypted private byte string.
+        """
+        return PrivateKeyList.__DECIPHER_BYTES_HEADER_FORMAT_INSTRUCTIONS_DICT
+
+    DECIPHER_BYTES_HEADER_FORMAT_INSTRUCTIONS_DICT = utils.readonly_static_property(
+        'get_decipher_bytes_header_format_instructions_dict'
+    )
     """The Pascal-style byte stream format instructions for the header of
     the decrypted private byte string.
     """
