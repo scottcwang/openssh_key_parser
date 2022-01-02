@@ -343,7 +343,7 @@ class PrivateKeyList(BaseList):
         key_pair_list: typing.List[PublicPrivateKeyPair],
         cipher: str = 'none',
         kdf: str = 'none',
-        kdf_options: KDFOptions = None
+        kdf_options: typing.Optional[KDFOptions] = None
     ) -> PrivateKeyListTypeVar:
         """Constructs and initializes a private key list from a given list of
         key pairs and metadata.
@@ -392,7 +392,7 @@ class PrivateKeyList(BaseList):
     def pack_bytes(
         self,
         passphrase: typing.Optional[str] = None,
-        include_indices: typing.List[int] = None,
+        include_indices: typing.Optional[typing.List[int]] = None,
         override_public_with_private: bool = True,
         retain_kdf_options_if_present: bool = False
     ) -> bytes:
@@ -514,7 +514,7 @@ class PrivateKeyList(BaseList):
     def pack_string(
         self,
         passphrase: typing.Optional[str] = None,
-        include_indices: typing.List[int] = None,
+        include_indices: typing.Optional[typing.List[int]] = None,
         override_public_with_private: bool = True,
         retain_kdf_options_if_present: bool = False
     ) -> str:

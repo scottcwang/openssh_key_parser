@@ -26,7 +26,7 @@ class ConversionFunctions(typing.NamedTuple):
     """
     object_to_mapping: typing.Callable[
         [typing.Any],
-        ValuesDict
+        typing.Optional[ValuesDict]
     ]
     """Functions to convert an object of a certain type to a
     :any:`typing.Mapping` representing the parameter values in the object.
