@@ -14,6 +14,7 @@ from openssh_key.pascal_style_byte_stream import (
     FormatInstructionsDict,
     ValuesDict
 )
+from openssh_key import utils
 
 
 KDFTypeVar = typing.TypeVar(
@@ -60,7 +61,21 @@ class KDF(abc.ABC):
             initialization_vector=b''
         )
 
-    OPTIONS_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[FormatInstructionsDict]
+    __OPTIONS_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
+        FormatInstructionsDict
+    ]
+
+    @staticmethod
+    @abc.abstractmethod
+    def get_options_format_instructions_dict():
+        """The Pascal-style byte stream format instructions for the parameters
+        to a key derivation function.
+        """
+        return KDF.__OPTIONS_FORMAT_INSTRUCTIONS_DICT
+
+    OPTIONS_FORMAT_INSTRUCTIONS_DICT = utils.readonly_static_property(
+        'get_options_format_instructions_dict'
+    )
     """The Pascal-style byte stream format instructions for the parameters
     to a key derivation function.
     """
@@ -107,11 +122,16 @@ class NoneKDF(KDF):
             initialization_vector=b''
         )
 
-    OPTIONS_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
+    __OPTIONS_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
         FormatInstructionsDict
     ] = {}
     """Empty format instructions.
     """
+
+    @staticmethod
+    @abc.abstractmethod
+    def get_options_format_instructions_dict():
+        return NoneKDF.__OPTIONS_FORMAT_INSTRUCTIONS_DICT
 
     @classmethod
     def generate_options(
@@ -172,7 +192,7 @@ class BcryptKDF(KDF):
             initialization_vector=bcrypt_result[-BcryptKDF.IV_LENGTH:]
         )
 
-    OPTIONS_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
+    __OPTIONS_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
         FormatInstructionsDict
     ] = {
         'salt': PascalStyleFormatInstruction.BYTES,
@@ -181,6 +201,11 @@ class BcryptKDF(KDF):
     """The Pascal-style byte stream format instructions for the parameters
     to bcrypt-PBKDF2.
     """
+
+    @staticmethod
+    @abc.abstractmethod
+    def get_options_format_instructions_dict():
+        return BcryptKDF.__OPTIONS_FORMAT_INSTRUCTIONS_DICT
 
     @classmethod
     def generate_options(
