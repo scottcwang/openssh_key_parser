@@ -16,6 +16,14 @@ from .dss import (
     DSSPublicKeyParams,
     DSSPrivateKeyParams
 )
+from .ecdsa import (
+    ECDSA_NISTP256_PublicKeyParams,
+    ECDSA_NISTP256_PrivateKeyParams,
+    ECDSA_NISTP384_PublicKeyParams,
+    ECDSA_NISTP384_PrivateKeyParams,
+    ECDSA_NISTP521_PublicKeyParams,
+    ECDSA_NISTP521_PrivateKeyParams
+)
 
 
 class PublicPrivateKeyParamsClasses(typing.NamedTuple):
@@ -32,6 +40,15 @@ _KEY_TYPE_MAPPING = {
     ),
     'ssh-dss': PublicPrivateKeyParamsClasses(
         DSSPublicKeyParams, DSSPrivateKeyParams
+    ),
+    'ssh-ecdsa-nistp256': PublicPrivateKeyParamsClasses(
+        ECDSA_NISTP256_PublicKeyParams, ECDSA_NISTP256_PrivateKeyParams
+    ),
+    'ssh-ecdsa-nistp384': PublicPrivateKeyParamsClasses(
+        ECDSA_NISTP384_PublicKeyParams, ECDSA_NISTP384_PrivateKeyParams
+    ),
+    'ssh-ecdsa-nistp521': PublicPrivateKeyParamsClasses(
+        ECDSA_NISTP521_PublicKeyParams, ECDSA_NISTP521_PrivateKeyParams
     )
 }
 
