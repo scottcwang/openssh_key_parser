@@ -3,6 +3,7 @@ import pytest
 from openssh_key.pascal_style_byte_stream import PascalStyleFormatInstruction
 
 import test_rsa
+import test_ecdsa
 import test_ed25519
 import test_dss
 
@@ -10,7 +11,8 @@ _TEST_CASES = sum(
     [
         test_rsa.PARAMS_TEST_CASES,
         test_ed25519.PARAMS_TEST_CASES,
-        test_dss.PARAMS_TEST_CASES
+        test_dss.PARAMS_TEST_CASES,
+        test_ecdsa.PARAMS_TEST_CASES,
     ],
     []
 )
@@ -77,7 +79,7 @@ def test_invalid_params_are_not_valid(key_params_test):
     if 'invalid_values' not in key_params_test:
         return
     for invalid_value, expected_warning_message \
-        in key_params_test['invalid_values']:
+            in key_params_test['invalid_values']:
         with pytest.warns(UserWarning, match=expected_warning_message):
             key_params_object = key_params_test['cls'](invalid_value)
         with pytest.warns(UserWarning, match=expected_warning_message):
