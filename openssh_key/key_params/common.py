@@ -135,15 +135,6 @@ class PublicKeyParams(BaseDict, abc.ABC):
     of a key of this type.
     """
 
-    @property
-    def params(self) -> ValuesDict:
-        """The values within this parameters object.
-
-        Returns:
-            The parameter values.
-        """
-        return self.data
-
     def check_params_are_valid(self) -> None:
         """Checks whether the values within this parameters object conform to
         the format instructions.
