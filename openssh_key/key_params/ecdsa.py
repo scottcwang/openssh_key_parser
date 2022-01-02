@@ -54,33 +54,43 @@ class ECDSAPublicKeyParams(PublicKeyParams, abc.ABC):
     def get_format_instructions_dict() -> FormatInstructionsDict:
         return ECDSAPublicKeyParams.__FORMAT_INSTRUCTIONS_DICT
 
-    @property
-    @classmethod
+    @staticmethod
     @abc.abstractmethod
-    def CURVE_IDENTIFIER(cls) -> typing.Optional[str]:
+    def get_curve_identifier() -> str:
         """The identifier, as specified in
         `RFC 5656 <https://www.ietf.org/rfc/rfc5656.html#section-6.1>`_,
         of a set of elliptic curve domain parameters.
         """
-        return None
+        return ''
 
-    @property
-    @classmethod
+    CURVE_IDENTIFIER = utils.readonly_static_property('get_curve_identifier')
+    """The identifier, as specified in
+    `RFC 5656 <https://www.ietf.org/rfc/rfc5656.html#section-6.1>`_,
+    of a set of elliptic curve domain parameters.
+    """
+
+    @staticmethod
     @abc.abstractmethod
-    def CURVE_NAME(cls) -> typing.Optional[str]:
+    def get_curve_name() -> str:
         """The name of the elliptic curve domain parameters that corresponds to
         ``CURVE_IDENTIFIER``.
         """
-        return None
+        return ''
 
-    @property
-    @classmethod
+    CURVE_NAME = utils.readonly_static_property('get_curve_name')
+    """The name of the elliptic curve domain parameters that corresponds to
+    ``CURVE_IDENTIFIER``.
+    """
+
+    @staticmethod
     @abc.abstractmethod
-    def CURVE_OID(cls) -> typing.Optional[str]:
+    def get_curve_oid() -> str:
         """The X.509 object identifier of the elliptic curve domain parameters that
         corresponds to ``CURVE_IDENTIFIER``.
         """
-        return None
+        return ''
+
+    CURVE_OID = utils.readonly_static_property('get_curve_oid')
 
     @classmethod
     def convert_from(cls, key_object: typing.Any) -> 'PublicKeyParams':
@@ -299,17 +309,23 @@ class ECDSAPrivateKeyParams(PrivateKeyParams, ECDSAPublicKeyParams):
 
 
 class ECDSA_NISTP256_PublicKeyParams(ECDSAPublicKeyParams):
-    CURVE_IDENTIFIER = 'nistp256'
-    """The value ``'nistp256'``.
-    """
+    @staticmethod
+    def get_curve_identifier() -> str:
+        """The value ``'nistp256'``.
+        """
+        return 'nistp256'
 
-    CURVE_NAME = 'secp256r1'
-    """The value ``'secp256r1'``.
-    """
+    @staticmethod
+    def get_curve_name() -> str:
+        """The value ``'secp256r1'``.
+        """
+        return 'secp256r1'
 
-    CURVE_OID = '1.2.840.10045.3.1.7'
-    """The value ``'1.2.840.10045.3.1.7'``.
-    """
+    @staticmethod
+    def get_curve_oid() -> str:
+        """The value ``'1.2.840.10045.3.1.7'``.
+        """
+        return '1.2.840.10045.3.1.7'
 
 
 class ECDSA_NISTP256_PrivateKeyParams(ECDSA_NISTP256_PublicKeyParams, ECDSAPrivateKeyParams):
@@ -317,17 +333,23 @@ class ECDSA_NISTP256_PrivateKeyParams(ECDSA_NISTP256_PublicKeyParams, ECDSAPriva
 
 
 class ECDSA_NISTP384_PublicKeyParams(ECDSAPublicKeyParams):
-    CURVE_IDENTIFIER = 'nistp384'
-    """The value ``'nistp384'``.
-    """
+    @staticmethod
+    def get_curve_identifier() -> str:
+        """The value ``'nistp384'``.
+        """
+        return 'nistp384'
 
-    CURVE_NAME = 'secp384r1'
-    """The value ``'secp384r1'``.
-    """
+    @staticmethod
+    def get_curve_name() -> str:
+        """The value ``'secp384r1'``.
+        """
+        return 'secp384r1'
 
-    CURVE_OID = '1.3.132.0.34'
-    """The value ``'1.3.132.0.34'``.
-    """
+    @staticmethod
+    def get_curve_oid() -> str:
+        """The value ``'1.3.132.0.34'``.
+        """
+        return '1.3.132.0.34'
 
 
 class ECDSA_NISTP384_PrivateKeyParams(ECDSA_NISTP384_PublicKeyParams, ECDSAPrivateKeyParams):
@@ -335,17 +357,23 @@ class ECDSA_NISTP384_PrivateKeyParams(ECDSA_NISTP384_PublicKeyParams, ECDSAPriva
 
 
 class ECDSA_NISTP521_PublicKeyParams(ECDSAPublicKeyParams):
-    CURVE_IDENTIFIER = 'nistp521'
-    """The value ``'nistp521'``.
-    """
+    @staticmethod
+    def get_curve_identifier() -> str:
+        """The value ``'nistp521'``.
+        """
+        return 'nistp521'
 
-    CURVE_NAME = 'secp521r1'
-    """The value ``'secp521r1'``.
-    """
+    @staticmethod
+    def get_curve_name() -> str:
+        """The value ``'secp521r1'``.
+        """
+        return 'secp521r1'
 
-    CURVE_OID = '1.3.132.0.35'
-    """The value ``'1.3.132.0.35'``.
-    """
+    @staticmethod
+    def get_curve_oid() -> str:
+        """The value ``'1.3.132.0.35'``.
+        """
+        return '1.3.132.0.35'
 
 
 class ECDSA_NISTP521_PrivateKeyParams(ECDSA_NISTP521_PublicKeyParams, ECDSAPrivateKeyParams):
