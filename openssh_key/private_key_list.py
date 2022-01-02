@@ -291,12 +291,27 @@ class PrivateKeyList(BaseList):
             decipher_padding
         )
 
-    OPENSSH_PRIVATE_KEY_HEADER: typing.ClassVar[str] = \
-        '-----BEGIN OPENSSH PRIVATE KEY-----'
-    OPENSSH_PRIVATE_KEY_FOOTER: typing.ClassVar[str] = \
-        '-----END OPENSSH PRIVATE KEY-----'
+    @staticmethod
+    def get_openssh_private_key_header() -> str:
+        return '-----BEGIN OPENSSH PRIVATE KEY-----'
 
-    WRAP_COL: typing.ClassVar[int] = 70
+    OPENSSH_PRIVATE_KEY_HEADER = utils.readonly_static_property(
+        'get_openssh_private_key_header'
+    )
+
+    @staticmethod
+    def get_openssh_private_key_footer() -> str:
+        return '-----END OPENSSH PRIVATE KEY-----'
+
+    OPENSSH_PRIVATE_KEY_FOOTER = utils.readonly_static_property(
+        'get_openssh_private_key_footer'
+    )
+
+    @staticmethod
+    def get_wrap_col() -> int:
+        return 70
+
+    WRAP_COL = utils.readonly_static_property('get_wrap_col')
 
     @classmethod
     def from_string(

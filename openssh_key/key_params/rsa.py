@@ -1,6 +1,7 @@
 import typing
 
 from cryptography.hazmat.primitives.asymmetric import rsa
+from openssh_key import utils
 
 from openssh_key.pascal_style_byte_stream import (
     PascalStyleFormatInstruction,
@@ -135,8 +136,17 @@ class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
     def get_format_instructions_dict() -> FormatInstructionsDict:
         return RSAPrivateKeyParams.__FORMAT_INSTRUCTIONS_DICT
 
-    PUBLIC_EXPONENT = 65537
-    KEY_SIZE = 4096
+    @staticmethod
+    def get_public_exponent() -> int:
+        return 65537
+
+    PUBLIC_EXPONENT = utils.readonly_static_property('get_public_exponent')
+
+    @staticmethod
+    def get_key_size() -> int:
+        return 4096
+    
+    KEY_SIZE = utils.readonly_static_property('get_key_size')
 
     @classmethod
     def generate_private_params(

@@ -8,6 +8,8 @@ import struct
 import warnings
 import typing
 
+from openssh_key import utils
+
 
 class PascalStyleFormatInstruction(enum.Enum):
     """Format instructions for variable-length values that may appear in a
@@ -64,12 +66,18 @@ class PascalStyleByteStream(io.BytesIO):
     length of such variable-length value.
     """
 
-    OPENSSH_DEFAULT_STRING_LENGTH_SIZE: typing.ClassVar[int] = 4
+    @staticmethod
+    def get_openssh_default_string_length_size() -> int:
+        return 4
+
+    OPENSSH_DEFAULT_STRING_LENGTH_SIZE = utils.readonly_static_property(
+        'get_openssh_default_string_length_size'
+    )
 
     def read_from_format_instruction(
         self,
         format_instruction: typing.Union[str, PascalStyleFormatInstruction],
-        string_length_size: int = OPENSSH_DEFAULT_STRING_LENGTH_SIZE
+        string_length_size: typing.Optional[int] = None
     ) -> typing.Any:
         """Reads a value from the underlying bytestream according to a format
         instruction.
@@ -98,6 +106,8 @@ class PascalStyleByteStream(io.BytesIO):
                 to read a complete value according to ``format_instruction``.
             ValueError: ``string_length_size`` is nonpositive.
         """
+        if string_length_size is None:
+            string_length_size = PascalStyleByteStream.OPENSSH_DEFAULT_STRING_LENGTH_SIZE
         if isinstance(format_instruction, str):
             calcsize = struct.calcsize(format_instruction)
             read_bytes = self.read_fixed_bytes(calcsize)
@@ -203,7 +213,7 @@ class PascalStyleByteStream(io.BytesIO):
         self,
         format_instruction: typing.Union[str, PascalStyleFormatInstruction],
         value: typing.Any,
-        string_length_size: int = OPENSSH_DEFAULT_STRING_LENGTH_SIZE
+        string_length_size: typing.Optional[int] = None
     ) -> None:
         """Writes a value to the underlying bytestream according to a format
         instruction.
@@ -222,6 +232,8 @@ class PascalStyleByteStream(io.BytesIO):
                 length of the latter. Ignored otherwise. The default is 4,
                 which OpenSSH uses for encoding keys.
         """
+        if string_length_size is None:
+            string_length_size = PascalStyleByteStream.OPENSSH_DEFAULT_STRING_LENGTH_SIZE
         write_bytes = None
         if isinstance(format_instruction, str):
             write_bytes = struct.pack(format_instruction, value)

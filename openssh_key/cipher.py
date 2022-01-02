@@ -13,6 +13,8 @@ from cryptography.hazmat.primitives.ciphers import modes
 from openssh_key.kdf import (
     KDFResult
 )
+from openssh_key import utils
+
 
 class Cipher(abc.ABC):
     """An abstract symmetric-key cipher.
@@ -59,9 +61,14 @@ class Cipher(abc.ABC):
             Plaintext bytes.
         """
 
-    BLOCK_SIZE: typing.ClassVar[int]
-    """The block size for this cipher.
-    """
+    @staticmethod
+    @abc.abstractmethod
+    def get_block_size() -> int:
+        """The block size for this cipher.
+        """
+        return 0
+
+    BLOCK_SIZE = utils.readonly_static_property('get_block_size')
 
 
 class NoneCipher(Cipher):
@@ -103,11 +110,13 @@ class NoneCipher(Cipher):
         """
         return cipher_bytes
 
-    BLOCK_SIZE: typing.ClassVar[int] = 8
-    """The value 8, the cipher block size
-    `OpenSSH uses <https://github.com/openssh/openssh-portable/blob/9cd40b829a5295cc81fbea8c7d632b2478db6274/cipher.c#L112>`_
-    to pad private bytes under null encryption.
-    """
+    @staticmethod
+    def get_block_size() -> int:
+        """The value 8, the cipher block size
+        `OpenSSH uses <https://github.com/openssh/openssh-portable/blob/9cd40b829a5295cc81fbea8c7d632b2478db6274/cipher.c#L112>`_
+        to pad private bytes under null encryption.
+        """
+        return 8
 
 
 class AES256_CTRCipher(Cipher):
@@ -171,9 +180,11 @@ class AES256_CTRCipher(Cipher):
         decryptor = cipher.decryptor()
         return decryptor.update(cipher_bytes) + decryptor.finalize()
 
-    BLOCK_SIZE: typing.ClassVar[int] = 16
-    """The value 16, the cipher block size of AES.
-    """
+    @staticmethod
+    def get_block_size() -> int:
+        """The value 16, the cipher block size of AES.
+        """
+        return 16
 
 
 _CIPHER_MAPPING = {

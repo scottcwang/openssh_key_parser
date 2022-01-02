@@ -9,6 +9,7 @@ from openssh_key.pascal_style_byte_stream import (
     FormatInstructionsDict,
     ValuesDict
 )
+from openssh_key import utils
 
 from .common import (
     PublicKeyParams,
@@ -44,7 +45,11 @@ class Ed25519PublicKeyParams(PublicKeyParams):
     def get_format_instructions_dict() -> FormatInstructionsDict:
         return Ed25519PublicKeyParams.__FORMAT_INSTRUCTIONS_DICT
 
-    KEY_SIZE = 32
+    @staticmethod
+    def get_key_size() -> int:
+        return 32
+
+    KEY_SIZE = utils.readonly_static_property('get_key_size')
 
     def check_params_are_valid(self) -> None:
         """Checks whether the values within this parameters object conform to

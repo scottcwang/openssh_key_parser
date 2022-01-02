@@ -152,10 +152,29 @@ class BcryptKDF(KDF):
     function.
     """
 
-    KEY_LENGTH = 32
-    IV_LENGTH = 16
-    SALT_LENGTH = 16
-    ROUNDS = 16
+    @staticmethod
+    def get_key_length() -> int:
+        return 32
+
+    KEY_LENGTH = utils.readonly_static_property('get_key_length')
+
+    @staticmethod
+    def get_iv_length() -> int:
+        return 16
+
+    IV_LENGTH = utils.readonly_static_property('get_iv_length')
+
+    @staticmethod
+    def get_salt_length() -> int:
+        return 16
+
+    SALT_LENGTH = utils.readonly_static_property('get_salt_length')
+
+    @staticmethod
+    def get_rounds() -> int:
+        return 16
+
+    ROUNDS = utils.readonly_static_property('get_rounds')
 
     @staticmethod
     def derive_key(options: KDFOptions, passphrase: str) -> KDFResult:

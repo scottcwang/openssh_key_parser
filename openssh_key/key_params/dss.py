@@ -7,6 +7,7 @@ from openssh_key.pascal_style_byte_stream import (
     FormatInstructionsDict,
     ValuesDict
 )
+from openssh_key import utils
 
 from .common import (
     PublicKeyParams,
@@ -146,7 +147,11 @@ class DSSPrivateKeyParams(PrivateKeyParams, DSSPublicKeyParams):
     def get_format_instructions_dict() -> FormatInstructionsDict:
         return DSSPrivateKeyParams.__FORMAT_INSTRUCTIONS_DICT
 
-    KEY_SIZE = 1024
+    @staticmethod
+    def get_key_size() -> int:
+        return 1024
+
+    KEY_SIZE = utils.readonly_static_property('get_key_size')
 
     @classmethod
     def generate_private_params(
