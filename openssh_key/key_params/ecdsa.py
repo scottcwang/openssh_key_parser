@@ -137,7 +137,10 @@ class ECDSAPublicKeyParams(PublicKeyParams, abc.ABC):
             key_params: ValuesDict
         ) -> typing.Optional[ec.EllipticCurvePublicKey]:
             if key_params['identifier'] != cls.CURVE_IDENTIFIER:
-                return None
+                raise NotImplementedError(
+                    'The curve identifier encoded in the public key does not '
+                    'correspond to the key type'
+                )
             return ec.EllipticCurvePublicKey.from_encoded_point(
                 ec.get_curve_for_oid(ObjectIdentifier(cls.CURVE_OID))(),
                 key_params['q']
@@ -175,7 +178,10 @@ class ECDSAPublicKeyParams(PublicKeyParams, abc.ABC):
             return
         try:
             # Discard result
-            self.convert_to(ec.EllipticCurvePublicKey)
+            ec.EllipticCurvePublicKey.from_encoded_point(
+                ec.get_curve_for_oid(ObjectIdentifier(self.CURVE_OID))(),
+                self['q']
+            )
         except ValueError:
             warnings.warn(UserWarning(  # pylint: disable=raise-missing-from
                 'The point does not lie on the elliptic curve indicated by '

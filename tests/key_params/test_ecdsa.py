@@ -228,12 +228,12 @@ def test_ecdsa_public_convert_to_cryptography_public_bad_curve_identifier():
             'identifier': 'nistp384',
             'q': ecdsa_private['q']
         })
-    converted = ecdsa_public.convert_to(ec.EllipticCurvePublicKey)
-    assert isinstance(converted, ec.EllipticCurvePublicKey)
-    assert type(converted.curve) == ec.SECP256R1
-    assert converted.public_bytes(
-        Encoding.X962, PublicFormat.UncompressedPoint
-    ) == ecdsa_public['q']
+    with pytest.raises(
+        NotImplementedError,
+        match='The curve identifier encoded in the public key does not '
+                       'correspond to the key type'
+    ):
+        ecdsa_public.convert_to(ec.EllipticCurvePublicKey)
 
 
 def test_ecdsa_public_convert_to_cryptography_public_base_class():
