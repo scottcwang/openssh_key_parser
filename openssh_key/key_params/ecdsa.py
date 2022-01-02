@@ -108,7 +108,7 @@ class ECDSAPublicKeyParams(PublicKeyParams, abc.ABC):
         """
         def ecdsa_public_key_convert_from_cryptography(
             key_object: ec.EllipticCurvePublicKey
-        ) -> ValuesDict:
+        ) -> typing.Optional[ValuesDict]:
             if key_object.curve.name != cls.CURVE_NAME:
                 return None
             public_bytes = key_object.public_bytes(
@@ -121,7 +121,7 @@ class ECDSAPublicKeyParams(PublicKeyParams, abc.ABC):
 
         def ecdsa_public_key_convert_to_cryptography(
             key_params: ValuesDict
-        ) -> ec.EllipticCurvePublicKey:
+        ) -> typing.Optional[ec.EllipticCurvePublicKey]:
             if key_params['identifier'] != cls.CURVE_IDENTIFIER:
                 return None
             return ec.EllipticCurvePublicKey.from_encoded_point(
@@ -258,7 +258,7 @@ class ECDSAPrivateKeyParams(PrivateKeyParams, ECDSAPublicKeyParams):
         """
         def ecdsa_private_key_convert_from_cryptography(
             key_object: ec.EllipticCurvePrivateKey
-        ) -> ValuesDict:
+        ) -> typing.Optional[ValuesDict]:
             if key_object.curve.name != cls.CURVE_NAME:
                 return None
             private_numbers = key_object.private_numbers()

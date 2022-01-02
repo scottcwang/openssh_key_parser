@@ -1,4 +1,7 @@
-def is_abstract(cls):
+import typing
+
+
+def is_abstract(cls: typing.Type) -> bool:
     """
     Returns whether ``cls`` is an abstract class.
     """
