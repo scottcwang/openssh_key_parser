@@ -99,7 +99,7 @@ class PrivateKeyList(BaseList):
     }
 
     @staticmethod
-    def get_header_format_instructions_dict():
+    def get_header_format_instructions_dict() -> FormatInstructionsDict:
         """The Pascal-style byte stream format instructions for the encoded
         header of the key list.
         """
@@ -120,7 +120,7 @@ class PrivateKeyList(BaseList):
     }
 
     @staticmethod
-    def get_decipher_bytes_header_format_instructions_dict():
+    def get_decipher_bytes_header_format_instructions_dict() -> FormatInstructionsDict:
         """The Pascal-style byte stream format instructions for the header of
         the decrypted private byte string.
         """

@@ -67,7 +67,7 @@ class KDF(abc.ABC):
 
     @staticmethod
     @abc.abstractmethod
-    def get_options_format_instructions_dict():
+    def get_options_format_instructions_dict() -> FormatInstructionsDict:
         """The Pascal-style byte stream format instructions for the parameters
         to a key derivation function.
         """
@@ -129,8 +129,7 @@ class NoneKDF(KDF):
     """
 
     @staticmethod
-    @abc.abstractmethod
-    def get_options_format_instructions_dict():
+    def get_options_format_instructions_dict() -> FormatInstructionsDict:
         return NoneKDF.__OPTIONS_FORMAT_INSTRUCTIONS_DICT
 
     @classmethod
@@ -203,8 +202,7 @@ class BcryptKDF(KDF):
     """
 
     @staticmethod
-    @abc.abstractmethod
-    def get_options_format_instructions_dict():
+    def get_options_format_instructions_dict() -> FormatInstructionsDict:
         return BcryptKDF.__OPTIONS_FORMAT_INSTRUCTIONS_DICT
 
     @classmethod

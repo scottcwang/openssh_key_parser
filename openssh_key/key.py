@@ -49,7 +49,7 @@ class Key(typing.Generic[PublicKeyParamsTypeVar], abc.ABC):
 
     @staticmethod
     @abc.abstractmethod
-    def get_header_format_instructions_dict():
+    def get_header_format_instructions_dict() -> FormatInstructionsDict:
         """The Pascal-style byte stream format instructions for the encoded
         header.
         """
@@ -68,7 +68,7 @@ class Key(typing.Generic[PublicKeyParamsTypeVar], abc.ABC):
 
     @staticmethod
     @abc.abstractmethod
-    def get_footer_format_instructions_dict():
+    def get_footer_format_instructions_dict() -> FormatInstructionsDict:
         """The Pascal-style byte stream format instructions for the encoded
         footer.
         """
@@ -343,7 +343,7 @@ class PublicKey(Key[PublicKeyParams]):
     }
 
     @staticmethod
-    def get_header_format_instructions_dict():
+    def get_header_format_instructions_dict() -> FormatInstructionsDict:
         """The Pascal-style byte stream format instructions for the encoded
         header.
         """
@@ -354,7 +354,7 @@ class PublicKey(Key[PublicKeyParams]):
     ] = {}
 
     @staticmethod
-    def get_footer_format_instructions_dict():
+    def get_footer_format_instructions_dict() -> FormatInstructionsDict:
         """The Pascal-style byte stream format instructions for the encoded
         footer.
         """
@@ -377,7 +377,7 @@ class PrivateKey(Key[PrivateKeyParams]):
     }
 
     @staticmethod
-    def get_header_format_instructions_dict():
+    def get_header_format_instructions_dict() -> FormatInstructionsDict:
         return PrivateKey.__HEADER_FORMAT_INSTRUCTIONS_DICT
 
     __FOOTER_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
@@ -387,7 +387,7 @@ class PrivateKey(Key[PrivateKeyParams]):
     }
     
     @staticmethod
-    def get_footer_format_instructions_dict():
+    def get_footer_format_instructions_dict() -> FormatInstructionsDict:
         return PrivateKey.__FOOTER_FORMAT_INSTRUCTIONS_DICT
 
     @staticmethod
