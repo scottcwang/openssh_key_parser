@@ -1,4 +1,6 @@
 import pytest
+import typing
+
 from openssh_key.pascal_style_byte_stream import PascalStyleFormatInstruction
 
 import test_dss
@@ -6,7 +8,7 @@ import test_ecdsa
 import test_ed25519
 import test_rsa
 
-_TEST_CASES = sum(
+_TEST_CASES: list[dict[str, typing.Any]] = sum(
     [
         test_rsa.PARAMS_TEST_CASES,
         test_ed25519.PARAMS_TEST_CASES,
