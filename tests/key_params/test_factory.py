@@ -1,13 +1,9 @@
-from openssh_key.key_params import (
-    create_public_key_params,
-    create_private_key_params,
-    RSAPublicKeyParams,
-    RSAPrivateKeyParams,
-    Ed25519PublicKeyParams,
-    Ed25519PrivateKeyParams,
-    DSSPublicKeyParams,
-    DSSPrivateKeyParams
-)
+from openssh_key.key_params import (DSSPrivateKeyParams, DSSPublicKeyParams,
+                                    Ed25519PrivateKeyParams,
+                                    Ed25519PublicKeyParams,
+                                    RSAPrivateKeyParams, RSAPublicKeyParams,
+                                    create_private_key_params,
+                                    create_public_key_params)
 
 
 def test_factory_rsa_public():

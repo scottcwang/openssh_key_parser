@@ -10,13 +10,10 @@ import typing
 
 import bcrypt
 
-from openssh_key.pascal_style_byte_stream import (
-    PascalStyleFormatInstruction,
-    FormatInstructionsDict,
-    ValuesDict
-)
 from openssh_key import utils
-
+from openssh_key.pascal_style_byte_stream import (FormatInstructionsDict,
+                                                  PascalStyleFormatInstruction,
+                                                  ValuesDict)
 
 KDFTypeVar = typing.TypeVar(
     'KDFTypeVar',

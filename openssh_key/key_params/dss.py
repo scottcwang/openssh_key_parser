@@ -2,19 +2,12 @@ import types
 import typing
 
 from cryptography.hazmat.primitives.asymmetric import dsa
-
-from openssh_key.pascal_style_byte_stream import (
-    PascalStyleFormatInstruction,
-    FormatInstructionsDict,
-    ValuesDict
-)
 from openssh_key import utils
+from openssh_key.pascal_style_byte_stream import (FormatInstructionsDict,
+                                                  PascalStyleFormatInstruction,
+                                                  ValuesDict)
 
-from .common import (
-    PublicKeyParams,
-    PrivateKeyParams,
-    ConversionFunctions
-)
+from .common import ConversionFunctions, PrivateKeyParams, PublicKeyParams
 
 
 class DSSPublicKeyParams(PublicKeyParams):

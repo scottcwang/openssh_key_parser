@@ -1,16 +1,8 @@
-import pytest
 import bcrypt
-
-from openssh_key.kdf import (
-    create_kdf,
-    NoneKDF,
-    BcryptKDF,
-    KDFResult
-)
-from openssh_key.pascal_style_byte_stream import (
-    PascalStyleFormatInstruction,
-    PascalStyleByteStream
-)
+import pytest
+from openssh_key.kdf import BcryptKDF, KDFResult, NoneKDF, create_kdf
+from openssh_key.pascal_style_byte_stream import (PascalStyleByteStream,
+                                                  PascalStyleFormatInstruction)
 
 
 def test_factory_none():

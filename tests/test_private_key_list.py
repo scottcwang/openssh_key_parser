@@ -1,43 +1,26 @@
-import warnings
-import secrets
-import getpass
 import base64
+import getpass
+import secrets
+import warnings
 
 import pytest
-
-from openssh_key.key import (
-    PublicKey,
-    PrivateKey
-)
-from openssh_key.private_key_list import (
-    PublicPrivateKeyPair,
-    PrivateKeyList
-)
-from openssh_key.pascal_style_byte_stream import (
-    PascalStyleByteStream,
-    PascalStyleFormatInstruction
-)
-from openssh_key.key_params import (
-    Ed25519PublicKeyParams,
-    create_public_key_params,
-    create_private_key_params
-)
-from openssh_key.kdf import create_kdf
 from openssh_key.cipher import create_cipher
+from openssh_key.kdf import create_kdf
+from openssh_key.key import PrivateKey, PublicKey
+from openssh_key.key_params import (Ed25519PublicKeyParams,
+                                    create_private_key_params,
+                                    create_public_key_params)
+from openssh_key.pascal_style_byte_stream import (PascalStyleByteStream,
+                                                  PascalStyleFormatInstruction)
+from openssh_key.private_key_list import PrivateKeyList, PublicPrivateKeyPair
 
-from tests.test_key import (
-    correct_public_key_bytes_ed25519,
-    correct_private_key_bytes_ed25519,
-    correct_public_key_bytes_rsa,
-    correct_private_key_bytes_rsa,
-    ED25519_TEST_HEADER,
-    ED25519_TEST_PUBLIC,
-    ED25519_TEST_PRIVATE,
-    PRIVATE_TEST_FOOTER,
-    RSA_TEST_HEADER,
-    RSA_TEST_PUBLIC,
-    RSA_TEST_PRIVATE
-)
+from tests.test_key import (ED25519_TEST_HEADER, ED25519_TEST_PRIVATE,
+                            ED25519_TEST_PUBLIC, PRIVATE_TEST_FOOTER,
+                            RSA_TEST_HEADER, RSA_TEST_PRIVATE, RSA_TEST_PUBLIC,
+                            correct_private_key_bytes_ed25519,
+                            correct_private_key_bytes_rsa,
+                            correct_public_key_bytes_ed25519,
+                            correct_public_key_bytes_rsa)
 
 
 def test_private_key_list_header_format_instructions_dict():

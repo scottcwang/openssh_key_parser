@@ -7,13 +7,10 @@ import abc
 import typing
 
 from cryptography.hazmat.primitives import ciphers
-from cryptography.hazmat.primitives.ciphers import algorithms
-from cryptography.hazmat.primitives.ciphers import modes
+from cryptography.hazmat.primitives.ciphers import algorithms, modes
 
-from openssh_key.kdf import (
-    KDFResult
-)
 from openssh_key import utils
+from openssh_key.kdf import KDFResult
 
 
 class Cipher(abc.ABC):

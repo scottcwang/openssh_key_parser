@@ -1,4 +1,4 @@
-from openssh_key.cipher import create_cipher, NoneCipher, AES256_CTRCipher
+from openssh_key.cipher import AES256_CTRCipher, NoneCipher, create_cipher
 from openssh_key.kdf import KDFResult
 
 

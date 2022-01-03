@@ -1,29 +1,15 @@
 import typing
 
-from .common import (
-    PublicKeyParams,
-    PrivateKeyParams
-)
-from .rsa import (
-    RSAPublicKeyParams,
-    RSAPrivateKeyParams
-)
-from .ed25519 import (
-    Ed25519PublicKeyParams,
-    Ed25519PrivateKeyParams
-)
-from .dss import (
-    DSSPublicKeyParams,
-    DSSPrivateKeyParams
-)
-from .ecdsa import (
-    ECDSA_NISTP256_PublicKeyParams,
-    ECDSA_NISTP256_PrivateKeyParams,
-    ECDSA_NISTP384_PublicKeyParams,
-    ECDSA_NISTP384_PrivateKeyParams,
-    ECDSA_NISTP521_PublicKeyParams,
-    ECDSA_NISTP521_PrivateKeyParams
-)
+from .common import PrivateKeyParams, PublicKeyParams
+from .dss import DSSPrivateKeyParams, DSSPublicKeyParams
+from .ecdsa import (ECDSA_NISTP256_PrivateKeyParams,
+                    ECDSA_NISTP256_PublicKeyParams,
+                    ECDSA_NISTP384_PrivateKeyParams,
+                    ECDSA_NISTP384_PublicKeyParams,
+                    ECDSA_NISTP521_PrivateKeyParams,
+                    ECDSA_NISTP521_PublicKeyParams)
+from .ed25519 import Ed25519PrivateKeyParams, Ed25519PublicKeyParams
+from .rsa import RSAPrivateKeyParams, RSAPublicKeyParams
 
 
 class PublicPrivateKeyParamsClasses(typing.NamedTuple):

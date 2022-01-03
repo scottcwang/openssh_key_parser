@@ -3,31 +3,22 @@ private keys, as well as the metadata needed to encrypt and decrypt private
 bytes.
 """
 
+import base64
 import collections
-import types
-import warnings
 import getpass
 import secrets
-import base64
+import types
 import typing
+import warnings
 
-from openssh_key.key import (
-    PublicKey,
-    PrivateKey
-)
-from openssh_key.pascal_style_byte_stream import (
-    PascalStyleFormatInstruction,
-    PascalStyleByteStream,
-    FormatInstructionsDict,
-    ValuesDict
-)
-from openssh_key.kdf import (
-    create_kdf,
-    NoneKDF,
-    KDFOptions
-)
-from openssh_key.cipher import create_cipher
 from openssh_key import utils
+from openssh_key.cipher import create_cipher
+from openssh_key.kdf import KDFOptions, NoneKDF, create_kdf
+from openssh_key.key import PrivateKey, PublicKey
+from openssh_key.pascal_style_byte_stream import (FormatInstructionsDict,
+                                                  PascalStyleByteStream,
+                                                  PascalStyleFormatInstruction,
+                                                  ValuesDict)
 
 
 class PublicPrivateKeyPair(typing.NamedTuple):

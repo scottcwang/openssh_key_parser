@@ -2,12 +2,12 @@
 
 if __name__ == "__main__":
     import argparse
-    import warnings
     import json
     import typing
+    import warnings
 
-    from openssh_key.private_key_list import PrivateKeyList
     from openssh_key.key import PublicKey
+    from openssh_key.private_key_list import PrivateKeyList
 
     JSON_INDENT = 4
 

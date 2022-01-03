@@ -1,13 +1,7 @@
 import pytest
-
 from cryptography.hazmat.primitives.asymmetric import rsa
-
-from openssh_key.key_params import (
-    RSAPrivateKeyParams,
-    RSAPublicKeyParams
-)
+from openssh_key.key_params import RSAPrivateKeyParams, RSAPublicKeyParams
 from openssh_key.pascal_style_byte_stream import PascalStyleFormatInstruction
-
 
 PARAMS_TEST_CASES = [
     {

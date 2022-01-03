@@ -4,23 +4,14 @@ import typing
 import warnings
 
 from cryptography.hazmat.primitives.asymmetric import ec
-from cryptography.hazmat.primitives.serialization import Encoding
-from cryptography.hazmat.primitives.serialization import PublicFormat
+from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 from cryptography.x509.oid import ObjectIdentifier
-
 from openssh_key import utils
+from openssh_key.pascal_style_byte_stream import (FormatInstructionsDict,
+                                                  PascalStyleFormatInstruction,
+                                                  ValuesDict)
 
-from openssh_key.pascal_style_byte_stream import (
-    PascalStyleFormatInstruction,
-    FormatInstructionsDict,
-    ValuesDict
-)
-
-from .common import (
-    PublicKeyParams,
-    PrivateKeyParams,
-    ConversionFunctions
-)
+from .common import ConversionFunctions, PrivateKeyParams, PublicKeyParams
 
 
 class ECDSAPublicKeyParams(PublicKeyParams, abc.ABC):

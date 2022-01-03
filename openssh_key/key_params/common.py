@@ -2,18 +2,15 @@
 cryptosystems.
 """
 
-import collections
 import abc
+import collections
 import types
 import typing
 
-from openssh_key.pascal_style_byte_stream import (
-    PascalStyleByteStream,
-    FormatInstructionsDict,
-    ValuesDict
-)
 from openssh_key import utils
-
+from openssh_key.pascal_style_byte_stream import (FormatInstructionsDict,
+                                                  PascalStyleByteStream,
+                                                  ValuesDict)
 
 PublicKeyParamsTypeVar = typing.TypeVar(
     'PublicKeyParamsTypeVar',

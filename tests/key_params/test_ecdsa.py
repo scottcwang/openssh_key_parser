@@ -1,21 +1,15 @@
 import pytest
-
 from cryptography.hazmat.primitives.asymmetric import ec
-from cryptography.hazmat.primitives.serialization import Encoding
-from cryptography.hazmat.primitives.serialization import PublicFormat
-
-from openssh_key.key_params import (
-    ECDSAPublicKeyParams,
-    ECDSAPrivateKeyParams,
-    ECDSA_NISTP256_PrivateKeyParams,
-    ECDSA_NISTP256_PublicKeyParams,
-    ECDSA_NISTP384_PrivateKeyParams,
-    ECDSA_NISTP384_PublicKeyParams,
-    ECDSA_NISTP521_PrivateKeyParams,
-    ECDSA_NISTP521_PublicKeyParams
-)
+from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
+from openssh_key.key_params import (ECDSA_NISTP256_PrivateKeyParams,
+                                    ECDSA_NISTP256_PublicKeyParams,
+                                    ECDSA_NISTP384_PrivateKeyParams,
+                                    ECDSA_NISTP384_PublicKeyParams,
+                                    ECDSA_NISTP521_PrivateKeyParams,
+                                    ECDSA_NISTP521_PublicKeyParams,
+                                    ECDSAPrivateKeyParams,
+                                    ECDSAPublicKeyParams)
 from openssh_key.pascal_style_byte_stream import PascalStyleFormatInstruction
-
 
 nistp256_key = ec.generate_private_key(ec.SECP256R1())
 

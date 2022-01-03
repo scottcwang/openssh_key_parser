@@ -5,8 +5,8 @@ or variable-size.
 import enum
 import io
 import struct
-import warnings
 import typing
+import warnings
 
 from openssh_key import utils
 

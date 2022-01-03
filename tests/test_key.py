@@ -1,21 +1,12 @@
 import base64
 
 import pytest
-
-from openssh_key.pascal_style_byte_stream import (
-    PascalStyleByteStream,
-    PascalStyleFormatInstruction
-)
-from openssh_key.key_params import (
-    Ed25519PublicKeyParams,
-    Ed25519PrivateKeyParams,
-    RSAPublicKeyParams,
-    RSAPrivateKeyParams
-)
-from openssh_key.key import (
-    PublicKey,
-    PrivateKey
-)
+from openssh_key.key import PrivateKey, PublicKey
+from openssh_key.key_params import (Ed25519PrivateKeyParams,
+                                    Ed25519PublicKeyParams,
+                                    RSAPrivateKeyParams, RSAPublicKeyParams)
+from openssh_key.pascal_style_byte_stream import (PascalStyleByteStream,
+                                                  PascalStyleFormatInstruction)
 
 
 def test_public_key_header_format_instructions_dict():

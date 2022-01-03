@@ -1,12 +1,9 @@
 import secrets
 
 import pytest
-
-from openssh_key.key_params import (
-    RSAPrivateKeyParams,
-    Ed25519PublicKeyParams,
-    Ed25519PrivateKeyParams,
-)
+from openssh_key.key_params import (Ed25519PrivateKeyParams,
+                                    Ed25519PublicKeyParams,
+                                    RSAPrivateKeyParams)
 
 
 def test_str():

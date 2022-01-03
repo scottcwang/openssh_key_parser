@@ -2,27 +2,21 @@
 :any:`PublicKeyParams` objects.
 """
 
-import warnings
-import base64
-import typing
-import types
 import abc
+import base64
+import types
+import typing
+import warnings
 
-from openssh_key.pascal_style_byte_stream import (
-    PascalStyleFormatInstruction,
-    PascalStyleByteStream,
-    FormatInstructionsDict,
-    ValuesDict
-)
-from openssh_key.key_params import (
-    create_public_key_params,
-    PublicKeyParams,
-    PublicKeyParamsTypeVar,
-    create_private_key_params,
-    PrivateKeyParams
-)
 from openssh_key import utils
-
+from openssh_key.key_params import (PrivateKeyParams, PublicKeyParams,
+                                    PublicKeyParamsTypeVar,
+                                    create_private_key_params,
+                                    create_public_key_params)
+from openssh_key.pascal_style_byte_stream import (FormatInstructionsDict,
+                                                  PascalStyleByteStream,
+                                                  PascalStyleFormatInstruction,
+                                                  ValuesDict)
 
 KeyTypeVar = typing.TypeVar(
     'KeyTypeVar',

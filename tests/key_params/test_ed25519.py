@@ -1,16 +1,12 @@
-import pytest
 import secrets
 import sys
 
-from cryptography.hazmat.primitives.asymmetric import ed25519
-from cryptography.hazmat.primitives import serialization
-
 import nacl.signing
-
-from openssh_key.key_params import (
-    Ed25519PrivateKeyParams,
-    Ed25519PublicKeyParams
-)
+import pytest
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import ed25519
+from openssh_key.key_params import (Ed25519PrivateKeyParams,
+                                    Ed25519PublicKeyParams)
 from openssh_key.pascal_style_byte_stream import PascalStyleFormatInstruction
 
 test_cases_public_bytes = secrets.token_bytes(Ed25519PublicKeyParams.KEY_SIZE)
