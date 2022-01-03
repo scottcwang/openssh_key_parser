@@ -45,7 +45,7 @@ class Ed25519PublicKeyParams(PublicKeyParams):
     def get_key_size() -> int:
         return 32
 
-    KEY_SIZE = utils.readonly_static_property('get_key_size')
+    KEY_SIZE = utils.readonly_static_property(get_key_size)
 
     def check_params_are_valid(self) -> None:
         """Checks whether the values within this parameters object conform to

@@ -9,15 +9,28 @@ def is_abstract(cls: typing.Type[typing.Any]) -> bool:
         and len(cls.__abstractmethods__) != 0
 
 
-class readonly_static_property():
-    def __init__(self, getter_name: str) -> None:
-        self._getter_name = getter_name
+ReadonlyStaticPropertyTypeVar = typing.TypeVar(
+    'ReadonlyStaticPropertyTypeVar'
+)
+
+
+class readonly_static_property(
+    typing.Generic[ReadonlyStaticPropertyTypeVar]
+):
+    def __init__(
+        self,
+        getter: typing.Callable[[], ReadonlyStaticPropertyTypeVar]
+    ) -> None:
+        self._getter = getter
 
     def __get__(
         self,
         obj: typing.Any,
         cls: typing.Optional[typing.Type[typing.Any]]=None
-    ) -> typing.Any:
+    ) -> ReadonlyStaticPropertyTypeVar:
         if cls is None:
             cls = type(obj)
-        return getattr(cls, self._getter_name)()
+        return typing.cast(
+            ReadonlyStaticPropertyTypeVar,
+            getattr(cls, self._getter.__name__)()
+        )

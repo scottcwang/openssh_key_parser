@@ -142,7 +142,7 @@ class PublicKeyParams(BaseDict, abc.ABC):
         )
 
     FORMAT_INSTRUCTIONS_DICT = utils.readonly_static_property(
-        'get_format_instructions_dict'
+        get_format_instructions_dict
     )
     """The Pascal-style byte stream format instructions for the parameters
     of a key of this type.

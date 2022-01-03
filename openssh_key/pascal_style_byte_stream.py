@@ -71,7 +71,7 @@ class PascalStyleByteStream(io.BytesIO):
         return 4
 
     OPENSSH_DEFAULT_STRING_LENGTH_SIZE = utils.readonly_static_property(
-        'get_openssh_default_string_length_size'
+        get_openssh_default_string_length_size
     )
 
     def read_from_format_instruction(

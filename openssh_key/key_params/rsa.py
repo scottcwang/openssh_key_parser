@@ -138,13 +138,13 @@ class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
     def get_public_exponent() -> int:
         return 65537
 
-    PUBLIC_EXPONENT = utils.readonly_static_property('get_public_exponent')
+    PUBLIC_EXPONENT = utils.readonly_static_property(get_public_exponent)
 
     @staticmethod
     def get_key_size() -> int:
         return 4096
     
-    KEY_SIZE = utils.readonly_static_property('get_key_size')
+    KEY_SIZE = utils.readonly_static_property(get_key_size)
 
     @classmethod
     def generate_private_params(

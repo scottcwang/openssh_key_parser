@@ -65,7 +65,9 @@ class Cipher(abc.ABC):
         """
         return 0
 
-    BLOCK_SIZE = utils.readonly_static_property('get_block_size')
+    BLOCK_SIZE = utils.readonly_static_property(get_block_size)
+    """The block size for this cipher.
+    """
 
 
 class NoneCipher(Cipher):

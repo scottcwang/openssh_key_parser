@@ -100,7 +100,7 @@ class PrivateKeyList(BaseList):
         )
 
     HEADER_FORMAT_INSTRUCTIONS_DICT = utils.readonly_static_property(
-        'get_header_format_instructions_dict'
+        get_header_format_instructions_dict
     )
     """The Pascal-style byte stream format instructions for the encoded
     header of the key list.
@@ -123,7 +123,7 @@ class PrivateKeyList(BaseList):
         )
 
     DECIPHER_BYTES_HEADER_FORMAT_INSTRUCTIONS_DICT = utils.readonly_static_property(
-        'get_decipher_bytes_header_format_instructions_dict'
+        get_decipher_bytes_header_format_instructions_dict
     )
     """The Pascal-style byte stream format instructions for the header of
     the decrypted private byte string.
@@ -292,7 +292,7 @@ class PrivateKeyList(BaseList):
         return '-----BEGIN OPENSSH PRIVATE KEY-----'
 
     OPENSSH_PRIVATE_KEY_HEADER = utils.readonly_static_property(
-        'get_openssh_private_key_header'
+        get_openssh_private_key_header
     )
 
     @staticmethod
@@ -300,14 +300,14 @@ class PrivateKeyList(BaseList):
         return '-----END OPENSSH PRIVATE KEY-----'
 
     OPENSSH_PRIVATE_KEY_FOOTER = utils.readonly_static_property(
-        'get_openssh_private_key_footer'
+        get_openssh_private_key_footer
     )
 
     @staticmethod
     def get_wrap_col() -> int:
         return 70
 
-    WRAP_COL = utils.readonly_static_property('get_wrap_col')
+    WRAP_COL = utils.readonly_static_property(get_wrap_col)
 
     @classmethod
     def from_string(

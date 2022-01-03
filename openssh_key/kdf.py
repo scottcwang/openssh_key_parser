@@ -74,7 +74,7 @@ class KDF(abc.ABC):
         )
 
     OPTIONS_FORMAT_INSTRUCTIONS_DICT = utils.readonly_static_property(
-        'get_options_format_instructions_dict'
+        get_options_format_instructions_dict
     )
     """The Pascal-style byte stream format instructions for the parameters
     to a key derivation function.
@@ -158,25 +158,25 @@ class BcryptKDF(KDF):
     def get_key_length() -> int:
         return 32
 
-    KEY_LENGTH = utils.readonly_static_property('get_key_length')
+    KEY_LENGTH = utils.readonly_static_property(get_key_length)
 
     @staticmethod
     def get_iv_length() -> int:
         return 16
 
-    IV_LENGTH = utils.readonly_static_property('get_iv_length')
+    IV_LENGTH = utils.readonly_static_property(get_iv_length)
 
     @staticmethod
     def get_salt_length() -> int:
         return 16
 
-    SALT_LENGTH = utils.readonly_static_property('get_salt_length')
+    SALT_LENGTH = utils.readonly_static_property(get_salt_length)
 
     @staticmethod
     def get_rounds() -> int:
         return 16
 
-    ROUNDS = utils.readonly_static_property('get_rounds')
+    ROUNDS = utils.readonly_static_property(get_rounds)
 
     @staticmethod
     def derive_key(options: KDFOptions, passphrase: str) -> KDFResult:
