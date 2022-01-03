@@ -8,6 +8,7 @@ import typing
 
 from cryptography.hazmat.primitives import ciphers
 from cryptography.hazmat.primitives.ciphers import algorithms, modes
+from cryptography.hazmat.primitives.ciphers.base import CipherContext
 
 from openssh_key import utils
 from openssh_key.kdf import KDFResult
@@ -148,7 +149,8 @@ class AES256_CTRCipher(Cipher):
             algorithms.AES(kdf_result.cipher_key),
             modes.CTR(kdf_result.initialization_vector)
         )
-        encryptor = cipher.encryptor()
+        # https://github.com/pyca/cryptography/issues/6083
+        encryptor: CipherContext = cipher.encryptor()  # type: ignore[no-untyped-call]
         return encryptor.update(plain_bytes) + encryptor.finalize()
 
     @staticmethod
@@ -176,7 +178,7 @@ class AES256_CTRCipher(Cipher):
             algorithms.AES(kdf_result.cipher_key),
             modes.CTR(kdf_result.initialization_vector)
         )
-        decryptor = cipher.decryptor()
+        decryptor: CipherContext = cipher.decryptor()  # type: ignore[no-untyped-call]
         return decryptor.update(cipher_bytes) + decryptor.finalize()
 
     @staticmethod
