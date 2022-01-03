@@ -230,7 +230,10 @@ class ECDSAPrivateKeyParams(PrivateKeyParams, ECDSAPublicKeyParams):
     def generate_private_params(
         cls: typing.Type[ECDSAPrivateKeyParamsTypeVar],
         **kwargs: typing.Any
-    ) -> ECDSAPrivateKeyParamsTypeVar:
+    ) -> typing.Union[
+        ECDSAPrivateKeyParamsTypeVar,
+        'ECDSA_NISTP256_PrivateKeyParams'
+    ]:
         """Constructs and initializes a ECDSA private key parameters object
         with generated values. If called on the ``ECDSAPrivateKeyParams``
         class, delegates to ``ECDSA_NISTP256_PrivateKeyParams``.
