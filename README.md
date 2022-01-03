@@ -167,7 +167,7 @@ The package provides a full-coverage test suite and complete type annotations.
 $ git clone https://github.com/scottcwang/openssh_key_parser.git
 $ pip install .
 $ pip install -r requirements-dev.txt
-$ pytest --cov=openssh_key --pylint --mypy
+$ pytest
 ```
 
 ## Disclaimer

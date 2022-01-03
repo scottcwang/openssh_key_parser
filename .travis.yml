@@ -3,4 +3,4 @@ python:
   - "3.8"
 install: pip install -r requirements-dev.txt
 script:
-  - pytest --cov=openssh_key --pylint --mypy
+  - pytest

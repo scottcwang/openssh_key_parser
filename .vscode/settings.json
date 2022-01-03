@@ -1,9 +1,5 @@
 {
     "python.testing.pytestArgs": [
-        "--cov-report=html",
-        "--cov=openssh_key",
-        "--pylint",
-        "--mypy",
         "."
     ],
     "python.testing.unittestEnabled": false,
