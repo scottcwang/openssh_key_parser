@@ -19,14 +19,17 @@ class readonly_static_property(
 ):
     def __init__(
         self,
-        getter: typing.Callable[[], ReadonlyStaticPropertyTypeVar]
+        getter: typing.Union[
+            typing.Callable[[], ReadonlyStaticPropertyTypeVar],
+            typing.Callable[[typing.Type[typing.Any]], ReadonlyStaticPropertyTypeVar]
+        ]
     ) -> None:
         self._getter = getter
 
     def __get__(
         self,
         obj: typing.Any,
-        cls: typing.Optional[typing.Type[typing.Any]]=None
+        cls: typing.Optional[typing.Type[typing.Any]] = None
     ) -> ReadonlyStaticPropertyTypeVar:
         if cls is None:
             cls = type(obj)

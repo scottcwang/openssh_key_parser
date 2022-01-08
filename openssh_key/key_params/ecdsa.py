@@ -42,8 +42,8 @@ class ECDSAPublicKeyParams(PublicKeyParams, abc.ABC):
         'q': PascalStyleFormatInstruction.BYTES,
     }
 
-    @staticmethod
-    def get_format_instructions_dict() -> FormatInstructionsDict:
+    @classmethod
+    def get_format_instructions_dict(cls) -> FormatInstructionsDict:
         return types.MappingProxyType(
             ECDSAPublicKeyParams.__FORMAT_INSTRUCTIONS_DICT
         )
@@ -223,8 +223,8 @@ class ECDSAPrivateKeyParams(PrivateKeyParams, ECDSAPublicKeyParams):
         'd': PascalStyleFormatInstruction.MPINT,
     }
 
-    @staticmethod
-    def get_format_instructions_dict() -> FormatInstructionsDict:
+    @classmethod
+    def get_format_instructions_dict(cls) -> FormatInstructionsDict:
         return types.MappingProxyType(
             ECDSAPrivateKeyParams.__FORMAT_INSTRUCTIONS_DICT
         )

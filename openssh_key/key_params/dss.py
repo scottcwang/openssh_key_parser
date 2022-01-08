@@ -43,8 +43,8 @@ class DSSPublicKeyParams(PublicKeyParams):
         'y': PascalStyleFormatInstruction.MPINT,
     }
 
-    @staticmethod
-    def get_format_instructions_dict() -> FormatInstructionsDict:
+    @classmethod
+    def get_format_instructions_dict(cls) -> FormatInstructionsDict:
         return types.MappingProxyType(
             DSSPublicKeyParams.__FORMAT_INSTRUCTIONS_DICT
         )
@@ -139,8 +139,8 @@ class DSSPrivateKeyParams(PrivateKeyParams, DSSPublicKeyParams):
         'x': PascalStyleFormatInstruction.MPINT,
     }
 
-    @staticmethod
-    def get_format_instructions_dict() -> FormatInstructionsDict:
+    @classmethod
+    def get_format_instructions_dict(cls) -> FormatInstructionsDict:
         return types.MappingProxyType(
             DSSPrivateKeyParams.__FORMAT_INSTRUCTIONS_DICT
         )

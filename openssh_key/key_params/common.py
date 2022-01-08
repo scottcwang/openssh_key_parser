@@ -131,9 +131,9 @@ class PublicKeyParams(BaseDict, abc.ABC):
 
     __FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[FormatInstructionsDict] = {}
 
-    @staticmethod
+    @classmethod
     @abc.abstractmethod
-    def get_format_instructions_dict() -> FormatInstructionsDict:
+    def get_format_instructions_dict(cls) -> FormatInstructionsDict:
         """The Pascal-style byte stream format instructions for the parameters
         of a key of this type.
         """

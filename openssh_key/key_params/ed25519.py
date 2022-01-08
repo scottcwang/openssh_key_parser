@@ -35,8 +35,8 @@ class Ed25519PublicKeyParams(PublicKeyParams):
         'public': PascalStyleFormatInstruction.BYTES
     }
 
-    @staticmethod
-    def get_format_instructions_dict() -> FormatInstructionsDict:
+    @classmethod
+    def get_format_instructions_dict(cls) -> FormatInstructionsDict:
         return types.MappingProxyType(
             Ed25519PublicKeyParams.__FORMAT_INSTRUCTIONS_DICT
         )
@@ -186,8 +186,8 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
         'private_public': PascalStyleFormatInstruction.BYTES
     }
 
-    @staticmethod
-    def get_format_instructions_dict() -> FormatInstructionsDict:
+    @classmethod
+    def get_format_instructions_dict(cls) -> FormatInstructionsDict:
         return types.MappingProxyType(
             Ed25519PrivateKeyParams.__FORMAT_INSTRUCTIONS_DICT
         )
