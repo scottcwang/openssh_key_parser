@@ -166,79 +166,123 @@ PARAMS_TEST_CASES = [
 ]
 
 
+_ECDSA_CURVES = [
+    {
+        'public_cls': ECDSA_NISTP256_PublicKeyParams,
+        'private_cls': ECDSA_NISTP256_PrivateKeyParams,
+        'cryptography_curve_type': ec.SECP256R1,
+        'identifier': 'nistp256',
+    },
+    {
+        'public_cls': ECDSA_NISTP384_PublicKeyParams,
+        'private_cls': ECDSA_NISTP384_PrivateKeyParams,
+        'cryptography_curve_type': ec.SECP384R1,
+        'identifier': 'nistp384',
+    },
+    {
+        'public_cls': ECDSA_NISTP521_PublicKeyParams,
+        'private_cls': ECDSA_NISTP521_PrivateKeyParams,
+        'cryptography_curve_type': ec.SECP521R1,
+        'identifier': 'nistp521',
+    },
+]
+
+
 def test_ecdsa_public_convert_from_unknown():
     with pytest.raises(NotImplementedError):
         ECDSAPublicKeyParams.convert_from('random')
 
 
-def test_ecdsa_public_convert_from_cryptography_public():
-    ecdsa_key_object = ec.generate_private_key(ec.SECP256R1()).public_key()
+@pytest.mark.parametrize('ecdsa_curve', _ECDSA_CURVES)
+def test_ecdsa_public_convert_from_cryptography_public(ecdsa_curve):
+    ecdsa_key_object = ec.generate_private_key(
+        ecdsa_curve['cryptography_curve_type']()
+    ).public_key()
     converted = ECDSAPublicKeyParams.convert_from(ecdsa_key_object)
-    assert type(converted) == ECDSA_NISTP256_PublicKeyParams
+    assert type(converted) == ecdsa_curve['public_cls']
     assert converted == {
-        'identifier': 'nistp256',
+        'identifier': ecdsa_curve['identifier'],
         'q': ecdsa_key_object.public_bytes(
             Encoding.X962, PublicFormat.UncompressedPoint
         ),
     }
 
 
-def test_ecdsa_public_convert_from_cryptography_private():
-    ecdsa_key_object = ec.generate_private_key(ec.SECP256R1())
+@pytest.mark.parametrize('ecdsa_curve', _ECDSA_CURVES)
+def test_ecdsa_public_convert_from_cryptography_private(ecdsa_curve):
+    ecdsa_key_object = ec.generate_private_key(
+        ecdsa_curve['cryptography_curve_type']()
+    )
     converted = ECDSAPublicKeyParams.convert_from(ecdsa_key_object)
-    assert type(converted) == ECDSA_NISTP256_PublicKeyParams
+    assert type(converted) == ecdsa_curve['public_cls']
     assert converted == {
-        'identifier': 'nistp256',
+        'identifier': ecdsa_curve['identifier'],
         'q': ecdsa_key_object.public_key().public_bytes(
             Encoding.X962, PublicFormat.UncompressedPoint
         ),
     }
 
 
-def test_ecdsa_public_convert_from_cryptography_public_different_curve():
-    ecdsa_key_object = ec.generate_private_key(ec.SECP256R1()).public_key()
-    with pytest.raises(NotImplementedError):
-        ECDSA_NISTP384_PublicKeyParams.convert_from(ecdsa_key_object)
+@pytest.mark.parametrize('ecdsa_curve', _ECDSA_CURVES)
+def test_ecdsa_public_convert_from_cryptography_public_different_curve(
+    ecdsa_curve
+):
+    for other_ecdsa_curve in _ECDSA_CURVES:
+        if other_ecdsa_curve == ecdsa_curve:
+            continue
+        ecdsa_key_object = ec.generate_private_key(
+            other_ecdsa_curve['cryptography_curve_type']()
+        ).public_key()
+        with pytest.raises(NotImplementedError):
+            ecdsa_curve['public_cls'].convert_from(ecdsa_key_object)
 
 
-def test_ecdsa_public_convert_to_cryptography_public():
-    ecdsa_private = ECDSAPrivateKeyParams.generate_private_params()
-    ecdsa_public = ECDSA_NISTP256_PublicKeyParams({
-        'identifier': ecdsa_private['identifier'],
+@pytest.mark.parametrize('ecdsa_curve', _ECDSA_CURVES)
+def test_ecdsa_public_convert_to_cryptography_public(ecdsa_curve):
+    ecdsa_private = ecdsa_curve['private_cls'].generate_private_params()
+    ecdsa_public = ecdsa_curve['public_cls']({
+        'identifier': ecdsa_curve['identifier'],
         'q': ecdsa_private['q']
     })
     converted = ecdsa_public.convert_to(ec.EllipticCurvePublicKey)
     assert isinstance(converted, ec.EllipticCurvePublicKey)
-    assert type(converted.curve) == ec.SECP256R1
+    assert type(converted.curve) == ecdsa_curve['cryptography_curve_type']
     assert converted.public_bytes(
         Encoding.X962, PublicFormat.UncompressedPoint
     ) == ecdsa_public['q']
 
 
-def test_ecdsa_public_convert_to_cryptography_public_bad_curve_identifier():
-    ecdsa_private = ECDSAPrivateKeyParams.generate_private_params()
-    with pytest.warns(UserWarning):
-        ecdsa_public = ECDSA_NISTP256_PublicKeyParams({
-            'identifier': 'nistp384',
-            'q': ecdsa_private['q']
-        })
-    with pytest.raises(
-        NotImplementedError,
-        match='The curve identifier encoded in the public key does not '
-                       'correspond to the key type'
-    ):
-        ecdsa_public.convert_to(ec.EllipticCurvePublicKey)
+@pytest.mark.parametrize('ecdsa_curve', _ECDSA_CURVES)
+def test_ecdsa_public_convert_to_cryptography_public_bad_curve_identifier(
+    ecdsa_curve
+):
+    for other_ecdsa_curve in _ECDSA_CURVES:
+        if other_ecdsa_curve == ecdsa_curve:
+            continue
+        ecdsa_private = ecdsa_curve['private_cls'].generate_private_params()
+        with pytest.warns(UserWarning):
+            ecdsa_public = ecdsa_curve['public_cls']({
+                'identifier': other_ecdsa_curve['identifier'],
+                'q': ecdsa_private['q']
+            })
+        with pytest.raises(
+            NotImplementedError,
+            match='The curve identifier encoded in the public key does not '
+            'correspond to the key type'
+        ):
+            ecdsa_public.convert_to(ec.EllipticCurvePublicKey)
 
 
-def test_ecdsa_public_convert_to_cryptography_public_base_class():
-    ecdsa_private = ECDSAPrivateKeyParams.generate_private_params()
-    ecdsa_public = ECDSA_NISTP256_PublicKeyParams({
+@pytest.mark.parametrize('ecdsa_curve', _ECDSA_CURVES)
+def test_ecdsa_public_convert_to_cryptography_public_base_class(ecdsa_curve):
+    ecdsa_private = ecdsa_curve['private_cls'].generate_private_params()
+    ecdsa_public = ecdsa_curve['public_cls']({
         'identifier': ecdsa_private['identifier'],
         'q': ecdsa_private['q']
     })
     converted = ecdsa_public.convert_to(ec.EllipticCurvePublicKey)
     assert isinstance(converted, ec.EllipticCurvePublicKey)
-    assert type(converted.curve) == ec.SECP256R1
+    assert type(converted.curve) == ecdsa_curve['cryptography_curve_type']
     assert converted.public_bytes(
         Encoding.X962, PublicFormat.UncompressedPoint
     ) == ecdsa_public['q']
@@ -251,17 +295,29 @@ def test_ecdsa_private_generate_private_params():
     assert type(ecdsa_private_params) == ECDSA_NISTP256_PrivateKeyParams
 
 
+@pytest.mark.parametrize('ecdsa_curve', _ECDSA_CURVES)
+def test_ecdsa_private_generate_private_params_specific_curve(ecdsa_curve):
+    with pytest.warns(None) as warnings_list:
+        ecdsa_private_params = ecdsa_curve['private_cls'].generate_private_params(
+        )
+    assert not warnings_list
+    assert type(ecdsa_private_params) == ecdsa_curve['private_cls']
+
+
 def test_ecdsa_private_convert_from_unknown():
     with pytest.raises(NotImplementedError):
         ECDSAPrivateKeyParams.convert_from('random')
 
 
-def test_ecdsa_private_convert_from_cryptography_private():
-    ecdsa_key_object = ec.generate_private_key(ec.SECP256R1())
+@pytest.mark.parametrize('ecdsa_curve', _ECDSA_CURVES)
+def test_ecdsa_private_convert_from_cryptography_private(ecdsa_curve):
+    ecdsa_key_object = ec.generate_private_key(
+        ecdsa_curve['cryptography_curve_type']()
+    )
     converted = ECDSAPrivateKeyParams.convert_from(ecdsa_key_object)
-    assert type(converted) == ECDSA_NISTP256_PrivateKeyParams
+    assert type(converted) == ecdsa_curve['private_cls']
     assert converted == {
-        'identifier': 'nistp256',
+        'identifier': ecdsa_curve['identifier'],
         'q': ecdsa_key_object.public_key().public_bytes(
             Encoding.X962, PublicFormat.UncompressedPoint
         ),
@@ -269,34 +325,45 @@ def test_ecdsa_private_convert_from_cryptography_private():
     }
 
 
-def test_ecdsa_private_convert_from_cryptography_private_different_curve():
-    ecdsa_key_object = ec.generate_private_key(ec.SECP256R1())
-    with pytest.raises(NotImplementedError):
-        ECDSA_NISTP384_PrivateKeyParams.convert_from(ecdsa_key_object)
+@pytest.mark.parametrize('ecdsa_curve', _ECDSA_CURVES)
+def test_ecdsa_private_convert_from_cryptography_private_different_curve(
+    ecdsa_curve
+):
+    for other_ecdsa_curve in _ECDSA_CURVES:
+        if other_ecdsa_curve == ecdsa_curve:
+            continue
+        ecdsa_key_object = ec.generate_private_key(
+            other_ecdsa_curve['cryptography_curve_type']
+        )
+        with pytest.raises(NotImplementedError):
+            ecdsa_curve['private_cls'].convert_from(ecdsa_key_object)
 
 
-def test_ecdsa_private_convert_to_cryptography_private():
-    ecdsa_private = ECDSAPrivateKeyParams.generate_private_params()
+@pytest.mark.parametrize('ecdsa_curve', _ECDSA_CURVES)
+def test_ecdsa_private_convert_to_cryptography_private(ecdsa_curve):
+    ecdsa_private = ecdsa_curve['private_cls'].generate_private_params()
     converted = ecdsa_private.convert_to(ec.EllipticCurvePrivateKey)
     assert isinstance(converted, ec.EllipticCurvePrivateKey)
-    assert type(converted.curve) == ec.SECP256R1
+    assert type(converted.curve) == ecdsa_curve['cryptography_curve_type']
     assert converted.public_key().public_bytes(
         Encoding.X962, PublicFormat.UncompressedPoint
     ) == ecdsa_private['q']
     assert converted.private_numbers().private_value == ecdsa_private['d']
 
 
-def test_ecdsa_private_convert_to_cryptography_public():
-    ecdsa_private = ECDSAPrivateKeyParams.generate_private_params()
+@pytest.mark.parametrize('ecdsa_curve', _ECDSA_CURVES)
+def test_ecdsa_private_convert_to_cryptography_public(ecdsa_curve):
+    ecdsa_private = ecdsa_curve['private_cls'].generate_private_params()
     converted = ecdsa_private.convert_to(ec.EllipticCurvePublicKey)
     assert isinstance(converted, ec.EllipticCurvePublicKey)
-    assert type(converted.curve) == ec.SECP256R1
+    assert type(converted.curve) == ecdsa_curve['cryptography_curve_type']
     assert converted.public_bytes(
         Encoding.X962, PublicFormat.UncompressedPoint
     ) == ecdsa_private['q']
 
 
-def test_ecdsa_public_convert_to_not_implemented():
-    ecdsa_private = ECDSAPrivateKeyParams.generate_private_params()
+@pytest.mark.parametrize('ecdsa_curve', _ECDSA_CURVES)
+def test_ecdsa_public_convert_to_not_implemented(ecdsa_curve):
+    ecdsa_private = ecdsa_curve['private_cls'].generate_private_params()
     with pytest.raises(NotImplementedError):
         assert ecdsa_private.convert_to(type)
