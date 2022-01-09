@@ -10,6 +10,10 @@ from .ecdsa import (ECDSA_NISTP256_PrivateKeyParams,
                     ECDSA_NISTP521_PublicKeyParams)
 from .ed25519 import Ed25519PrivateKeyParams, Ed25519PublicKeyParams
 from .rsa import RSAPrivateKeyParams, RSAPublicKeyParams
+from .sk import (SecurityKey_ECDSA_NISTP256_PrivateKeyParams,
+                 SecurityKey_ECDSA_NISTP256_PublicKeyParams,
+                 SecurityKey_Ed25519_PrivateKeyParams,
+                 SecurityKey_Ed25519_PublicKeyParams)
 
 
 class PublicPrivateKeyParamsClasses(typing.NamedTuple):
@@ -35,6 +39,14 @@ _KEY_TYPE_MAPPING = {
     ),
     'ssh-ecdsa-nistp521': PublicPrivateKeyParamsClasses(
         ECDSA_NISTP521_PublicKeyParams, ECDSA_NISTP521_PrivateKeyParams
+    ),
+    'sk-ecdsa-sha2-nistp256@openssh.com': PublicPrivateKeyParamsClasses(
+        SecurityKey_ECDSA_NISTP256_PublicKeyParams,
+        SecurityKey_ECDSA_NISTP256_PrivateKeyParams
+    ),
+    'sk-ssh-ed25519@openssh.com': PublicPrivateKeyParamsClasses(
+        SecurityKey_Ed25519_PublicKeyParams,
+        SecurityKey_Ed25519_PrivateKeyParams
     )
 }
 

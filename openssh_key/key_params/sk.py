@@ -1,0 +1,144 @@
+import abc
+import types
+import typing
+
+from openssh_key.pascal_style_byte_stream import (FormatInstructionsDict,
+                                                  PascalStyleFormatInstruction)
+
+from .common import PrivateKeyParams, PublicKeyParams
+from .ecdsa import ECDSA_NISTP256_PublicKeyParams
+from .ed25519 import Ed25519PublicKeyParams
+
+
+class SecurityKeyPublicKeyParams(
+    PublicKeyParams,
+    abc.ABC
+):
+    """
+    The parameters comprising a public key stored in a U2F/FIDO security key.
+    OpenSSH supports security keys presenting the following key types:
+
+    * `ECDSA_NISTP256_PublicKeyParams`
+    * `Ed25519PublicKeyParams`
+
+    The names and iteration order of parameters of a *public* security key is:
+
+    * The parameters of the public key.
+    * ``application``: User-specified, typically ``ssh:`` (:any:`str`).
+
+    Args:
+        params
+            The values with which to initialize this parameters object. All
+            given values are saved, even those that do not exist in the format
+            instructions for this key type.
+
+    Raises:
+        UserWarning: A parameter value from the above list is missing from
+            ``params`` or does not have the correct type.
+    """
+    @staticmethod
+    @abc.abstractmethod
+    def get_base_public_key_class() -> typing.Type[PublicKeyParams]:
+        return PublicKeyParams
+
+    __FORMAT_INSTRUCTIONS_DICT_SUFFIX: typing.ClassVar[FormatInstructionsDict] = {
+        'application': PascalStyleFormatInstruction.STRING,
+    }
+
+    @classmethod
+    def get_format_instructions_dict(cls) -> FormatInstructionsDict:
+        return types.MappingProxyType({
+            **cls.get_base_public_key_class().get_format_instructions_dict(),
+            **SecurityKeyPublicKeyParams.__FORMAT_INSTRUCTIONS_DICT_SUFFIX
+        })
+
+    def check_params_are_valid(self) -> None:
+        super().check_params_are_valid()
+        self.get_base_public_key_class().check_params_are_valid(self)
+
+
+SecurityKeyPrivateKeyParamsTypeVar = typing.TypeVar(
+    'SecurityKeyPrivateKeyParamsTypeVar',
+    bound='SecurityKeyPrivateKeyParams'
+)
+
+
+class SecurityKeyPrivateKeyParams(
+    PrivateKeyParams, SecurityKeyPublicKeyParams
+):
+    """
+    The parameters that represent the U2F/FIDO security key storing a private
+    key.
+
+    The names and iteration order of parameters of a *private* security key is:
+
+    * The parameters of the public key.
+    * ``application``: User-specified, typically ``ssh:`` (:any:`str`).
+    * ``flags``: Flags (one byte).
+    * ``key_handle``: The identifier of the private key on the security key
+      (:any:`str`).
+    * ``reserved``: Reserved by OpenSSH (:any:`str`).
+
+    Args:
+        params
+            The values with which to initialize this parameters object. All
+            given values are saved, even those that do not exist in the format
+            instructions for this key type.
+
+    Raises:
+        UserWarning: A parameter value from the above list is missing from
+            ``params`` or does not have the correct type.
+    """
+
+    __FORMAT_INSTRUCTIONS_DICT_SUFFIX: typing.ClassVar[FormatInstructionsDict] = {
+        'application': PascalStyleFormatInstruction.STRING,
+        'flags': '>B',
+        'key_handle': PascalStyleFormatInstruction.STRING,
+        'reserved': PascalStyleFormatInstruction.STRING,
+    }
+
+    @classmethod
+    def get_format_instructions_dict(cls) -> FormatInstructionsDict:
+        return types.MappingProxyType({
+            **cls.get_base_public_key_class().get_format_instructions_dict(),
+            **SecurityKeyPrivateKeyParams.__FORMAT_INSTRUCTIONS_DICT_SUFFIX
+        })
+
+    @classmethod
+    def generate_private_params(
+        cls: typing.Type[SecurityKeyPrivateKeyParamsTypeVar],
+        **kwargs: typing.Any
+    ) -> SecurityKeyPrivateKeyParamsTypeVar:
+        raise NotImplementedError()
+
+
+class SecurityKey_ECDSA_NISTP256_PublicKeyParams(
+    SecurityKeyPublicKeyParams,
+    ECDSA_NISTP256_PublicKeyParams
+):
+    @staticmethod
+    def get_base_public_key_class() -> typing.Type[PublicKeyParams]:
+        return ECDSA_NISTP256_PublicKeyParams
+
+
+class SecurityKey_ECDSA_NISTP256_PrivateKeyParams(
+    SecurityKeyPrivateKeyParams,
+    SecurityKey_ECDSA_NISTP256_PublicKeyParams
+):
+    pass
+
+
+class SecurityKey_Ed25519_PublicKeyParams(
+    SecurityKeyPublicKeyParams,
+    Ed25519PublicKeyParams
+):
+    @staticmethod
+    def get_base_public_key_class() -> typing.Type[PublicKeyParams]:
+        return Ed25519PublicKeyParams
+
+
+class SecurityKey_Ed25519_PrivateKeyParams(
+    SecurityKeyPrivateKeyParams,
+    SecurityKey_Ed25519_PublicKeyParams
+):
+    pass

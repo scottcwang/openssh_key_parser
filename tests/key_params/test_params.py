@@ -7,6 +7,7 @@ import test_dss
 import test_ecdsa
 import test_ed25519
 import test_rsa
+import test_sk
 
 _TEST_CASES: list[dict[str, typing.Any]] = sum(
     [
@@ -14,6 +15,7 @@ _TEST_CASES: list[dict[str, typing.Any]] = sum(
         test_ed25519.PARAMS_TEST_CASES,
         test_dss.PARAMS_TEST_CASES,
         test_ecdsa.PARAMS_TEST_CASES,
+        test_sk.PARAMS_TEST_CASES,
     ],
     []
 )
@@ -73,8 +75,8 @@ def test_bad_type_params_are_not_valid(key_params_test):
                     expected_warning_message = k + ' should be formatted as ' \
                         + expected_type
                 else:
-                expected_warning_message = k + ' should be of class ' \
-                    + expected_type.value.__name__
+                    expected_warning_message = k + ' should be of class ' \
+                        + expected_type.value.__name__
                 with pytest.warns(UserWarning, match=expected_warning_message):
                     key_params_object = key_params_test['cls'](mutated_value)
                 with pytest.warns(UserWarning, match=expected_warning_message):
