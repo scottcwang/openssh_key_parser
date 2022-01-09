@@ -168,7 +168,7 @@ class DSSPrivateKeyParams(PrivateKeyParams, DSSPublicKeyParams):
             a DSS private key (the key size is 128 bytes).
         """
 
-        private_key = dsa.generate_private_key(DSSPrivateKeyParams.KEY_SIZE)
+        private_key = dsa.generate_private_key(cls.KEY_SIZE)
 
         private_numbers = private_key.private_numbers()
         public_numbers = private_numbers.public_numbers
