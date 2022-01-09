@@ -67,6 +67,12 @@ def test_bad_type_params_are_not_valid(key_params_test):
                     continue
                 mutated_value = dict(valid_value)
                 mutated_value[k] = (mutated_type.value)()
+                if isinstance(expected_type, str):
+                    if mutated_type == PascalStyleFormatInstruction.MPINT:
+                        continue
+                    expected_warning_message = k + ' should be formatted as ' \
+                        + expected_type
+                else:
                 expected_warning_message = k + ' should be of class ' \
                     + expected_type.value.__name__
                 with pytest.warns(UserWarning, match=expected_warning_message):
