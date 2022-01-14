@@ -6,7 +6,8 @@ from openssh_key.key_params.ed25519 import Ed25519PublicKeyParams
 from openssh_key.key_params.sk import (
     SecurityKey_ECDSA_NISTP256_PrivateKeyParams,
     SecurityKey_ECDSA_NISTP256_PublicKeyParams,
-    SecurityKey_Ed25519_PrivateKeyParams, SecurityKey_Ed25519_PublicKeyParams)
+    SecurityKey_Ed25519_PrivateKeyParams, SecurityKey_Ed25519_PublicKeyParams,
+    SecurityKeyPrivateKeyParams)
 from openssh_key.pascal_style_byte_stream import PascalStyleFormatInstruction
 
 nistp256_key = ec.generate_private_key(ec.SECP256R1())
@@ -110,3 +111,22 @@ PARAMS_TEST_CASES = [
         }]
     }
 ]
+
+
+def test_flag():
+    sk_private_key = SecurityKey_Ed25519_PrivateKeyParams({
+        'public': test_cases_public_bytes,
+        'application': 'ssh:',
+        'flags': 0,
+        'key_handle': 'aaaa',
+        'reserved': '',
+    })
+    for flag_indices in range(2 ** len(SecurityKeyPrivateKeyParams.Flag)):
+        flag_total_value = 0
+        for index, flag in enumerate(SecurityKeyPrivateKeyParams.Flag):
+            flag_new_value = flag_indices // (2 ** index) % 2 == 1
+            sk_private_key.set_flag(flag, flag_new_value)
+            if flag_new_value:
+                flag_total_value += flag.value
+            assert sk_private_key.get_flag(flag) == flag_new_value
+        assert sk_private_key['flags'] == flag_total_value

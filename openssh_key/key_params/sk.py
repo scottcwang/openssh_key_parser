@@ -1,4 +1,5 @@
 import abc
+import enum
 import types
 import typing
 
@@ -110,6 +111,48 @@ class SecurityKeyPrivateKeyParams(
         **kwargs: typing.Any
     ) -> SecurityKeyPrivateKeyParamsTypeVar:
         raise NotImplementedError()
+
+    class Flag(enum.Enum):
+        """
+        Security key flags supported by OpenSSH.
+        """
+
+        USER_PRESENCE_REQUIRED = 0x1
+        """
+        Whether the private key requires the user to touch it before
+        generating a signature (equivalent to executing ``ssh-keygen``
+        *without* ``-O no-touch-required``).
+        """
+
+        USER_VERIFCATION_REQUIRED = 0x4
+        """
+        Whether the private key requires user verification (equivalent to
+        executing ``ssh-keygen`` with ``-O verify-required``). Not all FIDO
+        authenticators support this option. OpenSSH presently supports only
+        PIN verification.
+        """
+
+        RESIDENT_KEY = 0x20
+        """
+        Whether the private key should be stored on the FIDO authenticator
+        (equivalent to executing ``ssh-keygen`` with ``-O resident``).
+        """
+
+    def get_flag(self, flag: Flag) -> bool:
+        """
+        Returns whether the supplied :any:`Flag` is set.
+        """
+        return typing.cast(int, self['flags'] & flag.value) != 0
+
+    def set_flag(self, flag: Flag, new_value: bool) -> None:
+        """
+        Sets the supplied :any:`Flag` to the given value.
+        """
+        current_value = self.get_flag(flag)
+        if new_value and not current_value:
+            self['flags'] += flag.value
+        elif not new_value and current_value:
+            self['flags'] -= flag.value
 
 
 class SecurityKey_ECDSA_NISTP256_PublicKeyParams(
