@@ -94,7 +94,7 @@ class SecurityKeyPrivateKeyParams(
     __FORMAT_INSTRUCTIONS_DICT_SUFFIX: typing.ClassVar[FormatInstructionsDict] = {
         'application': PascalStyleFormatInstruction.STRING,
         'flags': '>B',
-        'key_handle': PascalStyleFormatInstruction.STRING,
+        'key_handle': PascalStyleFormatInstruction.BYTES,
         'reserved': PascalStyleFormatInstruction.STRING,
     }
 

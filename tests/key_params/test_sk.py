@@ -59,7 +59,7 @@ PARAMS_TEST_CASES = [
             'q': PascalStyleFormatInstruction.BYTES,
             'application': PascalStyleFormatInstruction.STRING,
             'flags': '>B',
-            'key_handle': PascalStyleFormatInstruction.STRING,
+            'key_handle': PascalStyleFormatInstruction.BYTES,
             'reserved': PascalStyleFormatInstruction.STRING,
         },
         'valid_values': [{
@@ -69,7 +69,7 @@ PARAMS_TEST_CASES = [
             ),
             'application': 'ssh:',
             'flags': 0,
-            'key_handle': 'aaaa',
+            'key_handle': b'aaaa',
             'reserved': '',
         }],
     },
@@ -99,14 +99,14 @@ PARAMS_TEST_CASES = [
             'public': PascalStyleFormatInstruction.BYTES,
             'application': PascalStyleFormatInstruction.STRING,
             'flags': '>B',
-            'key_handle': PascalStyleFormatInstruction.STRING,
+            'key_handle': PascalStyleFormatInstruction.BYTES,
             'reserved': PascalStyleFormatInstruction.STRING,
         },
         'valid_values': [{
             'public': test_cases_public_bytes,
             'application': 'ssh:',
             'flags': 0,
-            'key_handle': 'aaaa',
+            'key_handle': b'aaaa',
             'reserved': '',
         }]
     }
