@@ -4,10 +4,10 @@ from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 from openssh_key.key_params.ed25519 import Ed25519PublicKeyParams
 from openssh_key.key_params.sk import (
+    SecurityKeyFlag,
     SecurityKey_ECDSA_NISTP256_PrivateKeyParams,
     SecurityKey_ECDSA_NISTP256_PublicKeyParams,
-    SecurityKey_Ed25519_PrivateKeyParams, SecurityKey_Ed25519_PublicKeyParams,
-    SecurityKeyPrivateKeyParams)
+    SecurityKey_Ed25519_PrivateKeyParams, SecurityKey_Ed25519_PublicKeyParams)
 from openssh_key.pascal_style_byte_stream import PascalStyleFormatInstruction
 
 nistp256_key = ec.generate_private_key(ec.SECP256R1())
@@ -121,9 +121,9 @@ def test_flag():
         'key_handle': 'aaaa',
         'reserved': '',
     })
-    for flag_indices in range(2 ** len(SecurityKeyPrivateKeyParams.Flag)):
+    for flag_indices in range(2 ** len(SecurityKeyFlag)):
         flag_total_value = 0
-        for index, flag in enumerate(SecurityKeyPrivateKeyParams.Flag):
+        for index, flag in enumerate(SecurityKeyFlag):
             flag_new_value = flag_indices // (2 ** index) % 2 == 1
             sk_private_key.set_flag(flag, flag_new_value)
             if flag_new_value:
