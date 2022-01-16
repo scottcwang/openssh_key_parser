@@ -220,6 +220,96 @@ def test_read_from_format_instructions_dict_length():
     }
 
 
+def test_read_repeatedly_from_format_instructions_dict():
+    pascal_bytes = b'\x00\x00\x00\x01' + b'\x00' \
+        + b'\x00\x00\x00\x02' \
+        + b'\x00\x00\x00\x01' + b'\x03' \
+        + b'\x00\x00\x00\x04'
+    byte_stream = PascalStyleByteStream(pascal_bytes)
+    result = byte_stream.read_repeatedly_from_format_instructions_dict({
+        'first': PascalStyleFormatInstruction.BYTES,
+        'second': '>I'
+    })
+    assert result == [
+        {
+            'first': b'\x00',
+            'second': 2
+        },
+        {
+            'first': b'\x03',
+            'second': 4
+        }
+    ]
+
+
+def test_read_repeatedly_from_format_instructions_dict_empty_stream():
+    byte_stream = PascalStyleByteStream()
+    result = byte_stream.read_repeatedly_from_format_instructions_dict({
+        'first': PascalStyleFormatInstruction.BYTES,
+        'second': '>I'
+    })
+    assert result == []
+
+
+def test_read_repeatedly_from_empty_format_instructions_dict():
+    pascal_bytes = b'\x00\x00\x00\x01' + b'\x00' \
+        + b'\x00\x00\x00\x02'
+    byte_stream = PascalStyleByteStream(pascal_bytes)
+    with pytest.raises(
+        ValueError,
+        match='format_instructions_dict cannot be empty'
+    ):
+        byte_stream.read_repeatedly_from_format_instructions_dict({})
+
+
+def test_read_repeatedly_from_format_instructions_dict_underfull():
+    pascal_bytes = b'\x00\x00\x00\x01' + b'\x00' \
+        + b'\x00\x00\x00\x02' \
+        + b'\x00\x00\x00\x01' + b'\x03' \
+        + b'\x00\x00\x00'
+    byte_stream = PascalStyleByteStream(pascal_bytes)
+    with pytest.raises(EOFError):
+        byte_stream.read_repeatedly_from_format_instructions_dict({
+            'first': PascalStyleFormatInstruction.BYTES,
+            'second': '>I',
+        })
+
+
+def test_read_repeatedly_from_format_instructions_dict_overfull():
+    pascal_bytes = b'\x00\x00\x00\x01' + b'\x00' \
+        + b'\x00\x00\x00\x02' \
+        + b'\x03'
+    byte_stream = PascalStyleByteStream(pascal_bytes)
+    byte_stream.read_from_format_instructions_dict({
+        'first': PascalStyleFormatInstruction.BYTES,
+        'second': '>I',
+    })
+    with pytest.raises(EOFError):
+        byte_stream.read_repeatedly_from_format_instructions_dict({
+            'first': PascalStyleFormatInstruction.BYTES,
+            'second': '>I',
+        })
+
+
+def test_read_repeatedly_from_format_instructions_dict_length():
+    pascal_bytes = b'\x01' + b'\x00' + b'\x02' + b'\x01\x02'
+    byte_stream = PascalStyleByteStream(pascal_bytes)
+    result = byte_stream.read_repeatedly_from_format_instructions_dict({
+        'first': PascalStyleFormatInstructionStringLengthSize(
+            PascalStyleFormatInstruction.BYTES,
+            1
+        )
+    })
+    assert result == [
+        {
+            'first': b'\x00'
+        },
+        {
+            'first': b'\x01\x02'
+        }
+    ]
+
+
 def test_write_from_struct_format_instruction():
     test_int = 1
     byte_stream = PascalStyleByteStream()
@@ -421,6 +511,103 @@ def test_write_from_format_instructions_dict_length():
         'first': b'\x00'
     })
     assert byte_stream.getvalue() == b'\x00\x01' + b'\x00'
+
+
+def test_write_repeatedly_from_format_instructions_dict():
+    byte_stream = PascalStyleByteStream()
+    byte_stream.write_repeatedly_from_format_instructions_dict(
+        {
+            'first': PascalStyleFormatInstruction.BYTES,
+            'second': '>I',
+        },
+        [
+            {
+                'first': b'\x00',
+                'second': 2,
+            },
+            {
+                'first': b'\x01\x02',
+                'second': 3
+            }
+        ]
+    )
+    assert byte_stream.getvalue() == b'\x00\x00\x00\x01' + b'\x00' \
+        + b'\x00\x00\x00\x02' \
+        + b'\x00\x00\x00\x02' + b'\x01\x02' \
+        + b'\x00\x00\x00\x03'
+
+
+def test_write_repeatedly_from_format_instructions_dict_empty_list():
+    byte_stream = PascalStyleByteStream()
+    byte_stream.write_repeatedly_from_format_instructions_dict(
+        {
+            'first': PascalStyleFormatInstruction.BYTES,
+            'second': '>I',
+        },
+        []
+    )
+    assert byte_stream.getvalue() == b''
+
+
+def test_write_repeatedly_from_empty_format_instructions_dict():
+    byte_stream = PascalStyleByteStream()
+    byte_stream.write_repeatedly_from_format_instructions_dict(
+        {},
+        [
+            {
+                'first': b'\x00',
+                'second': 2,
+            },
+            {
+                'first': b'\x03',
+                'second': 4
+            }
+        ]
+    )
+    assert byte_stream.getvalue() == b''
+
+
+def test_write_repeatedly_from_format_instructions_dict_missing_key():
+    byte_stream = PascalStyleByteStream()
+    with pytest.raises(KeyError):
+        byte_stream.write_repeatedly_from_format_instructions_dict(
+            {
+                'missing': '>I'
+            },
+            [
+                {
+                    'first': b'\x00',
+                    'second': 2,
+                },
+                {
+
+                    'first': b'\x03',
+                    'second': 4,
+                }
+            ]
+        )
+
+
+def test_write_repeatedly_from_format_instructions_dict_length():
+    byte_stream = PascalStyleByteStream()
+    byte_stream.write_repeatedly_from_format_instructions_dict(
+        {
+            'first': PascalStyleFormatInstructionStringLengthSize(
+                PascalStyleFormatInstruction.BYTES,
+                2
+            )
+        },
+        [
+            {
+                'first': b'\x00'
+            },
+            {
+                'first': b'\x01\x02'
+            }
+        ]
+    )
+    assert byte_stream.getvalue() == b'\x00\x01' + b'\x00' \
+        + b'\x00\x02' + b'\x01\x02'
 
 
 def test_check_dict_str():

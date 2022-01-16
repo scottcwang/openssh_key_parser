@@ -164,6 +164,43 @@ class PascalStyleByteStream(io.BytesIO):
             for k, format_instruction in format_instructions_dict.items()
         }
 
+    def read_repeatedly_from_format_instructions_dict(
+        self,
+        format_instructions_dict: FormatInstructionsDict
+    ) -> typing.List[typing.Any]:
+        """Reads values repeatedly as per
+        :any:`read_from_format_instructions_dict` until the stream is
+        exhausted.
+
+        Args:
+            format_instructions_dict
+                A :py:class:`typing.Mapping` of value names to format
+                instructions.
+
+        Returns:
+            A :py:class:`typing.List` of :py:class:`typing.Mapping` of value
+            names to read values.
+
+        Raises:
+            EOFError: The underlying bytestream does not contain enough bytes
+                to read a complete value for one of the format instructions in
+                ``format_instructions_dict``.
+        """
+        if len(format_instructions_dict) == 0:
+            raise ValueError('format_instructions_dict cannot be empty')
+        l = []
+        while True:
+            try:
+                l.append(
+                    self.read_from_format_instructions_dict(
+                        format_instructions_dict
+                    )
+                )
+            except EOFError as e:
+                if len(e.args[0]) == 0:
+                    return l
+                raise
+
     def read_fixed_bytes(self, num_bytes: int) -> bytes:
         """Reads a fixed number of bytes from the underlying bytestream.
 
@@ -180,7 +217,7 @@ class PascalStyleByteStream(io.BytesIO):
         """
         read_bytes = self.read(num_bytes)
         if len(read_bytes) < num_bytes:
-            raise EOFError()
+            raise EOFError(read_bytes)
         return read_bytes
 
     def read_pascal_bytes(self, string_length_size: int) -> bytes:
@@ -310,6 +347,32 @@ class PascalStyleByteStream(io.BytesIO):
                     format_instruction,
                     values_dict[k]
                 )
+
+    def write_repeatedly_from_format_instructions_dict(
+        self,
+        format_instructions_dict: FormatInstructionsDict,
+        values_dicts: typing.Sequence[ValuesDict]
+    ) -> None:
+        """Writes a list of values to the underlying bytestream as per
+        :any:`write_from_format_instructions_dict`.
+
+        Args:
+            format_instructions_dict
+                A :py:class:`typing.Mapping` of value names to format
+                instructions.
+            values_dicts
+                A :py:class:`typing.List` of :py:class:`typing.Mapping`s
+                of value names to values to be written.
+
+        Raises:
+            KeyError: One of the ``values_dicts`` does not contain a key that is
+                contained in ``format_instructions_dict``.
+        """
+        for values_dict in values_dicts:
+            self.write_from_format_instructions_dict(
+                format_instructions_dict,
+                values_dict
+            )
 
     @staticmethod
     def check_dict_matches_format_instructions_dict(
