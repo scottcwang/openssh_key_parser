@@ -66,7 +66,7 @@ class SecurityKeyPublicKeyParams(
     """
     @staticmethod
     @abc.abstractmethod
-    def get_base_public_key_class() -> typing.Type[PublicKeyParams]:
+    def get_sk_base_public_key_class() -> typing.Type[PublicKeyParams]:
         return PublicKeyParams
 
     __FORMAT_INSTRUCTIONS_DICT_SUFFIX: typing.ClassVar[FormatInstructionsDict] = {
@@ -76,13 +76,13 @@ class SecurityKeyPublicKeyParams(
     @classmethod
     def get_format_instructions_dict(cls) -> FormatInstructionsDict:
         return types.MappingProxyType({
-            **cls.get_base_public_key_class().get_format_instructions_dict(),
+            **cls.get_sk_base_public_key_class().get_format_instructions_dict(),
             **SecurityKeyPublicKeyParams.__FORMAT_INSTRUCTIONS_DICT_SUFFIX
         })
 
     def check_params_are_valid(self) -> None:
         super().check_params_are_valid()
-        self.get_base_public_key_class().check_params_are_valid(self)
+        self.get_sk_base_public_key_class().check_params_are_valid(self)
 
 
 SecurityKeyPrivateKeyParamsTypeVar = typing.TypeVar(
@@ -128,7 +128,7 @@ class SecurityKeyPrivateKeyParams(
     @classmethod
     def get_format_instructions_dict(cls) -> FormatInstructionsDict:
         return types.MappingProxyType({
-            **cls.get_base_public_key_class().get_format_instructions_dict(),
+            **cls.get_sk_base_public_key_class().get_format_instructions_dict(),
             **SecurityKeyPrivateKeyParams.__FORMAT_INSTRUCTIONS_DICT_SUFFIX
         })
 
@@ -161,7 +161,7 @@ class SecurityKey_ECDSA_NISTP256_PublicKeyParams(
     ECDSA_NISTP256_PublicKeyParams
 ):
     @staticmethod
-    def get_base_public_key_class() -> typing.Type[PublicKeyParams]:
+    def get_sk_base_public_key_class() -> typing.Type[PublicKeyParams]:
         return ECDSA_NISTP256_PublicKeyParams
 
 
@@ -177,7 +177,7 @@ class SecurityKey_Ed25519_PublicKeyParams(
     Ed25519PublicKeyParams
 ):
     @staticmethod
-    def get_base_public_key_class() -> typing.Type[PublicKeyParams]:
+    def get_sk_base_public_key_class() -> typing.Type[PublicKeyParams]:
         return Ed25519PublicKeyParams
 
 
