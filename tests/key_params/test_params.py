@@ -1,8 +1,9 @@
-import pytest
 import typing
 
+import pytest
 from openssh_key.pascal_style_byte_stream import PascalStyleFormatInstruction
 
+import test_cert
 import test_dss
 import test_ecdsa
 import test_ed25519
@@ -16,6 +17,7 @@ _TEST_CASES: list[dict[str, typing.Any]] = sum(
         test_dss.PARAMS_TEST_CASES,
         test_ecdsa.PARAMS_TEST_CASES,
         test_sk.PARAMS_TEST_CASES,
+        test_cert.PARAMS_TEST_CASES,
     ],
     []
 )

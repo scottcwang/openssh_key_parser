@@ -1,5 +1,12 @@
 import typing
 
+from .cert import (Cert_DSS_PublicKeyParams,
+                   Cert_ECDSA_NISTP256_PublicKeyParams,
+                   Cert_ECDSA_NISTP384_PublicKeyParams,
+                   Cert_ECDSA_NISTP521_PublicKeyParams,
+                   Cert_Ed25519_PublicKeyParams, Cert_RSA_PublicKeyParams,
+                   Cert_SecurityKey_ECDSA_NISTP256_PublicKeyParams,
+                   Cert_SecurityKey_Ed25519_PublicKeyParams)
 from .common import PrivateKeyParams, PublicKeyParams
 from .dss import DSSPrivateKeyParams, DSSPublicKeyParams
 from .ecdsa import (ECDSA_NISTP256_PrivateKeyParams,
@@ -18,7 +25,7 @@ from .sk import (SecurityKey_ECDSA_NISTP256_PrivateKeyParams,
 
 class PublicPrivateKeyParamsClasses(typing.NamedTuple):
     publicKeyParamsClass: typing.Type[PublicKeyParams]
-    privateKeyParamsClass: typing.Type[PrivateKeyParams]
+    privateKeyParamsClass: typing.Optional[typing.Type[PrivateKeyParams]]
 
 
 _KEY_TYPE_MAPPING = {
@@ -47,6 +54,38 @@ _KEY_TYPE_MAPPING = {
     'sk-ssh-ed25519@openssh.com': PublicPrivateKeyParamsClasses(
         SecurityKey_Ed25519_PublicKeyParams,
         SecurityKey_Ed25519_PrivateKeyParams
+    ),
+    'ssh-rsa-cert-v01@openssh.com': PublicPrivateKeyParamsClasses(
+        Cert_RSA_PublicKeyParams,
+        None
+    ),
+    'ssh-ed25519-cert-v01@openssh.com': PublicPrivateKeyParamsClasses(
+        Cert_Ed25519_PublicKeyParams,
+        None,
+    ),
+    'ssh-dss-cert-v01@openssh.com': PublicPrivateKeyParamsClasses(
+        Cert_DSS_PublicKeyParams,
+        None
+    ),
+    'ecdsa-sha2-nistp256-cert-v01@openssh.com': PublicPrivateKeyParamsClasses(
+        Cert_ECDSA_NISTP256_PublicKeyParams,
+        None
+    ),
+    'ecdsa-sha2-nistp384-cert-v01@openssh.com': PublicPrivateKeyParamsClasses(
+        Cert_ECDSA_NISTP384_PublicKeyParams,
+        None
+    ),
+    'ecdsa-sha2-nistp521-cert-v01@openssh.com': PublicPrivateKeyParamsClasses(
+        Cert_ECDSA_NISTP521_PublicKeyParams,
+        None
+    ),
+    'sk-ssh-ed25519-cert-v01@openssh.com': PublicPrivateKeyParamsClasses(
+        Cert_SecurityKey_Ed25519_PublicKeyParams,
+        None
+    ),
+    'sk-ecdsa-sha2-nistp256-cert-v01@openssh.com': PublicPrivateKeyParamsClasses(
+        Cert_SecurityKey_ECDSA_NISTP256_PublicKeyParams,
+        None
     )
 }
 
@@ -86,4 +125,9 @@ def create_private_key_params(key_type: str) -> typing.Type[PrivateKeyParams]:
         KeyError: There is no subclass of :any:`PrivateKeyParams` corresponding
             to the given key type name.
     """
-    return _KEY_TYPE_MAPPING[key_type].privateKeyParamsClass
+    private_key_params_class = _KEY_TYPE_MAPPING[key_type].privateKeyParamsClass
+    if private_key_params_class is None:
+        raise KeyError(
+            'No subclass of PrivateKeyParams corresponds to the given key type name'
+        )
+    return private_key_params_class
