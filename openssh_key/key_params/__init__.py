@@ -1,3 +1,4 @@
+from .cert import *
 from .common import *
 from .dss import *
 from .ecdsa import *
@@ -7,6 +8,14 @@ from .rsa import *
 from .sk import *
 
 __all__ = [
+    'Cert_RSA_PublicKeyParams',
+    'Cert_Ed25519_PublicKeyParams',
+    'Cert_DSS_PublicKeyParams',
+    'Cert_ECDSA_NISTP256_PublicKeyParams',
+    'Cert_ECDSA_NISTP384_PublicKeyParams',
+    'Cert_ECDSA_NISTP521_PublicKeyParams',
+    'Cert_SecurityKey_Ed25519_PublicKeyParams',
+    'Cert_SecurityKey_ECDSA_NISTP256_PublicKeyParams',
     'PrivateKeyParams', 'PrivateKeyParamsTypeVar',
     'PublicKeyParams', 'PublicKeyParamsTypeVar',
     'DSSPrivateKeyParams', 'DSSPublicKeyParams',
