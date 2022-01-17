@@ -577,7 +577,7 @@ class CertPublicKeyParams(PublicKeyParams, abc.ABC):
 
         if 'signature_key' in self and isinstance(self['signature_key'], bytes):
             try:
-                print(self.get_signature_key().params)
+                self.get_signature_key()
             except (ValueError, EOFError, TypeError):
                 warnings.warn('Certificate authority is not a valid key')
 
