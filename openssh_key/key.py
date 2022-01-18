@@ -236,7 +236,9 @@ class Key(typing.Generic[PublicKeyParamsTypeVar], abc.ABC):
                 match, or there are additional bytes in the encoded key than
                 would be expected from the key count.
         """
-        key_type_clear, key_b64, comment_clear = string.split(' ', maxsplit=2)
+        key_split = string.split(' ', maxsplit=2)
+        key_type_clear, key_b64 = key_split[0], key_split[1]
+        comment_clear = key_split[2] if len(key_split) == 3 else ''
         key_bytes = base64.b64decode(key_b64)
         public_key = cls.from_bytes(
             key_bytes,
