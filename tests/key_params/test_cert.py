@@ -29,7 +29,7 @@ certificate_authority_key_bytes = PublicKey(
 
 def get_test_cert_params():
     return Cert_RSA_PublicKeyParams({
-        'nonce': 'a',
+        'nonce': b'a',
         'e': 1,
         'n': 2,
         'serial': 3,
@@ -40,7 +40,7 @@ def get_test_cert_params():
         'valid_before': 5,
         'critical_options': b'\x00\x00\x00\x01b\x00\x00\x00\x01c',
         'extensions': b'\x00\x00\x00\x01b\x00\x00\x00\x01c',
-        'reserved': '',
+        'reserved': b'',
         'signature_key': certificate_authority_key_bytes,
         'signature': b'f'
     })
@@ -59,7 +59,7 @@ PARAMS_TEST_CASES = [
     {
         'cls': Cert_RSA_PublicKeyParams,
         'format_instructions_dict': {
-            'nonce': PascalStyleFormatInstruction.STRING,
+            'nonce': PascalStyleFormatInstruction.BYTES,
             'e': PascalStyleFormatInstruction.MPINT,
             'n': PascalStyleFormatInstruction.MPINT,
             'serial': '>Q',
@@ -70,12 +70,12 @@ PARAMS_TEST_CASES = [
             'valid_before': '>Q',
             'critical_options': PascalStyleFormatInstruction.BYTES,
             'extensions': PascalStyleFormatInstruction.BYTES,
-            'reserved': PascalStyleFormatInstruction.STRING,
+            'reserved': PascalStyleFormatInstruction.BYTES,
             'signature_key': PascalStyleFormatInstruction.BYTES,
             'signature': PascalStyleFormatInstruction.BYTES,
         },
         'valid_values': [{
-            'nonce': 'a',
+            'nonce': b'a',
             'e': 1,
             'n': 2,
             'serial': 3,
@@ -86,14 +86,14 @@ PARAMS_TEST_CASES = [
             'valid_before': 5,
             'critical_options': b'\x00\x00\x00\x01b\x00\x00\x00\x01c',
             'extensions': b'\x00\x00\x00\x01b\x00\x00\x00\x01c',
-            'reserved': '',
+            'reserved': b'',
             'signature_key': certificate_authority_key_bytes,
             'signature': b'f'
         }],
         'invalid_values': [
             (
                 {
-                    'nonce': 'a',
+                    'nonce': b'a',
                     'e': 1,
                     'n': 2,
                     'serial': 3,
@@ -104,7 +104,7 @@ PARAMS_TEST_CASES = [
                     'valid_before': 5,
                     'critical_options': b'\x00\x00\x00\x01b\x00\x00\x00\x01c',
                     'extensions': b'\x00\x00\x00\x01b\x00\x00\x00\x01c',
-                    'reserved': '',
+                    'reserved': b'',
                     'signature_key': certificate_authority_key_bytes,
                     'signature': b'f'
                 },
@@ -112,7 +112,7 @@ PARAMS_TEST_CASES = [
             ),
             (
                 {
-                    'nonce': 'a',
+                    'nonce': b'a',
                     'e': 1,
                     'n': 2,
                     'serial': 3,
@@ -123,7 +123,7 @@ PARAMS_TEST_CASES = [
                     'valid_before': 5,
                     'critical_options': b'\x00\x00\x00\x01b\x00\x00\x00\x01c',
                     'extensions': b'\x00\x00\x00\x01b\x00\x00\x00\x01c',
-                    'reserved': '',
+                    'reserved': b'',
                     'signature_key': certificate_authority_key_bytes,
                     'signature': b'f'
                 },
@@ -131,7 +131,7 @@ PARAMS_TEST_CASES = [
             ),
             (
                 {
-                    'nonce': 'a',
+                    'nonce': b'a',
                     'e': 1,
                     'n': 2,
                     'serial': 3,
@@ -142,7 +142,7 @@ PARAMS_TEST_CASES = [
                     'valid_before': 5,
                     'critical_options': b'invalid',
                     'extensions': b'\x00\x00\x00\x01b\x00\x00\x00\x01c',
-                    'reserved': '',
+                    'reserved': b'',
                     'signature_key': certificate_authority_key_bytes,
                     'signature': b'f'
                 },
@@ -150,7 +150,7 @@ PARAMS_TEST_CASES = [
             ),
             (
                 {
-                    'nonce': 'a',
+                    'nonce': b'a',
                     'e': 1,
                     'n': 2,
                     'serial': 3,
@@ -161,7 +161,7 @@ PARAMS_TEST_CASES = [
                     'valid_before': 5,
                     'critical_options': b'\x00\x00\x00\x01b\x00\x00\x00\x01c',
                     'extensions': b'invalid',
-                    'reserved': '',
+                    'reserved': b'',
                     'signature_key': certificate_authority_key_bytes,
                     'signature': b'f'
                 },
@@ -169,7 +169,7 @@ PARAMS_TEST_CASES = [
             ),
             (
                 {
-                    'nonce': 'a',
+                    'nonce': b'a',
                     'e': 1,
                     'n': 2,
                     'serial': 3,
@@ -180,7 +180,7 @@ PARAMS_TEST_CASES = [
                     'valid_before': 5,
                     'critical_options': b'\x00\x00\x00\x01b\x00\x00\x00\x01c',
                     'extensions': b'\x00\x00\x00\x01b\x00\x00\x00\x01c',
-                    'reserved': '',
+                    'reserved': b'',
                     'signature_key': test_cert_key_bytes,
                     'signature': b'd'
                 },
@@ -188,7 +188,7 @@ PARAMS_TEST_CASES = [
             ),
             (
                 {
-                    'nonce': 'a',
+                    'nonce': b'a',
                     'e': 1,
                     'n': 2,
                     'serial': 3,
@@ -199,7 +199,7 @@ PARAMS_TEST_CASES = [
                     'valid_before': 5,
                     'critical_options': b'\x00\x00\x00\x01b\x00\x00\x00\x01c',
                     'extensions': b'\x00\x00\x00\x01b\x00\x00\x00\x01c',
-                    'reserved': '',
+                    'reserved': b'',
                     'signature_key': b'invalid',
                     'signature': b'd'
                 },
@@ -210,7 +210,7 @@ PARAMS_TEST_CASES = [
     {
         'cls': Cert_Ed25519_PublicKeyParams,
         'format_instructions_dict': {
-            'nonce': PascalStyleFormatInstruction.STRING,
+            'nonce': PascalStyleFormatInstruction.BYTES,
             'public': PascalStyleFormatInstruction.BYTES,
             'serial': '>Q',
             'type': '>I',
@@ -220,12 +220,12 @@ PARAMS_TEST_CASES = [
             'valid_before': '>Q',
             'critical_options': PascalStyleFormatInstruction.BYTES,
             'extensions': PascalStyleFormatInstruction.BYTES,
-            'reserved': PascalStyleFormatInstruction.STRING,
+            'reserved': PascalStyleFormatInstruction.BYTES,
             'signature_key': PascalStyleFormatInstruction.BYTES,
             'signature': PascalStyleFormatInstruction.BYTES,
         },
         'valid_values': [{
-            'nonce': 'a',
+            'nonce': b'a',
             'public': secrets.token_bytes(Ed25519PublicKeyParams.KEY_SIZE),
             'serial': 3,
             'type': 1,
@@ -235,7 +235,7 @@ PARAMS_TEST_CASES = [
             'valid_before': 5,
             'critical_options': b'\x00\x00\x00\x01b\x00\x00\x00\x01c',
             'extensions': b'\x00\x00\x00\x01b\x00\x00\x00\x01c',
-            'reserved': '',
+            'reserved': b'',
             'signature_key': certificate_authority_key_bytes,
             'signature': b'f'
         }]
@@ -243,7 +243,7 @@ PARAMS_TEST_CASES = [
     {
         'cls': Cert_DSS_PublicKeyParams,
         'format_instructions_dict': {
-            'nonce': PascalStyleFormatInstruction.STRING,
+            'nonce': PascalStyleFormatInstruction.BYTES,
             'p': PascalStyleFormatInstruction.MPINT,
             'q': PascalStyleFormatInstruction.MPINT,
             'g': PascalStyleFormatInstruction.MPINT,
@@ -256,12 +256,12 @@ PARAMS_TEST_CASES = [
             'valid_before': '>Q',
             'critical_options': PascalStyleFormatInstruction.BYTES,
             'extensions': PascalStyleFormatInstruction.BYTES,
-            'reserved': PascalStyleFormatInstruction.STRING,
+            'reserved': PascalStyleFormatInstruction.BYTES,
             'signature_key': PascalStyleFormatInstruction.BYTES,
             'signature': PascalStyleFormatInstruction.BYTES,
         },
         'valid_values': [{
-            'nonce': 'a',
+            'nonce': b'a',
             'p': 1,
             'q': 2,
             'g': 3,
@@ -274,7 +274,7 @@ PARAMS_TEST_CASES = [
             'valid_before': 5,
             'critical_options': b'\x00\x00\x00\x01b\x00\x00\x00\x01c',
             'extensions': b'\x00\x00\x00\x01b\x00\x00\x00\x01c',
-            'reserved': '',
+            'reserved': b'',
             'signature_key': certificate_authority_key_bytes,
             'signature': b'f'
         }]
@@ -282,7 +282,7 @@ PARAMS_TEST_CASES = [
     {
         'cls': Cert_ECDSA_NISTP256_PublicKeyParams,
         'format_instructions_dict': {
-            'nonce': PascalStyleFormatInstruction.STRING,
+            'nonce': PascalStyleFormatInstruction.BYTES,
             'identifier': PascalStyleFormatInstruction.STRING,
             'q': PascalStyleFormatInstruction.BYTES,
             'serial': '>Q',
@@ -293,12 +293,12 @@ PARAMS_TEST_CASES = [
             'valid_before': '>Q',
             'critical_options': PascalStyleFormatInstruction.BYTES,
             'extensions': PascalStyleFormatInstruction.BYTES,
-            'reserved': PascalStyleFormatInstruction.STRING,
+            'reserved': PascalStyleFormatInstruction.BYTES,
             'signature_key': PascalStyleFormatInstruction.BYTES,
             'signature': PascalStyleFormatInstruction.BYTES,
         },
         'valid_values': [{
-            'nonce': 'a',
+            'nonce': b'a',
             'identifier': 'nistp256',
             'q': ec.generate_private_key(ec.SECP256R1()).public_key().public_bytes(
                 Encoding.X962, PublicFormat.UncompressedPoint
@@ -311,7 +311,7 @@ PARAMS_TEST_CASES = [
             'valid_before': 5,
             'critical_options': b'\x00\x00\x00\x01b\x00\x00\x00\x01c',
             'extensions': b'\x00\x00\x00\x01b\x00\x00\x00\x01c',
-            'reserved': '',
+            'reserved': b'',
             'signature_key': certificate_authority_key_bytes,
             'signature': b'f'
         }]
@@ -319,7 +319,7 @@ PARAMS_TEST_CASES = [
     {
         'cls': Cert_ECDSA_NISTP384_PublicKeyParams,
         'format_instructions_dict': {
-            'nonce': PascalStyleFormatInstruction.STRING,
+            'nonce': PascalStyleFormatInstruction.BYTES,
             'identifier': PascalStyleFormatInstruction.STRING,
             'q': PascalStyleFormatInstruction.BYTES,
             'serial': '>Q',
@@ -330,12 +330,12 @@ PARAMS_TEST_CASES = [
             'valid_before': '>Q',
             'critical_options': PascalStyleFormatInstruction.BYTES,
             'extensions': PascalStyleFormatInstruction.BYTES,
-            'reserved': PascalStyleFormatInstruction.STRING,
+            'reserved': PascalStyleFormatInstruction.BYTES,
             'signature_key': PascalStyleFormatInstruction.BYTES,
             'signature': PascalStyleFormatInstruction.BYTES,
         },
         'valid_values': [{
-            'nonce': 'a',
+            'nonce': b'a',
             'identifier': 'nistp384',
             'q': ec.generate_private_key(ec.SECP384R1()).public_key().public_bytes(
                 Encoding.X962, PublicFormat.UncompressedPoint
@@ -348,7 +348,7 @@ PARAMS_TEST_CASES = [
             'valid_before': 5,
             'critical_options': b'\x00\x00\x00\x01b\x00\x00\x00\x01c',
             'extensions': b'\x00\x00\x00\x01b\x00\x00\x00\x01c',
-            'reserved': '',
+            'reserved': b'',
             'signature_key': certificate_authority_key_bytes,
             'signature': b'f'
         }]
@@ -356,7 +356,7 @@ PARAMS_TEST_CASES = [
     {
         'cls': Cert_ECDSA_NISTP521_PublicKeyParams,
         'format_instructions_dict': {
-            'nonce': PascalStyleFormatInstruction.STRING,
+            'nonce': PascalStyleFormatInstruction.BYTES,
             'identifier': PascalStyleFormatInstruction.STRING,
             'q': PascalStyleFormatInstruction.BYTES,
             'serial': '>Q',
@@ -367,12 +367,12 @@ PARAMS_TEST_CASES = [
             'valid_before': '>Q',
             'critical_options': PascalStyleFormatInstruction.BYTES,
             'extensions': PascalStyleFormatInstruction.BYTES,
-            'reserved': PascalStyleFormatInstruction.STRING,
+            'reserved': PascalStyleFormatInstruction.BYTES,
             'signature_key': PascalStyleFormatInstruction.BYTES,
             'signature': PascalStyleFormatInstruction.BYTES,
         },
         'valid_values': [{
-            'nonce': 'a',
+            'nonce': b'a',
             'identifier': 'nistp521',
             'q': ec.generate_private_key(ec.SECP521R1()).public_key().public_bytes(
                 Encoding.X962, PublicFormat.UncompressedPoint
@@ -385,7 +385,7 @@ PARAMS_TEST_CASES = [
             'valid_before': 5,
             'critical_options': b'\x00\x00\x00\x01b\x00\x00\x00\x01c',
             'extensions': b'\x00\x00\x00\x01b\x00\x00\x00\x01c',
-            'reserved': '',
+            'reserved': b'',
             'signature_key': certificate_authority_key_bytes,
             'signature': b'f'
         }]
@@ -393,7 +393,7 @@ PARAMS_TEST_CASES = [
     {
         'cls': Cert_SecurityKey_Ed25519_PublicKeyParams,
         'format_instructions_dict': {
-            'nonce': PascalStyleFormatInstruction.STRING,
+            'nonce': PascalStyleFormatInstruction.BYTES,
             'public': PascalStyleFormatInstruction.BYTES,
             'application': PascalStyleFormatInstruction.STRING,
             'serial': '>Q',
@@ -404,12 +404,12 @@ PARAMS_TEST_CASES = [
             'valid_before': '>Q',
             'critical_options': PascalStyleFormatInstruction.BYTES,
             'extensions': PascalStyleFormatInstruction.BYTES,
-            'reserved': PascalStyleFormatInstruction.STRING,
+            'reserved': PascalStyleFormatInstruction.BYTES,
             'signature_key': PascalStyleFormatInstruction.BYTES,
             'signature': PascalStyleFormatInstruction.BYTES,
         },
         'valid_values': [{
-            'nonce': 'a',
+            'nonce': b'a',
             'public': secrets.token_bytes(Ed25519PublicKeyParams.KEY_SIZE),
             'application': 'ssh:',
             'serial': 3,
@@ -420,7 +420,7 @@ PARAMS_TEST_CASES = [
             'valid_before': 5,
             'critical_options': b'\x00\x00\x00\x01b\x00\x00\x00\x01c',
             'extensions': b'\x00\x00\x00\x01b\x00\x00\x00\x01c',
-            'reserved': '',
+            'reserved': b'',
             'signature_key': certificate_authority_key_bytes,
             'signature': b'f'
         }]
@@ -428,7 +428,7 @@ PARAMS_TEST_CASES = [
     {
         'cls': Cert_SecurityKey_ECDSA_NISTP256_PublicKeyParams,
         'format_instructions_dict': {
-            'nonce': PascalStyleFormatInstruction.STRING,
+            'nonce': PascalStyleFormatInstruction.BYTES,
             'identifier': PascalStyleFormatInstruction.STRING,
             'q': PascalStyleFormatInstruction.BYTES,
             'application': PascalStyleFormatInstruction.STRING,
@@ -440,12 +440,12 @@ PARAMS_TEST_CASES = [
             'valid_before': '>Q',
             'critical_options': PascalStyleFormatInstruction.BYTES,
             'extensions': PascalStyleFormatInstruction.BYTES,
-            'reserved': PascalStyleFormatInstruction.STRING,
+            'reserved': PascalStyleFormatInstruction.BYTES,
             'signature_key': PascalStyleFormatInstruction.BYTES,
             'signature': PascalStyleFormatInstruction.BYTES,
         },
         'valid_values': [{
-            'nonce': 'a',
+            'nonce': b'a',
             'identifier': 'nistp256',
             'q': ec.generate_private_key(ec.SECP256R1()).public_key().public_bytes(
                 Encoding.X962, PublicFormat.UncompressedPoint
@@ -459,7 +459,7 @@ PARAMS_TEST_CASES = [
             'valid_before': 5,
             'critical_options': b'\x00\x00\x00\x01b\x00\x00\x00\x01c',
             'extensions': b'\x00\x00\x00\x01b\x00\x00\x00\x01c',
-            'reserved': '',
+            'reserved': b'',
             'signature_key': certificate_authority_key_bytes,
             'signature': b'f'
         }]
@@ -684,7 +684,7 @@ def test_pack_signed_bytes():
     byte_stream = PascalStyleByteStream()
     byte_stream.write_from_format_instructions_dict(
         {
-            'nonce': PascalStyleFormatInstruction.STRING,
+            'nonce': PascalStyleFormatInstruction.BYTES,
             'e': PascalStyleFormatInstruction.MPINT,
             'n': PascalStyleFormatInstruction.MPINT,
             'serial': '>Q',
@@ -695,7 +695,7 @@ def test_pack_signed_bytes():
             'valid_before': '>Q',
             'critical_options': PascalStyleFormatInstruction.BYTES,
             'extensions': PascalStyleFormatInstruction.BYTES,
-            'reserved': PascalStyleFormatInstruction.STRING,
+            'reserved': PascalStyleFormatInstruction.BYTES,
             'signature_key': PascalStyleFormatInstruction.BYTES,
         },
         cert_params

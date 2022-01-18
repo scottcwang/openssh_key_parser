@@ -105,7 +105,7 @@ class SecurityKeyPrivateKeyParams(
     * ``flags``: Flags (one byte).
     * ``key_handle``: The identifier of the private key on the security key
       (:any:`str`).
-    * ``reserved``: Reserved by OpenSSH (:any:`str`).
+    * ``reserved``: Reserved by OpenSSH (:any:`bytes`).
 
     Args:
         params
@@ -122,7 +122,7 @@ class SecurityKeyPrivateKeyParams(
         'application': PascalStyleFormatInstruction.STRING,
         'flags': '>B',
         'key_handle': PascalStyleFormatInstruction.BYTES,
-        'reserved': PascalStyleFormatInstruction.STRING,
+        'reserved': PascalStyleFormatInstruction.BYTES,
     }
 
     @classmethod

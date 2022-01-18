@@ -157,7 +157,7 @@ class CertPublicKeyParams(PublicKeyParams, abc.ABC):
     The names and iteration order of parameters of a certificate is:
 
     * ``nonce``: A random string of arbitrary length provided by the
-      certificate authority to prevent hash collisions (:any:`str`).
+      certificate authority to prevent hash collisions (:any:`bytes`).
     * The parameters of the public key.
     * ``serial``: An optional serial number for the certificates issued by
       a certificate authority; `0` if the certificate authority does not
@@ -182,7 +182,7 @@ class CertPublicKeyParams(PublicKeyParams, abc.ABC):
       ``data``, and are sorted lexicographically by ``name`` (:any:`bytes`).
     * ``reserved``: Reserved by OpenSSH (:any:`str`).
     * ``signature_key``: The parameters of the public key of the certificate
-      authority (:any:`str`).
+      authority (:any:`bytes`).
     * ``signature``: The signature of the certificate authority over the
       previous parameters (:any:`str`).
 
@@ -203,7 +203,7 @@ class CertPublicKeyParams(PublicKeyParams, abc.ABC):
         return PublicKeyParams
 
     __FORMAT_INSTRUCTIONS_DICT_SIGNED_BYTES_PREFIX: typing.ClassVar[FormatInstructionsDict] = {
-        'nonce': PascalStyleFormatInstruction.STRING,
+        'nonce': PascalStyleFormatInstruction.BYTES,
     }
 
     __FORMAT_INSTRUCTIONS_DICT_SIGNED_BYTES_SUFFIX: typing.ClassVar[FormatInstructionsDict] = {
@@ -215,7 +215,7 @@ class CertPublicKeyParams(PublicKeyParams, abc.ABC):
         'valid_before': '>Q',
         'critical_options': PascalStyleFormatInstruction.BYTES,
         'extensions': PascalStyleFormatInstruction.BYTES,
-        'reserved': PascalStyleFormatInstruction.STRING,
+        'reserved': PascalStyleFormatInstruction.BYTES,
         'signature_key': PascalStyleFormatInstruction.BYTES,
     }
 

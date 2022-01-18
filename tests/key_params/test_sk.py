@@ -60,7 +60,7 @@ PARAMS_TEST_CASES = [
             'application': PascalStyleFormatInstruction.STRING,
             'flags': '>B',
             'key_handle': PascalStyleFormatInstruction.BYTES,
-            'reserved': PascalStyleFormatInstruction.STRING,
+            'reserved': PascalStyleFormatInstruction.BYTES,
         },
         'valid_values': [{
             'identifier': 'nistp256',
@@ -70,7 +70,7 @@ PARAMS_TEST_CASES = [
             'application': 'ssh:',
             'flags': 0,
             'key_handle': b'aaaa',
-            'reserved': '',
+            'reserved': b'',
         }],
     },
     {
@@ -100,14 +100,14 @@ PARAMS_TEST_CASES = [
             'application': PascalStyleFormatInstruction.STRING,
             'flags': '>B',
             'key_handle': PascalStyleFormatInstruction.BYTES,
-            'reserved': PascalStyleFormatInstruction.STRING,
+            'reserved': PascalStyleFormatInstruction.BYTES,
         },
         'valid_values': [{
             'public': test_cases_public_bytes,
             'application': 'ssh:',
             'flags': 0,
             'key_handle': b'aaaa',
-            'reserved': '',
+            'reserved': b'',
         }]
     }
 ]
@@ -119,7 +119,7 @@ def test_flag():
         'application': 'ssh:',
         'flags': 0,
         'key_handle': 'aaaa',
-        'reserved': '',
+        'reserved': b'',
     })
     for flag_indices in range(2 ** len(SecurityKeyFlag)):
         flag_total_value = 0
