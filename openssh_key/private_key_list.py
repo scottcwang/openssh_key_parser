@@ -22,8 +22,19 @@ from openssh_key.pascal_style_byte_stream import (FormatInstructionsDict,
 
 
 class PublicPrivateKeyPair(typing.NamedTuple):
+    """
+    A public key and its corresponding private key.
+    """
+
     public: PublicKey
+    """
+    The public key.
+    """
+
     private: PrivateKey
+    """
+    The corresponding private key.
+    """
 
     def __eq__(self, other: typing.Any) -> bool:
         return (

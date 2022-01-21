@@ -1,3 +1,7 @@
+"""
+Utility classes and methods.
+"""
+
 import typing
 
 
@@ -17,6 +21,15 @@ ReadonlyStaticPropertyTypeVar = typing.TypeVar(
 class readonly_static_property(
     typing.Generic[ReadonlyStaticPropertyTypeVar]
 ):
+    """
+    A static property that calls the first method in an object's MRO of the
+    same name as that of the provided method.
+
+    Args:
+        getter
+            The method the name of which is that of the method to call.
+    """
+
     def __init__(
         self,
         getter: typing.Union[

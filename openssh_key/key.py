@@ -337,6 +337,10 @@ class Key(typing.Generic[PublicKeyParamsTypeVar], abc.ABC):
 
 
 class PublicKey(Key[PublicKeyParams]):
+    """A container for a :any:`PublicKeyParams`, an encoded header and footer,
+    and cleartext key details.
+    """
+
     __HEADER_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
         FormatInstructionsDict
     ] = {
@@ -375,6 +379,10 @@ class PublicKey(Key[PublicKeyParams]):
 
 
 class PrivateKey(Key[PrivateKeyParams]):
+    """A container for a :any:`PrivateKeyParams` and an encoded header and
+    footer.
+    """
+
     __HEADER_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
         FormatInstructionsDict
     ] = {
