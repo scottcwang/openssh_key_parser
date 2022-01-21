@@ -51,8 +51,8 @@ class SecurityKeyPublicKeyParams(
     that is stored in a U2F/FIDO security key. OpenSSH supports security keys
     presenting the following key types:
 
-    * `ECDSA_NISTP256_PublicKeyParams`
-    * `Ed25519PublicKeyParams`
+    * :py:class:`.ecdsa.ECDSA_NISTP256_PublicKeyParams`
+    * :py:class:`.ed25519.Ed25519PublicKeyParams`
 
     The names and iteration order of parameters of a *public* security key is:
 

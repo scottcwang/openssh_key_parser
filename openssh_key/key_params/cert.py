@@ -11,14 +11,14 @@ import typing
 import warnings
 
 import openssh_key.key as key  # pylint: disable=consider-using-from-import
-from openssh_key.key_params.common import PublicKeyParams
-from openssh_key.key_params.dss import DSSPublicKeyParams
-from openssh_key.key_params.ecdsa import (ECDSA_NISTP256_PublicKeyParams,
-                                          ECDSA_NISTP384_PublicKeyParams,
-                                          ECDSA_NISTP521_PublicKeyParams)
-from openssh_key.key_params.ed25519 import Ed25519PublicKeyParams
-from openssh_key.key_params.rsa import RSAPublicKeyParams
-from openssh_key.key_params.sk import (
+from .common import PublicKeyParams
+from .dss import DSSPublicKeyParams
+from .ecdsa import (ECDSA_NISTP256_PublicKeyParams,
+                    ECDSA_NISTP384_PublicKeyParams,
+                    ECDSA_NISTP521_PublicKeyParams)
+from .ed25519 import Ed25519PublicKeyParams
+from .rsa import RSAPublicKeyParams
+from .sk import (
     SecurityKey_ECDSA_NISTP256_PublicKeyParams,
     SecurityKey_Ed25519_PublicKeyParams)
 from openssh_key.pascal_style_byte_stream import (FormatInstructionsDict,
@@ -157,23 +157,23 @@ class CertPublicKeyParams(PublicKeyParams, abc.ABC):
     The parameters comprising a certificate. OpenSSH supports certificates
     containing the following key types:
 
-    * `RSAPublicKeyParams`
-    * `DSSPublicKeyParams`
-    * `ECDSA_NISTP256_PublicKeyParams`
-    * `ECDSA_NISTP384_PublicKeyParams`
-    * `ECDSA_NISTP521_PublicKeyParams`
-    * `Ed25519PublicKeyParams`
-    * `SecurityKey_ECDSA_NISTP256_PublicKeyParams`
-    * `SecurityKey_Ed25519_PublicKeyParams`
+    * :py:class:`.rsa.RSAPublicKeyParams`
+    * :py:class:`.dss.DSSPublicKeyParams`
+    * :py:class:`.ecdsa.ECDSA_NISTP256_PublicKeyParams`
+    * :py:class:`.ecdsa.ECDSA_NISTP384_PublicKeyParams`
+    * :py:class:`.ecdsa.ECDSA_NISTP521_PublicKeyParams`
+    * :py:class:`.ed25519.Ed25519PublicKeyParams`
+    * :py:class:`.sk.SecurityKey_ECDSA_NISTP256_PublicKeyParams`
+    * :py:class:`.sk.SecurityKey_Ed25519_PublicKeyParams`
 
     OpenSSH supports certificate authorities of the following key types:
 
-    * `RSAPublicKeyParams`
-    * `DSSPublicKeyParams`
-    * `ECDSA_NISTP256_PublicKeyParams`
-    * `ECDSA_NISTP384_PublicKeyParams`
-    * `ECDSA_NISTP521_PublicKeyParams`
-    * `Ed25519PublicKeyParams`
+    * :py:class:`.rsa.RSAPublicKeyParams`
+    * :py:class:`.dss.DSSPublicKeyParams`
+    * :py:class:`.ecdsa.ECDSA_NISTP256_PublicKeyParams`
+    * :py:class:`.ecdsa.ECDSA_NISTP384_PublicKeyParams`
+    * :py:class:`.ecdsa.ECDSA_NISTP521_PublicKeyParams`
+    * :py:class:`.ed25519.Ed25519PublicKeyParams`
 
     The names and iteration order of parameters of a certificate is:
 
