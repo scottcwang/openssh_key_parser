@@ -7,7 +7,7 @@ import typing
 import warnings
 
 from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric import ed25519
+from cryptography.hazmat.primitives.asymmetric import ed25519 as cryptography_ed25519
 from openssh_key import utils
 from openssh_key.pascal_style_byte_stream import (FormatInstructionsDict,
                                                   PascalStyleFormatInstruction,
@@ -47,9 +47,15 @@ class Ed25519PublicKeyParams(PublicKeyParams):
 
     @staticmethod
     def get_key_size() -> int:
+        """
+        The value 32, the key size, in bytes, of an Ed25519 key.
+        """
         return 32
 
     KEY_SIZE = utils.readonly_static_property(get_key_size)
+    """
+    The value 32, the key size, in bytes, of an Ed25519 key.
+    """
 
     def check_params_are_valid(self) -> None:
         """Checks whether the values within this parameters object conform to
@@ -86,7 +92,7 @@ class Ed25519PublicKeyParams(PublicKeyParams):
             parameter values.
         """
         def ed25519_public_key_convert_from_cryptography(
-            key_object: ed25519.Ed25519PublicKey
+            key_object: cryptography_ed25519.Ed25519PublicKey
         ) -> ValuesDict:
             return {
                 'public': key_object.public_bytes(
@@ -97,8 +103,8 @@ class Ed25519PublicKeyParams(PublicKeyParams):
 
         def ed25519_public_key_convert_to_cryptography(
             key_params: ValuesDict
-        ) -> ed25519.Ed25519PublicKey:
-            return ed25519.Ed25519PublicKey.from_public_bytes(
+        ) -> cryptography_ed25519.Ed25519PublicKey:
+            return cryptography_ed25519.Ed25519PublicKey.from_public_bytes(
                 key_params['public']
             )
 
@@ -118,7 +124,7 @@ class Ed25519PublicKeyParams(PublicKeyParams):
             typing.Type[typing.Any],
             ConversionFunctions
         ] = {
-            ed25519.Ed25519PublicKey: ConversionFunctions(
+            cryptography_ed25519.Ed25519PublicKey: ConversionFunctions(
                 ed25519_public_key_convert_from_cryptography,
                 ed25519_public_key_convert_to_cryptography
             ),
@@ -238,7 +244,7 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
             an Ed25519 private key (the key size is 32 bytes).
         """
 
-        private_key = ed25519.Ed25519PrivateKey.generate()
+        private_key = cryptography_ed25519.Ed25519PrivateKey.generate()
 
         private_bytes = private_key.private_bytes(
             encoding=serialization.Encoding.Raw,
@@ -276,7 +282,7 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
             parameter values.
         """
         def ed25519_private_key_convert_from_cryptography(
-            key_object: ed25519.Ed25519PrivateKey
+            key_object: cryptography_ed25519.Ed25519PrivateKey
         ) -> ValuesDict:
             private_bytes = key_object.private_bytes(
                 encoding=serialization.Encoding.Raw,
@@ -294,8 +300,8 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
 
         def ed25519_private_key_convert_to_cryptography(
             key_params: ValuesDict
-        ) -> ed25519.Ed25519PrivateKey:
-            return ed25519.Ed25519PrivateKey.from_private_bytes(
+        ) -> cryptography_ed25519.Ed25519PrivateKey:
+            return cryptography_ed25519.Ed25519PrivateKey.from_private_bytes(
                 key_params[
                     'private_public'
                 ][:Ed25519PrivateKeyParams.KEY_SIZE]
@@ -305,7 +311,7 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
             key_object: bytes
         ) -> ValuesDict:
             private_bytes = key_object
-            public_bytes = ed25519.Ed25519PrivateKey.from_private_bytes(
+            public_bytes = cryptography_ed25519.Ed25519PrivateKey.from_private_bytes(
                 key_object
             ).public_key().public_bytes(
                 encoding=serialization.Encoding.Raw,
@@ -329,7 +335,7 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
             typing.Type[typing.Any],
             ConversionFunctions
         ] = {
-            ed25519.Ed25519PrivateKey: ConversionFunctions(
+            cryptography_ed25519.Ed25519PrivateKey: ConversionFunctions(
                 ed25519_private_key_convert_from_cryptography,
                 ed25519_private_key_convert_to_cryptography
             ),

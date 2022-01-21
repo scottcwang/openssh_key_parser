@@ -6,7 +6,7 @@ Classes representing RSA keys.
 import types
 import typing
 
-from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives.asymmetric import rsa as cryptography_rsa
 from openssh_key import utils
 from openssh_key.pascal_style_byte_stream import (FormatInstructionsDict,
                                                   PascalStyleFormatInstruction,
@@ -70,7 +70,7 @@ class RSAPublicKeyParams(PublicKeyParams):
             parameter values.
         """
         def rsa_public_key_convert_from_cryptography(
-            key_object: rsa.RSAPublicKey
+            key_object: cryptography_rsa.RSAPublicKey
         ) -> ValuesDict:
             public_numbers = key_object.public_numbers()
             return {
@@ -80,14 +80,14 @@ class RSAPublicKeyParams(PublicKeyParams):
 
         def rsa_public_key_convert_to_cryptography(
             key_params: ValuesDict
-        ) -> rsa.RSAPublicKey:
-            return rsa.RSAPublicNumbers(
+        ) -> cryptography_rsa.RSAPublicKey:
+            return cryptography_rsa.RSAPublicNumbers(
                 key_params['e'],
                 key_params['n']
             ).public_key()
 
         return {
-            rsa.RSAPublicKey: ConversionFunctions(
+            cryptography_rsa.RSAPublicKey: ConversionFunctions(
                 rsa_public_key_convert_from_cryptography,
                 rsa_public_key_convert_to_cryptography
             )
@@ -141,15 +141,27 @@ class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
 
     @staticmethod
     def get_public_exponent() -> int:
+        """
+        The value 65537, the default public exponent of an RSA key.
+        """
         return 65537
 
     PUBLIC_EXPONENT = utils.readonly_static_property(get_public_exponent)
+    """
+    The value 65537, the default public exponent of an RSA key.
+    """
 
     @staticmethod
     def get_key_size() -> int:
+        """
+        The value 4096, the default key size, in bits, of an RSA key.
+        """
         return 4096
     
     KEY_SIZE = utils.readonly_static_property(get_key_size)
+    """
+    The value 4096, the default key size, in bits, of an RSA key.
+    """
 
     @classmethod
     def generate_private_params(
@@ -170,7 +182,7 @@ class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
             ``kwargs['key_size']`` is not given, a key of length 4096 is
             generated.
         """
-        private_key = rsa.generate_private_key(
+        private_key = cryptography_rsa.generate_private_key(
             public_exponent=(
                 kwargs['e'] if 'e' in kwargs else cls.PUBLIC_EXPONENT
             ),
@@ -207,7 +219,7 @@ class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
             parameter values.
         """
         def rsa_private_key_convert_from_cryptography(
-            key_object: rsa.RSAPrivateKey
+            key_object: cryptography_rsa.RSAPrivateKey
         ) -> ValuesDict:
             private_numbers = key_object.private_numbers()
             return {
@@ -221,24 +233,24 @@ class RSAPrivateKeyParams(PrivateKeyParams, RSAPublicKeyParams):
 
         def rsa_private_key_convert_to_cryptography(
             key_params: ValuesDict
-        ) -> rsa.RSAPrivateKey:
-            return rsa.RSAPrivateNumbers(
+        ) -> cryptography_rsa.RSAPrivateKey:
+            return cryptography_rsa.RSAPrivateNumbers(
                 key_params['p'],
                 key_params['q'],
                 key_params['d'],
-                rsa.rsa_crt_dmp1(
+                cryptography_rsa.rsa_crt_dmp1(
                     key_params['d'], key_params['p']),
-                rsa.rsa_crt_dmp1(
+                cryptography_rsa.rsa_crt_dmp1(
                     key_params['d'], key_params['q']),
                 key_params['iqmp'],
-                rsa.RSAPublicNumbers(
+                cryptography_rsa.RSAPublicNumbers(
                     key_params['e'],
                     key_params['n']
                 )
             ).private_key()
 
         return {
-            rsa.RSAPrivateKey: ConversionFunctions(
+            cryptography_rsa.RSAPrivateKey: ConversionFunctions(
                 rsa_private_key_convert_from_cryptography,
                 rsa_private_key_convert_to_cryptography
             )

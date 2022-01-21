@@ -1,3 +1,8 @@
+"""
+Modules for classes representing public- and private-key parameters for keys of
+various cryptosystems.
+"""
+
 from .cert import *
 from .common import *
 from .dss import *

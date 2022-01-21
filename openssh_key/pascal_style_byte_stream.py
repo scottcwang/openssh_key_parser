@@ -17,9 +17,18 @@ class PascalStyleFormatInstruction(enum.Enum):
     `RFC 4251 <https://tools.ietf.org/html/rfc4251#section-5>`_.
     """
     BYTES = bytes
+    """
+    A Python :py:class:`bytes`.
+    """
+
     STRING = str
+    """
+    A Python :py:class:`str`.
+    """
+
     MPINT = int
-    """A big-endian, signed ``int`` value.
+    """
+    A big-endian, signed :py:class:`int` value.
     """
 
 
@@ -68,11 +77,19 @@ class PascalStyleByteStream(io.BytesIO):
 
     @staticmethod
     def get_openssh_default_string_length_size() -> int:
+        """
+        The value 4, the size in bytes used by OpenSSH for the ``int`` preceding
+        a variable-length value that indicates the length of the latter.
+        """
         return 4
 
     OPENSSH_DEFAULT_STRING_LENGTH_SIZE = utils.readonly_static_property(
         get_openssh_default_string_length_size
     )
+    """
+    The value 4, the size in bytes used by OpenSSH for the ``int`` preceding
+    a variable-length value that indicates the length of the latter.
+    """
 
     def read_from_format_instruction(
         self,
@@ -361,7 +378,7 @@ class PascalStyleByteStream(io.BytesIO):
                 A :py:class:`typing.Mapping` of value names to format
                 instructions.
             values_dicts
-                A :py:class:`typing.List` of :py:class:`typing.Mapping`s
+                A :py:class:`typing.List` of :py:class:`typing.Mapping`
                 of value names to values to be written.
 
         Raises:

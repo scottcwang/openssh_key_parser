@@ -151,9 +151,15 @@ class DSSPrivateKeyParams(PrivateKeyParams, DSSPublicKeyParams):
 
     @staticmethod
     def get_key_size() -> int:
+        """
+        The value 1024, the key size, in bits, of a DSS key.
+        """
         return 1024
 
     KEY_SIZE = utils.readonly_static_property(get_key_size)
+    """
+    The value 1024, the key size, in bits, of a DSS key.
+    """
 
     @classmethod
     def generate_private_params(
