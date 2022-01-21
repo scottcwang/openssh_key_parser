@@ -1,3 +1,7 @@
+"""
+Classes representing DSS keys.
+"""
+
 import types
 import typing
 

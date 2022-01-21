@@ -1,3 +1,7 @@
+"""
+Classes representing Ed25519 keys.
+"""
+
 import types
 import typing
 import warnings

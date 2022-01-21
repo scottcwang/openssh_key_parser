@@ -1,3 +1,7 @@
+"""
+Classes representing ECDSA keys.
+"""
+
 import abc
 import types
 import typing
@@ -317,6 +321,10 @@ class ECDSAPrivateKeyParams(PrivateKeyParams, ECDSAPublicKeyParams):
 
 
 class ECDSA_NISTP256_PublicKeyParams(ECDSAPublicKeyParams):
+    """
+    The parameters representing a public ECDSA key on the ``nistp256`` curve.
+    """
+
     @staticmethod
     def get_curve_identifier() -> str:
         """The value ``'nistp256'``.
@@ -337,10 +345,16 @@ class ECDSA_NISTP256_PublicKeyParams(ECDSAPublicKeyParams):
 
 
 class ECDSA_NISTP256_PrivateKeyParams(ECDSA_NISTP256_PublicKeyParams, ECDSAPrivateKeyParams):
-    pass
+    """
+    The parameters representing a private ECDSA key on the ``nistp256`` curve.
+    """
 
 
 class ECDSA_NISTP384_PublicKeyParams(ECDSAPublicKeyParams):
+    """
+    The parameters representing a public ECDSA key on the ``nistp384`` curve.
+    """
+
     @staticmethod
     def get_curve_identifier() -> str:
         """The value ``'nistp384'``.
@@ -361,10 +375,16 @@ class ECDSA_NISTP384_PublicKeyParams(ECDSAPublicKeyParams):
 
 
 class ECDSA_NISTP384_PrivateKeyParams(ECDSA_NISTP384_PublicKeyParams, ECDSAPrivateKeyParams):
-    pass
+    """
+    The parameters representing a private ECDSA key on the ``nistp384`` curve.
+    """
 
 
 class ECDSA_NISTP521_PublicKeyParams(ECDSAPublicKeyParams):
+    """
+    The parameters representing a public ECDSA key on the ``nistp521`` curve.
+    """
+
     @staticmethod
     def get_curve_identifier() -> str:
         """The value ``'nistp521'``.
@@ -385,4 +405,6 @@ class ECDSA_NISTP521_PublicKeyParams(ECDSAPublicKeyParams):
 
 
 class ECDSA_NISTP521_PrivateKeyParams(ECDSA_NISTP521_PublicKeyParams, ECDSAPrivateKeyParams):
-    pass
+    """
+    The parameters representing a private ECDSA key on the ``nistp521`` curve.
+    """

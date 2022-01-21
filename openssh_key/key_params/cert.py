@@ -1,3 +1,8 @@
+"""
+Classes representing OpenSSH host and user certificates.
+"""
+
+
 import abc
 import datetime
 import enum
@@ -33,12 +38,27 @@ class CertPrincipalType(enum.Enum):
 
 
 class CertOptionNameAndValidPrincipalTypes(typing.NamedTuple):
+    """
+    A certificate option's name and the types of certificate principals for
+    which this certificate option is valid.
+    """
+
     name: str
+    """
+    The certificate option's name.
+    """
+
     valid_principal_types: typing.List[CertPrincipalType]
+    """
+    The types of certificate principals for which this certificate option is
+    valid.
+    """
 
 
 class CertOption(enum.Enum):
-    pass
+    """
+    A certificate option.
+    """
 
 
 class CertCriticalOption(CertOption):
@@ -200,6 +220,9 @@ class CertPublicKeyParams(PublicKeyParams, abc.ABC):
     @staticmethod
     @abc.abstractmethod
     def get_cert_base_public_key_class() -> typing.Type[PublicKeyParams]:
+        """
+        The type of the public key parameters that this certificate contains.
+        """
         return PublicKeyParams
 
     __FORMAT_INSTRUCTIONS_DICT_SIGNED_BYTES_PREFIX: typing.ClassVar[FormatInstructionsDict] = {
@@ -583,48 +606,85 @@ class CertPublicKeyParams(PublicKeyParams, abc.ABC):
 
 
 class Cert_RSA_PublicKeyParams(CertPublicKeyParams, RSAPublicKeyParams):
+    """
+    The parameters comprising a certificate for an RSA public key.
+    """
+
     @staticmethod
     def get_cert_base_public_key_class() -> typing.Type[PublicKeyParams]:
         return RSAPublicKeyParams
 
 
 class Cert_Ed25519_PublicKeyParams(CertPublicKeyParams, Ed25519PublicKeyParams):
+    """
+    The parameters comprising a certificate for an Ed25519 public key.
+    """
+
     @staticmethod
     def get_cert_base_public_key_class() -> typing.Type[PublicKeyParams]:
         return Ed25519PublicKeyParams
 
 
 class Cert_DSS_PublicKeyParams(CertPublicKeyParams, DSSPublicKeyParams):
+    """
+    The parameters comprising a certificate for a DSS public key.
+    """
+
     @staticmethod
     def get_cert_base_public_key_class() -> typing.Type[PublicKeyParams]:
         return DSSPublicKeyParams
 
 
 class Cert_ECDSA_NISTP256_PublicKeyParams(CertPublicKeyParams, ECDSA_NISTP256_PublicKeyParams):
+    """
+    The parameters comprising a certificate for an ECDSA key on the
+    ``nistp256`` curve.
+    """
+
     @staticmethod
     def get_cert_base_public_key_class() -> typing.Type[PublicKeyParams]:
         return ECDSA_NISTP256_PublicKeyParams
 
 
 class Cert_ECDSA_NISTP384_PublicKeyParams(CertPublicKeyParams, ECDSA_NISTP384_PublicKeyParams):
+    """
+    The parameters comprising a certificate for an ECDSA key on the
+    ``nistp384`` curve.
+    """
+
     @staticmethod
     def get_cert_base_public_key_class() -> typing.Type[PublicKeyParams]:
         return ECDSA_NISTP384_PublicKeyParams
 
 
 class Cert_ECDSA_NISTP521_PublicKeyParams(CertPublicKeyParams, ECDSA_NISTP521_PublicKeyParams):
+    """
+    The parameters comprising a certificate for an ECDSA key on the
+    ``nistp521`` curve.
+    """
+
     @staticmethod
     def get_cert_base_public_key_class() -> typing.Type[PublicKeyParams]:
         return ECDSA_NISTP521_PublicKeyParams
 
 
 class Cert_SecurityKey_Ed25519_PublicKeyParams(CertPublicKeyParams, SecurityKey_Ed25519_PublicKeyParams):
+    """
+    The parameters comprising a certificate for an Ed25519 public key that
+    corresponds to a private key stored on a security key.
+    """
+
     @staticmethod
     def get_cert_base_public_key_class() -> typing.Type[PublicKeyParams]:
         return SecurityKey_Ed25519_PublicKeyParams
 
 
 class Cert_SecurityKey_ECDSA_NISTP256_PublicKeyParams(CertPublicKeyParams, SecurityKey_ECDSA_NISTP256_PublicKeyParams):
+    """
+    The parameters comprising a certificate for an ECDSA key that
+    corresponds to a private key stored on a security key.
+    """
+
     @staticmethod
     def get_cert_base_public_key_class() -> typing.Type[PublicKeyParams]:
         return SecurityKey_ECDSA_NISTP256_PublicKeyParams

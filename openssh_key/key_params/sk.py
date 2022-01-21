@@ -1,3 +1,7 @@
+"""
+Classes representing keys stored on security keys.
+"""
+
 import abc
 import enum
 import types
@@ -13,29 +17,29 @@ from .ed25519 import Ed25519PublicKeyParams
 
 class SecurityKeyFlag(enum.Enum):
     """
-        Security key flags supported by OpenSSH.
-        """
+    Security key flags supported by OpenSSH.
+    """
 
     USER_PRESENCE_REQUIRED = 0x1
     """
-        Whether the private key requires the user to touch it before
-        generating a signature (equivalent to executing ``ssh-keygen``
-        *without* ``-O no-touch-required``).
-        """
+    Whether the private key requires the user to touch it before
+    generating a signature (equivalent to executing ``ssh-keygen``
+    *without* ``-O no-touch-required``).
+    """
 
     USER_VERIFCATION_REQUIRED = 0x4
     """
-        Whether the private key requires user verification (equivalent to
-        executing ``ssh-keygen`` with ``-O verify-required``). Not all FIDO
-        authenticators support this option. OpenSSH presently supports only
-        PIN verification.
-        """
+    Whether the private key requires user verification (equivalent to
+    executing ``ssh-keygen`` with ``-O verify-required``). Not all FIDO
+    authenticators support this option. OpenSSH presently supports only
+    PIN verification.
+    """
 
     RESIDENT_KEY = 0x20
     """
-        Whether the private key should be stored on the FIDO authenticator
-        (equivalent to executing ``ssh-keygen`` with ``-O resident``).
-        """
+    Whether the private key should be stored on the FIDO authenticator
+    (equivalent to executing ``ssh-keygen`` with ``-O resident``).
+    """
 
 
 class SecurityKeyPublicKeyParams(
@@ -43,8 +47,9 @@ class SecurityKeyPublicKeyParams(
     abc.ABC
 ):
     """
-    The parameters comprising a public key stored in a U2F/FIDO security key.
-    OpenSSH supports security keys presenting the following key types:
+    The parameters comprising a public key corresponding to a private key
+    that is stored in a U2F/FIDO security key. OpenSSH supports security keys
+    presenting the following key types:
 
     * `ECDSA_NISTP256_PublicKeyParams`
     * `Ed25519PublicKeyParams`
@@ -160,6 +165,11 @@ class SecurityKey_ECDSA_NISTP256_PublicKeyParams(
     SecurityKeyPublicKeyParams,
     ECDSA_NISTP256_PublicKeyParams
 ):
+    """
+    The parameters that represent an ECDSA key on the ``nistp256`` curve that
+    correspond to a private key stored on a security key.
+    """
+
     @staticmethod
     def get_sk_base_public_key_class() -> typing.Type[PublicKeyParams]:
         return ECDSA_NISTP256_PublicKeyParams
@@ -169,13 +179,21 @@ class SecurityKey_ECDSA_NISTP256_PrivateKeyParams(
     SecurityKeyPrivateKeyParams,
     SecurityKey_ECDSA_NISTP256_PublicKeyParams
 ):
-    pass
+    """
+    The parameters that represent the security key storing an ECDSA key on the
+    ``nistp256`` curve.
+    """
 
 
 class SecurityKey_Ed25519_PublicKeyParams(
     SecurityKeyPublicKeyParams,
     Ed25519PublicKeyParams
 ):
+    """
+    The parameters that represent an Ed25519 key that
+    correspond to a private key stored on a security key.
+    """
+
     @staticmethod
     def get_sk_base_public_key_class() -> typing.Type[PublicKeyParams]:
         return Ed25519PublicKeyParams
@@ -185,4 +203,6 @@ class SecurityKey_Ed25519_PrivateKeyParams(
     SecurityKeyPrivateKeyParams,
     SecurityKey_Ed25519_PublicKeyParams
 ):
-    pass
+    """
+    The parameters that represent the security key storing an Ed25519 key.
+    """

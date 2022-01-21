@@ -1,3 +1,7 @@
+"""
+Methods to provide key params classes given OpenSSH key type names.
+"""
+
 import typing
 
 from .cert import (Cert_DSS_PublicKeyParams,
@@ -24,8 +28,19 @@ from .sk import (SecurityKey_ECDSA_NISTP256_PrivateKeyParams,
 
 
 class PublicPrivateKeyParamsClasses(typing.NamedTuple):
+    """
+    A public key class and its corresponding private key class.
+    """
+
     publicKeyParamsClass: typing.Type[PublicKeyParams]
+    """
+    The public key class.
+    """
+
     privateKeyParamsClass: typing.Optional[typing.Type[PrivateKeyParams]]
+    """
+    The private key class, if any.
+    """
 
 
 _KEY_TYPE_MAPPING = {
