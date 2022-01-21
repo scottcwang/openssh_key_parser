@@ -59,5 +59,5 @@ html_static_path = ['_static']
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
     'cryptography': ('https://cryptography.io/en/latest', None),
-    'pynacl': ('https://pynacl.readthedocs.io/en/stable', None)
+    'pynacl': ('https://pynacl.readthedocs.io/en/latest', None)
 }
