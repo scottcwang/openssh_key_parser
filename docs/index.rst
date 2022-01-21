@@ -6,9 +6,14 @@
 Welcome to openssh_key_parser's documentation!
 ==============================================
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+.. autosummary::
+   :toctree: _autosummary
+   :template: module.rst
+   :recursive:
+
+   openssh_key
+
+
 
 
 

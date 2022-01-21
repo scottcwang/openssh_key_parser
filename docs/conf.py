@@ -28,6 +28,7 @@ author = 'Scott C Wang'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'sphinx.ext.autosummary',
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
     'sphinx_autodoc_typehints',
