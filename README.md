@@ -170,6 +170,22 @@ $ pip install -r requirements-dev.txt
 $ pytest
 ```
 
+## Changelog
+
+### 0.0.2
+
+- Support `ssh-dss`, `ssh-ecdsa-*`, `sk-*@openssh.com` (FIDO/U2F security
+  key) and `*-cert-v01@openssh.com` (certificate) key types
+
+### 0.0.1
+
+Initial release, supporting:
+
+- `ssh-rsa` and `ssh-ed25519` key types
+- `none` and `aes256-ctr` ciphers for private keys
+- `none` and `bcrypt` key derivation functions for ciphers
+- OpenSSH key formats
+
 ## Disclaimer
 
 This software hasn't undergone a security review; use at your own risk.
