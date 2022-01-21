@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.abspath('..'))
 # -- Project information -----------------------------------------------------
 
 project = 'openssh_key_parser'
-copyright = '2020, Scott C Wang'  # pylint: disable=redefined-builtin
+copyright = '2020 - 2022, Scott C Wang'  # pylint: disable=redefined-builtin
 author = 'Scott C Wang'
 
 
