@@ -1,74 +1,75 @@
 import bcrypt
 import pytest
-from openssh_key.kdf import BcryptKDF, NoneKDF, create_kdf
+from openssh_key.kdf_options import (BcryptKDFOptions, NoneKDFOptions,
+                                     create_kdf_options)
 from openssh_key.pascal_style_byte_stream import (PascalStyleByteStream,
                                                   PascalStyleFormatInstruction)
 
 
 def test_factory_none():
-    assert create_kdf('none') == NoneKDF
+    assert create_kdf_options('none') == NoneKDFOptions
 
 
 def test_factory_bcrypt():
-    assert create_kdf('bcrypt') == BcryptKDF
+    assert create_kdf_options('bcrypt') == BcryptKDFOptions
 
 
 def test_none_options_format_instructions_dict():
-    assert NoneKDF.OPTIONS_FORMAT_INSTRUCTIONS_DICT == {}
+    assert NoneKDFOptions.OPTIONS_FORMAT_INSTRUCTIONS_DICT == {}
 
 
 def test_none_generate_options():
-    assert NoneKDF.generate_options() == {}
+    assert NoneKDFOptions.generate_options() == {}
 
 
 def test_bcrypt_options_format_instructions_dict():
-    assert BcryptKDF.OPTIONS_FORMAT_INSTRUCTIONS_DICT == {
+    assert BcryptKDFOptions.OPTIONS_FORMAT_INSTRUCTIONS_DICT == {
         'salt': PascalStyleFormatInstruction.BYTES,
         'rounds': '>I'
     }
 
 
 def test_bcrypt_generate_options():
-    options = BcryptKDF.generate_options()
+    options = BcryptKDFOptions.generate_options()
     with pytest.warns(None) as warnings_list:
         PascalStyleByteStream.check_dict_matches_format_instructions_dict(
             options,
-            BcryptKDF.OPTIONS_FORMAT_INSTRUCTIONS_DICT
+            BcryptKDFOptions.OPTIONS_FORMAT_INSTRUCTIONS_DICT
         )
     assert not warnings_list
-    assert len(options['salt']) == BcryptKDF.SALT_LENGTH
-    assert options['rounds'] == BcryptKDF.ROUNDS
+    assert len(options['salt']) == BcryptKDFOptions.SALT_LENGTH
+    assert options['rounds'] == BcryptKDFOptions.ROUNDS
 
 
 def test_bcrypt_generate_options_salt_length():
     salt_length = 32
-    options = BcryptKDF.generate_options(salt_length=salt_length)
+    options = BcryptKDFOptions.generate_options(salt_length=salt_length)
     with pytest.warns(None) as warnings_list:
         PascalStyleByteStream.check_dict_matches_format_instructions_dict(
             options,
-            BcryptKDF.OPTIONS_FORMAT_INSTRUCTIONS_DICT
+            BcryptKDFOptions.OPTIONS_FORMAT_INSTRUCTIONS_DICT
         )
     assert not warnings_list
     assert len(options['salt']) == salt_length
-    assert options['rounds'] == BcryptKDF.ROUNDS
+    assert options['rounds'] == BcryptKDFOptions.ROUNDS
 
 
 def test_bcrypt_generate_options_rounds():
     rounds = 32
-    options = BcryptKDF.generate_options(rounds=rounds)
+    options = BcryptKDFOptions.generate_options(rounds=rounds)
     with pytest.warns(None) as warnings_list:
         PascalStyleByteStream.check_dict_matches_format_instructions_dict(
             options,
-            BcryptKDF.OPTIONS_FORMAT_INSTRUCTIONS_DICT
+            BcryptKDFOptions.OPTIONS_FORMAT_INSTRUCTIONS_DICT
         )
     assert not warnings_list
-    assert len(options['salt']) == BcryptKDF.SALT_LENGTH
+    assert len(options['salt']) == BcryptKDFOptions.SALT_LENGTH
     assert options['rounds'] == rounds
 
 
 def test_none():
     test_key = 'abcd'
-    assert NoneKDF({}).derive_key(test_key, 0) == b''
+    assert NoneKDFOptions({}).derive_key(test_key, 0) == b''
 
 
 def test_bcrypt_calls_lib(mocker):
@@ -79,7 +80,7 @@ def test_bcrypt_calls_lib(mocker):
         'salt': b'\x00',
         'rounds': 1
     }
-    BcryptKDF(options).derive_key(passphrase, 48)
+    BcryptKDFOptions(options).derive_key(passphrase, 48)
     bcrypt.kdf.assert_called_once_with(  # pylint: disable=no-member
         password=passphrase.encode(),
         salt=options['salt'],

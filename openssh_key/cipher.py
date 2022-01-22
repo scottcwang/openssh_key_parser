@@ -11,7 +11,7 @@ from cryptography.hazmat.primitives.ciphers import algorithms, modes
 from cryptography.hazmat.primitives.ciphers.base import CipherContext
 
 from openssh_key import utils
-from openssh_key.kdf import KDFOptions
+from openssh_key.kdf_options import KDFOptions
 
 
 class Cipher(abc.ABC):

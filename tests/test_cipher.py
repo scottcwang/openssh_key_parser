@@ -1,5 +1,5 @@
 from openssh_key.cipher import AES256_CTRCipher, NoneCipher, create_cipher
-from openssh_key.kdf import KDFOptions
+from openssh_key.kdf_options import KDFOptions
 
 
 class TestIdentityKDF(KDFOptions):

@@ -5,7 +5,7 @@ import warnings
 
 import pytest
 from openssh_key.cipher import create_cipher
-from openssh_key.kdf import create_kdf
+from openssh_key.kdf_options import create_kdf_options
 from openssh_key.key import PrivateKey, PublicKey
 from openssh_key.key_params import (Ed25519PublicKeyParams,
                                     create_private_key_params,
@@ -77,7 +77,7 @@ def correct_kdf_options_bytes(kdf):
     else:
         raise NotImplementedError()
     kdf_options_write_byte_stream.write_from_format_instructions_dict(
-        create_kdf(kdf).OPTIONS_FORMAT_INSTRUCTIONS_DICT,
+        create_kdf_options(kdf).OPTIONS_FORMAT_INSTRUCTIONS_DICT,
         kdf_options
     )
     kdf_options_bytes = kdf_options_write_byte_stream.getvalue()
@@ -116,7 +116,7 @@ def correct_cipher_bytes(
     write_byte_stream=None
 ):
     cipher_bytes = create_cipher(cipher).encrypt(
-        create_kdf(kdf)(kdf_options),
+        create_kdf_options(kdf)(kdf_options),
         passphrase,
         decipher_byte_stream.getvalue()
     )
@@ -916,7 +916,7 @@ def test_private_key_list_from_string_passphrase(mocker):
         ],
         'aes256-ctr',
         'bcrypt',
-        create_kdf('bcrypt').generate_options()
+        create_kdf_options('bcrypt').generate_options()
     )
     passphrase = 'passphrase'
     private_keys_bytes = private_key_list.pack_bytes(passphrase=passphrase)
@@ -1082,7 +1082,7 @@ def private_key_list_pack_bytes_test_assertions(
 
     kdf_options_byte_stream = PascalStyleByteStream()
     kdf_options_byte_stream.write_from_format_instructions_dict(
-        create_kdf(kdf).OPTIONS_FORMAT_INSTRUCTIONS_DICT,
+        create_kdf_options(kdf).OPTIONS_FORMAT_INSTRUCTIONS_DICT,
         kdf_options
     )
     kdf_options_bytes = kdf_options_byte_stream.getvalue()
@@ -1122,7 +1122,7 @@ def private_key_list_pack_bytes_test_assertions(
     )
 
     decipher_bytes = create_cipher(cipher).decrypt(
-        create_kdf(kdf)(kdf_options),
+        create_kdf_options(kdf)(kdf_options),
         passphrase,
         cipher_bytes
     )
