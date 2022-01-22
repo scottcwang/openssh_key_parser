@@ -1,6 +1,6 @@
 import bcrypt
 import pytest
-from openssh_key.kdf import BcryptKDF, KDFResult, NoneKDF, create_kdf
+from openssh_key.kdf import BcryptKDF, NoneKDF, create_kdf
 from openssh_key.pascal_style_byte_stream import (PascalStyleByteStream,
                                                   PascalStyleFormatInstruction)
 
@@ -68,10 +68,7 @@ def test_bcrypt_generate_options_rounds():
 
 def test_none():
     test_key = 'abcd'
-    assert NoneKDF.derive_key({}, test_key) == KDFResult(
-        cipher_key=b'',
-        initialization_vector=b''
-    )
+    assert NoneKDF({}).derive_key(test_key, 0) == b''
 
 
 def test_bcrypt_calls_lib(mocker):
@@ -82,28 +79,11 @@ def test_bcrypt_calls_lib(mocker):
         'salt': b'\x00',
         'rounds': 1
     }
-    BcryptKDF.derive_key(options, passphrase)
+    BcryptKDF(options).derive_key(passphrase, 48)
     bcrypt.kdf.assert_called_once_with(  # pylint: disable=no-member
         password=passphrase.encode(),
         salt=options['salt'],
-        desired_key_bytes=BcryptKDF.IV_LENGTH+BcryptKDF.KEY_LENGTH,
+        desired_key_bytes=48,
         rounds=options['rounds'],
         ignore_few_rounds=True
-    )
-
-
-def test_bcrypt_returns_key_iv(mocker):
-    def mock_bcrypt_kdf(**_):
-        return b'\x00' * BcryptKDF.KEY_LENGTH + b'\x01' * BcryptKDF.IV_LENGTH
-    mocker.patch('bcrypt.kdf', mock_bcrypt_kdf)
-
-    passphrase = 'abcd'
-    options = {
-        'salt': b'\x00',
-        'rounds': 1
-    }
-    key_iv = BcryptKDF.derive_key(options, passphrase)
-    assert key_iv == KDFResult(
-        cipher_key=b'\x00' * BcryptKDF.KEY_LENGTH,
-        initialization_vector=b'\x01' * BcryptKDF.IV_LENGTH
     )

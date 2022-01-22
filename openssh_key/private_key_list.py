@@ -216,10 +216,12 @@ class PrivateKeyList(BaseList):
         )
 
         kdf_class = create_kdf(header['kdf'])
-        kdf_options = PascalStyleByteStream(
-            header['kdf_options']
-        ).read_from_format_instructions_dict(
-            kdf_class.OPTIONS_FORMAT_INSTRUCTIONS_DICT
+        kdf_options = kdf_class(
+            PascalStyleByteStream(
+                header['kdf_options']
+            ).read_from_format_instructions_dict(
+                kdf_class.OPTIONS_FORMAT_INSTRUCTIONS_DICT
+            )
         )
 
         cipher_class = create_cipher(header['cipher'])
@@ -229,10 +231,9 @@ class PrivateKeyList(BaseList):
         elif passphrase is None:
             passphrase = getpass.getpass('Key passphrase: ')
 
-        kdf_result = kdf_class.derive_key(kdf_options, passphrase)
-
         decipher_bytes = cipher_class.decrypt(
-            kdf_result,
+            kdf_class(kdf_options),
+            passphrase,
             cipher_bytes
         )
 
@@ -403,7 +404,7 @@ class PrivateKeyList(BaseList):
             initlist.append(key_pair)
 
         if kdf_options is None:
-            kdf_options = {}
+            kdf_options = NoneKDF({})
 
         return cls(
             initlist,
@@ -521,9 +522,9 @@ class PrivateKeyList(BaseList):
         elif passphrase is None:
             passphrase = getpass.getpass('Key passphrase: ')
 
-        kdf_result = create_kdf(kdf).derive_key(kdf_options, passphrase)
         cipher_bytes = create_cipher(cipher).encrypt(
-            kdf_result,
+            create_kdf(kdf)(kdf_options),
+            passphrase,
             decipher_byte_stream.getvalue()
         )
         write_byte_stream.write_from_format_instruction(

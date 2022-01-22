@@ -3,7 +3,6 @@ cryptosystems.
 """
 
 import abc
-import collections
 import types
 import typing
 
@@ -39,16 +38,7 @@ class ConversionFunctions(typing.NamedTuple):
     """
 
 
-# https://github.com/python/mypy/issues/5264
-if typing.TYPE_CHECKING:  # pragma: no cover
-    BaseDict = collections.UserDict[  # pylint: disable=unsubscriptable-object
-        str, typing.Any
-    ]
-else:
-    BaseDict = collections.UserDict
-
-
-class PublicKeyParams(BaseDict, abc.ABC):
+class PublicKeyParams(utils.BaseDict, abc.ABC):
     """The parameters comprising a key.
 
     The names and iteration order of parameters of *public* keys recognized by

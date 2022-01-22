@@ -11,7 +11,7 @@ from cryptography.hazmat.primitives.ciphers import algorithms, modes
 from cryptography.hazmat.primitives.ciphers.base import CipherContext
 
 from openssh_key import utils
-from openssh_key.kdf import KDFResult
+from openssh_key.kdf import KDFOptions
 
 
 class Cipher(abc.ABC):
@@ -21,10 +21,12 @@ class Cipher(abc.ABC):
     multiple of a cipher-specific block size, given a key and an
     initialization vector.
     """
-    @staticmethod
+    @classmethod
     @abc.abstractmethod
     def encrypt(
-        kdf_result: KDFResult,
+        cls,
+        kdf: KDFOptions,
+        passphrase: str,
         plain_bytes: bytes
     ) -> bytes:
         """Encrypts the given plaintext bytes using the given result from a
@@ -40,10 +42,12 @@ class Cipher(abc.ABC):
             Ciphertext bytes.
         """
 
-    @staticmethod
+    @classmethod
     @abc.abstractmethod
     def decrypt(
-        kdf_result: KDFResult,
+        cls,
+        kdf: KDFOptions,
+        passphrase: str,
         cipher_bytes: bytes
     ) -> bytes:
         """Decrypts the given ciphertext bytes using the given result from a
@@ -74,9 +78,11 @@ class Cipher(abc.ABC):
 class NoneCipher(Cipher):
     """Null encryption.
     """
-    @staticmethod
+    @classmethod
     def encrypt(
-        kdf_result: KDFResult,
+        cls,
+        kdf: KDFOptions,
+        passphrase: str,
         plain_bytes: bytes
     ) -> bytes:
         """Returns the plaintext bytes as given.
@@ -92,9 +98,11 @@ class NoneCipher(Cipher):
         """
         return plain_bytes
 
-    @staticmethod
+    @classmethod
     def decrypt(
-        kdf_result: KDFResult,
+        cls,
+        kdf: KDFOptions,
+        passphrase: str,
         cipher_bytes: bytes
     ) -> bytes:
         """Returns the ciphertext bytes as given.
@@ -120,13 +128,27 @@ class NoneCipher(Cipher):
 
 
 class AES256_CTRCipher(Cipher):
+    @staticmethod
+    def get_key_length() -> int:
+        return 32
+
+    KEY_LENGTH = utils.readonly_static_property(get_key_length)
+
+    @staticmethod
+    def get_iv_length() -> int:
+        return 16
+
+    IV_LENGTH = utils.readonly_static_property(get_iv_length)
+
     """The Advanced Encryption Standard (the Rijndael block cipher) with a key
     length of 256 bits, under the counter mode of operation initialized with a
     given initialization vector.
     """
-    @staticmethod
+    @classmethod
     def encrypt(
-        kdf_result: KDFResult,
+        cls,
+        kdf: KDFOptions,
+        passphrase: str,
         plain_bytes: bytes
     ) -> bytes:
         """Encrypts the given plaintext bytes using the given key and
@@ -145,17 +167,24 @@ class AES256_CTRCipher(Cipher):
         Returns:
             Ciphertext bytes.
         """
+        kdf_result = kdf.derive_key(passphrase, cls.KEY_LENGTH + cls.IV_LENGTH)
+
+        cipher_key = kdf_result[:cls.KEY_LENGTH]
+        initialization_vector = kdf_result[-cls.IV_LENGTH:]
+
         cipher = ciphers.Cipher(
-            algorithms.AES(kdf_result.cipher_key),
-            modes.CTR(kdf_result.initialization_vector)
+            algorithms.AES(cipher_key),
+            modes.CTR(initialization_vector)
         )
         # https://github.com/pyca/cryptography/issues/6083
         encryptor: CipherContext = cipher.encryptor()  # type: ignore[no-untyped-call]
         return encryptor.update(plain_bytes) + encryptor.finalize()
 
-    @staticmethod
+    @classmethod
     def decrypt(
-        kdf_result: KDFResult,
+        cls,
+        kdf: KDFOptions,
+        passphrase: str,
         cipher_bytes: bytes
     ) -> bytes:
         """Decrypts the given ciphertext bytes using the given key and
@@ -174,9 +203,14 @@ class AES256_CTRCipher(Cipher):
         Returns:
             Plaintext bytes.
         """
+        kdf_result = kdf.derive_key(passphrase, cls.KEY_LENGTH + cls.IV_LENGTH)
+
+        cipher_key = kdf_result[:cls.KEY_LENGTH]
+        initialization_vector = kdf_result[-cls.IV_LENGTH:]
+
         cipher = ciphers.Cipher(
-            algorithms.AES(kdf_result.cipher_key),
-            modes.CTR(kdf_result.initialization_vector)
+            algorithms.AES(cipher_key),
+            modes.CTR(initialization_vector)
         )
         decryptor: CipherContext = cipher.decryptor()  # type: ignore[no-untyped-call]
         return decryptor.update(cipher_bytes) + decryptor.finalize()

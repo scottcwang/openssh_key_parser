@@ -12,36 +12,24 @@ import bcrypt
 
 from openssh_key import utils
 from openssh_key.pascal_style_byte_stream import (FormatInstructionsDict,
-                                                  PascalStyleFormatInstruction,
-                                                  ValuesDict)
+                                                  PascalStyleFormatInstruction)
 
-KDFTypeVar = typing.TypeVar(
-    'KDFTypeVar',
-    bound='KDF'
+KDFOptionsTypeVar = typing.TypeVar(
+    'KDFOptionsTypeVar',
+    bound='KDFOptions'
 )
 
-KDFOptions = ValuesDict
 
-
-class KDFResult(typing.NamedTuple):
-    """The result of a key derivation function.
-    """
-
-    cipher_key: bytes
-    initialization_vector: bytes
-
-
-class KDF(abc.ABC):
-    """A password-based key derivation function.
+class KDFOptions(utils.BaseDict, abc.ABC):
+    """The parameters of a password-based key derivation function.
 
     Used to obtain a pseudorandom symmetric key by cryptographically hashing
     a potentially low-entropy passphrase given certain parameters, such as a
     work factor, memory factor, or salt.
     """
 
-    @staticmethod
     @abc.abstractmethod
-    def derive_key(options: KDFOptions, passphrase: str) -> KDFResult:
+    def derive_key(self, passphrase: str, length: int) -> bytes:
         """Derives a key derivation function result from a given passphrase
         and parameters.
 
@@ -54,23 +42,20 @@ class KDF(abc.ABC):
         Returns:
             Key derivation function result.
         """
-        return KDFResult(
-            cipher_key=b'',
-            initialization_vector=b''
-        )
+        return b''
 
     __OPTIONS_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
         FormatInstructionsDict
     ]
 
-    @staticmethod
+    @classmethod
     @abc.abstractmethod
-    def get_options_format_instructions_dict() -> FormatInstructionsDict:
+    def get_options_format_instructions_dict(cls) -> FormatInstructionsDict:
         """The Pascal-style byte stream format instructions for the parameters
         to a key derivation function.
         """
         return types.MappingProxyType(
-            KDF.__OPTIONS_FORMAT_INSTRUCTIONS_DICT
+            KDFOptions.__OPTIONS_FORMAT_INSTRUCTIONS_DICT
         )
 
     OPTIONS_FORMAT_INSTRUCTIONS_DICT = utils.readonly_static_property(
@@ -83,9 +68,9 @@ class KDF(abc.ABC):
     @classmethod
     @abc.abstractmethod
     def generate_options(
-        cls: typing.Type[KDFTypeVar],
+        cls: typing.Type[KDFOptionsTypeVar],
         **kwargs: typing.Any
-    ) -> KDFOptions:
+    ) -> KDFOptionsTypeVar:
         """Generates parameters to be consumed by a key derivation function.
 
         Args:
@@ -95,16 +80,22 @@ class KDF(abc.ABC):
         Returns:
             Generated key generation function parameters.
         """
-        return {}
+        return cls({})
 
 
-class NoneKDF(KDF):
+NoneKDFTypeVar = typing.TypeVar(
+    'NoneKDFTypeVar',
+    bound='NoneKDF'
+)
+
+
+class NoneKDF(KDFOptions):
     """Null key derivation function.
 
     To be used only with null encryption.
     """
-    @staticmethod
-    def derive_key(options: KDFOptions, passphrase: str) -> KDFResult:
+
+    def derive_key(self, passphrase: str, length: int) -> bytes:
         """Returns an empty key derivation function result for use with null
         encryption.
 
@@ -117,10 +108,7 @@ class NoneKDF(KDF):
         Returns:
             An empty key derivation function result.
         """
-        return KDFResult(
-            cipher_key=b'',
-            initialization_vector=b''
-        )
+        return b''
 
     __OPTIONS_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
         FormatInstructionsDict
@@ -128,43 +116,37 @@ class NoneKDF(KDF):
     """Empty format instructions.
     """
 
-    @staticmethod
-    def get_options_format_instructions_dict() -> FormatInstructionsDict:
+    @classmethod
+    def get_options_format_instructions_dict(cls) -> FormatInstructionsDict:
         return types.MappingProxyType(
             NoneKDF.__OPTIONS_FORMAT_INSTRUCTIONS_DICT
         )
 
     @classmethod
     def generate_options(
-        cls: typing.Type['NoneKDF'],
+        cls: typing.Type[NoneKDFTypeVar],
         **kwargs: typing.Any
-    ) -> KDFOptions:
+    ) -> NoneKDFTypeVar:
         """Empty key derivation function parameters.
 
         Returns:
             An empty ``dict``.
         """
-        return {}
+        return cls({})
 
 
-class BcryptKDF(KDF):
+BcryptKDFTypeVar = typing.TypeVar(
+    'BcryptKDFTypeVar',
+    bound='BcryptKDF'
+)
+
+
+class BcryptKDF(KDFOptions):
     """Bcrypt-PBKDF2, as implemented by OpenSSH; viz., the `RFC 2898
     Password-based Key Derivation Function 2 <https://tools.ietf.org/html/rfc2898#section-5.2>`_,
     using the Blowfish-cipher-based password hash function as the pseudorandom
     function.
     """
-
-    @staticmethod
-    def get_key_length() -> int:
-        return 32
-
-    KEY_LENGTH = utils.readonly_static_property(get_key_length)
-
-    @staticmethod
-    def get_iv_length() -> int:
-        return 16
-
-    IV_LENGTH = utils.readonly_static_property(get_iv_length)
 
     @staticmethod
     def get_salt_length() -> int:
@@ -178,8 +160,7 @@ class BcryptKDF(KDF):
 
     ROUNDS = utils.readonly_static_property(get_rounds)
 
-    @staticmethod
-    def derive_key(options: KDFOptions, passphrase: str) -> KDFResult:
+    def derive_key(self, passphrase: str, length: int) -> bytes:
         """Derives a bcrypt-PBKDF2 result from a given passphrase and
         parameters.
 
@@ -200,16 +181,12 @@ class BcryptKDF(KDF):
             ValueError: ``passphrase`` or ``options['salt']`` is empty, or
                 ``options['rounds']`` is negative.
         """
-        bcrypt_result = bcrypt.kdf(
+        return bcrypt.kdf(
             password=passphrase.encode(),
-            salt=options['salt'],
-            desired_key_bytes=BcryptKDF.KEY_LENGTH + BcryptKDF.IV_LENGTH,
-            rounds=options['rounds'],
+            salt=self['salt'],
+            desired_key_bytes=length,
+            rounds=self['rounds'],
             ignore_few_rounds=True
-        )
-        return KDFResult(
-            cipher_key=bcrypt_result[:BcryptKDF.KEY_LENGTH],
-            initialization_vector=bcrypt_result[-BcryptKDF.IV_LENGTH:]
         )
 
     __OPTIONS_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
@@ -222,17 +199,17 @@ class BcryptKDF(KDF):
     to bcrypt-PBKDF2.
     """
 
-    @staticmethod
-    def get_options_format_instructions_dict() -> FormatInstructionsDict:
+    @classmethod
+    def get_options_format_instructions_dict(cls) -> FormatInstructionsDict:
         return types.MappingProxyType(
             BcryptKDF.__OPTIONS_FORMAT_INSTRUCTIONS_DICT
         )
 
     @classmethod
     def generate_options(
-        cls: typing.Type['BcryptKDF'],
+        cls: typing.Type[BcryptKDFTypeVar],
         **kwargs: typing.Any
-    ) -> KDFOptions:
+    ) -> BcryptKDFTypeVar:
         """Generates parameters to be consumed by bcrypt-PBKDF2.
 
         Args:
@@ -245,7 +222,7 @@ class BcryptKDF(KDF):
             bytes is generated, and if ``kwargs['rounds']`` is not given, 16
             PBKDF2 rounds are used.
         """
-        return {
+        return cls({
             'salt': secrets.token_bytes(
                 kwargs['salt_length'] if 'salt_length' in kwargs
                 else cls.SALT_LENGTH
@@ -254,7 +231,7 @@ class BcryptKDF(KDF):
                 kwargs['rounds'] if 'rounds' in kwargs
                 else cls.ROUNDS
             )
-        }
+        })
 
 
 _KDF_MAPPING = {
@@ -263,7 +240,7 @@ _KDF_MAPPING = {
 }
 
 
-def create_kdf(kdf_type: str) -> typing.Type[KDF]:
+def create_kdf(kdf_type: str) -> typing.Type[KDFOptions]:
     """Returns the class corresponding to the given key derivation function
     type name.
 

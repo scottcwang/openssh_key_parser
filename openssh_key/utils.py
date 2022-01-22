@@ -2,6 +2,7 @@
 Utility classes and methods.
 """
 
+import collections
 import typing
 
 
@@ -50,3 +51,12 @@ class readonly_static_property(
             ReadonlyStaticPropertyTypeVar,
             getattr(cls, self._getter.__name__)()
         )
+
+
+# https://github.com/python/mypy/issues/5264
+if typing.TYPE_CHECKING:  # pragma: no cover
+    BaseDict = collections.UserDict[  # pylint: disable=unsubscriptable-object
+        str, typing.Any
+    ]
+else:
+    BaseDict = collections.UserDict
