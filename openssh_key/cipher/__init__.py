@@ -10,6 +10,8 @@ from .factory import *
 __all__ = [
     'Cipher',
     'NoneCipher',
+    'AES128_CTRCipher',
+    'AES192_CTRCipher',
     'AES256_CTRCipher',
     'create_cipher'
 ]

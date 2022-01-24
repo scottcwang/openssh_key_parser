@@ -31,6 +31,28 @@ class CTRCipher(ConfidentialityOnlyCipher, abc.ABC):
         )
 
 
+class AES128_CTRCipher(AESCipher, CTRCipher):
+    """The Advanced Encryption Standard (the Rijndael block cipher) with a key
+    length of 128 bits, under the counter mode of operation initialized with a
+    given initialization vector.
+    """
+
+    @staticmethod
+    def get_key_length() -> int:
+        return 16
+
+
+class AES192_CTRCipher(AESCipher, CTRCipher):
+    """The Advanced Encryption Standard (the Rijndael block cipher) with a key
+    length of 192 bits, under the counter mode of operation initialized with a
+    given initialization vector.
+    """
+
+    @staticmethod
+    def get_key_length() -> int:
+        return 24
+
+
 class AES256_CTRCipher(AESCipher, CTRCipher):
     """The Advanced Encryption Standard (the Rijndael block cipher) with a key
     length of 256 bits, under the counter mode of operation initialized with a
