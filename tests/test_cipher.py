@@ -1,3 +1,4 @@
+import pytest
 from openssh_key.cipher import AES256_CTRCipher, NoneCipher, create_cipher
 from openssh_key.kdf_options import KDFOptions
 
@@ -38,8 +39,9 @@ def test_none_block_size():
 
 
 # RFC 3686
-AES256_CTR_TEST_VECTORS = [
+TEST_VECTORS = [
     {
+        'cls': AES256_CTRCipher,
         'key': bytes.fromhex(
             '776BEFF2851DB06F4C8A0542C8696F6C6A81AF1EEC96B4D37FC1D689E6C1C104'
         ),
@@ -49,6 +51,7 @@ AES256_CTR_TEST_VECTORS = [
     },
 
     {
+        'cls': AES256_CTRCipher,
         'key': bytes.fromhex(
             'F6D66D6BD52D59BB0796365879EFF886C66DD51A5B6A99744B50590C87A23884'
         ),
@@ -62,6 +65,7 @@ AES256_CTR_TEST_VECTORS = [
     },
 
     {
+        'cls': AES256_CTRCipher,
         'key': bytes.fromhex(
             'FF7A617CE69148E4F1726E2F43581DE2AA62D9F805532EDFF1EED687FB54153D'
         ),
@@ -78,46 +82,24 @@ AES256_CTR_TEST_VECTORS = [
 ]
 
 
-def aes256_ctr_encrypt(i):
-    return AES256_CTRCipher.encrypt(
+@pytest.mark.parametrize('test_case', TEST_VECTORS)
+def test_encrypt(test_case):
+    return test_case['cls'].encrypt(
         TestIdentityKDF(),
-        AES256_CTR_TEST_VECTORS[i]['key']
-        + AES256_CTR_TEST_VECTORS[i]['iv'],
-        AES256_CTR_TEST_VECTORS[i]['plaintext']
-    ) == AES256_CTR_TEST_VECTORS[i]['ciphertext']
+        test_case['key']
+        + test_case['iv'],
+        test_case['plaintext']
+    ) == test_case['ciphertext']
 
 
-def aes256_ctr_decrypt(i):
-    return AES256_CTRCipher.decrypt(
+@pytest.mark.parametrize('test_case', TEST_VECTORS)
+def test_decrypt(test_case):
+    return test_case['cls'].decrypt(
         TestIdentityKDF(),
-        AES256_CTR_TEST_VECTORS[i]['key']
-        + AES256_CTR_TEST_VECTORS[i]['iv'],
-        AES256_CTR_TEST_VECTORS[i]['ciphertext']
-    ) == AES256_CTR_TEST_VECTORS[i]['plaintext']
-
-
-def test_aes256_ctr_encrypt_0():
-    assert aes256_ctr_encrypt(0)
-
-
-def test_aes256_ctr_decrypt_0():
-    assert aes256_ctr_decrypt(0)
-
-
-def test_aes256_ctr_encrypt_1():
-    assert aes256_ctr_encrypt(1)
-
-
-def test_aes256_ctr_decrypt_1():
-    assert aes256_ctr_decrypt(1)
-
-
-def test_aes256_ctr_encrypt_2():
-    assert aes256_ctr_encrypt(2)
-
-
-def test_aes256_ctr_decrypt_2():
-    assert aes256_ctr_decrypt(2)
+        test_case['key']
+        + test_case['iv'],
+        test_case['ciphertext']
+    ) == test_case['plaintext']
 
 
 def test_aes256_ctr_block_size():
