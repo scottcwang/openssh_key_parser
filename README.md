@@ -172,6 +172,10 @@ $ pytest
 
 ## Changelog
 
+### 0.0.3
+
+- 0.0.2 and on requires Python >=3.10
+
 ### 0.0.2
 
 - Support `ssh-dss`, `ssh-ecdsa-*`, `sk-*@openssh.com` (FIDO/U2F security

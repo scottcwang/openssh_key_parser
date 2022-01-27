@@ -5,7 +5,7 @@ with open('README.md', 'r', encoding='utf8') as fh:
 
 setuptools.setup(
     name="openssh_key_parser",
-    version="0.0.2",
+    version="0.0.3",
     author="Scott C Wang",
     author_email="wangsc@cs.wisc.edu",
     description="Parse and pack OpenSSH private and public key files",
