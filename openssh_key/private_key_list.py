@@ -587,6 +587,6 @@ class PrivateKeyList(BaseList):
             for i in range(0, len(private_keys_b64), self.WRAP_COL)
         ])
         text += private_keys_wrapped
-        text += '\n' + self.OPENSSH_PRIVATE_KEY_FOOTER
+        text += '\n' + self.OPENSSH_PRIVATE_KEY_FOOTER + '\n'
 
         return text
