@@ -62,3 +62,45 @@ class AES256_CTRCipher(AESCipher, CTRCipher):
     @staticmethod
     def get_key_length() -> int:
         return 32
+
+
+class CBCCipher(ConfidentialityOnlyCipher, abc.ABC):
+    @classmethod
+    def get_mode(cls) -> typing.Callable[[bytes], modes.Mode]:
+        # pylint: disable=unnecessary-lambda
+        return lambda initialization_vector: modes.CBC(
+            initialization_vector
+        )
+
+
+class AES128_CBCCipher(AESCipher, CBCCipher):
+    """The Advanced Encryption Standard (the Rijndael block cipher) with a key
+    length of 128 bits, under the cipher block chaining mode of operation
+    initialized with a given initialization vector.
+    """
+
+    @staticmethod
+    def get_key_length() -> int:
+        return 16
+
+
+class AES192_CBCCipher(AESCipher, CBCCipher):
+    """The Advanced Encryption Standard (the Rijndael block cipher) with a key
+    length of 192 bits, under the cipher block chaining mode of operation
+    initialized with a given initialization vector.
+    """
+
+    @staticmethod
+    def get_key_length() -> int:
+        return 24
+
+
+class AES256_CBCCipher(AESCipher, CBCCipher):
+    """The Advanced Encryption Standard (the Rijndael block cipher) with a key
+    length of 256 bits, under the cipher block chaining mode of operation
+    initialized with a given initialization vector.
+    """
+
+    @staticmethod
+    def get_key_length() -> int:
+        return 32

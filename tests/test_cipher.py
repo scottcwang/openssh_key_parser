@@ -1,6 +1,8 @@
 import pytest
-from openssh_key.cipher import (AES128_CTRCipher, AES192_CTRCipher,
-                                AES256_CTRCipher, NoneCipher, create_cipher)
+from openssh_key.cipher import (AES128_CBCCipher, AES128_CTRCipher,
+                                AES192_CBCCipher, AES192_CTRCipher,
+                                AES256_CBCCipher, AES256_CTRCipher, NoneCipher,
+                                create_cipher)
 from openssh_key.kdf_options import KDFOptions
 
 
@@ -167,7 +169,39 @@ TEST_VECTORS = [
             '1EC0E6B8'
         ),
         'block_size': 16,
-    }
+    },
+
+    # Selected from the CBCGFSbox*.rsp test data
+    # https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/block-ciphers#AES
+
+    {
+        'cls': AES128_CBCCipher,
+        'key': bytes.fromhex('00000000000000000000000000000000'),
+        'iv': bytes.fromhex('00000000000000000000000000000000'),
+        'plaintext': bytes.fromhex('f34481ec3cc627bacd5dc3fb08f273e6'),
+        'ciphertext': bytes.fromhex('0336763e966d92595a567cc9ce537f5e'),
+        'block_size': 16,
+    },
+
+    {
+        'cls': AES192_CBCCipher,
+        'key': bytes.fromhex('000000000000000000000000000000000000000000000000'),
+        'iv': bytes.fromhex('00000000000000000000000000000000'),
+        'plaintext': bytes.fromhex('1b077a6af4b7f98229de786d7516b639'),
+        'ciphertext': bytes.fromhex('275cfc0413d8ccb70513c3859b1d0f72'),
+        'block_size': 16,
+    },
+
+    {
+        'cls': AES256_CBCCipher,
+        'key': bytes.fromhex(
+            '0000000000000000000000000000000000000000000000000000000000000000'
+        ),
+        'iv': bytes.fromhex('00000000000000000000000000000000'),
+        'plaintext': bytes.fromhex('014730f80ac625fe84f026c60bfd547d'),
+        'ciphertext': bytes.fromhex('5c9d844ed46f9885085e5d6a4f94c7d7'),
+        'block_size': 16,
+    },
 ]
 
 

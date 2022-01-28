@@ -1,6 +1,7 @@
 import typing
 
-from .aes import AES128_CTRCipher, AES192_CTRCipher, AES256_CTRCipher
+from .aes import (AES128_CBCCipher, AES128_CTRCipher, AES192_CBCCipher,
+                  AES192_CTRCipher, AES256_CBCCipher, AES256_CTRCipher)
 from .common import Cipher
 from .none import NoneCipher
 
@@ -8,7 +9,10 @@ _CIPHER_MAPPING = {
     'none': NoneCipher,
     'aes128-ctr': AES128_CTRCipher,
     'aes192-ctr': AES192_CTRCipher,
-    'aes256-ctr': AES256_CTRCipher
+    'aes256-ctr': AES256_CTRCipher,
+    'aes128-cbc': AES128_CBCCipher,
+    'aes192-cbc': AES192_CBCCipher,
+    'aes256-cbc': AES256_CBCCipher
 }
 
 
