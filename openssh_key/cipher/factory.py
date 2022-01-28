@@ -12,7 +12,8 @@ _CIPHER_MAPPING = {
     'aes256-ctr': AES256_CTRCipher,
     'aes128-cbc': AES128_CBCCipher,
     'aes192-cbc': AES192_CBCCipher,
-    'aes256-cbc': AES256_CBCCipher
+    'aes256-cbc': AES256_CBCCipher,
+    'rijndael-cbc@lysator.liu.se': AES256_CBCCipher,
 }
 
 
