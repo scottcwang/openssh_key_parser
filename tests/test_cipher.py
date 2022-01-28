@@ -1,7 +1,8 @@
 import pytest
 from openssh_key.cipher import (AES128_CBCCipher, AES128_CTRCipher,
-                                AES192_CBCCipher, AES192_CTRCipher,
-                                AES256_CBCCipher, AES256_CTRCipher, NoneCipher,
+                                AES128_GCMCipher, AES192_CBCCipher,
+                                AES192_CTRCipher, AES256_CBCCipher,
+                                AES256_CTRCipher, AES256_GCMCipher, NoneCipher,
                                 create_cipher)
 from openssh_key.kdf_options import KDFOptions
 
@@ -200,6 +201,77 @@ TEST_VECTORS = [
         'iv': bytes.fromhex('00000000000000000000000000000000'),
         'plaintext': bytes.fromhex('014730f80ac625fe84f026c60bfd547d'),
         'ciphertext': bytes.fromhex('5c9d844ed46f9885085e5d6a4f94c7d7'),
+        'block_size': 16,
+    },
+
+    # Selected from
+    # https://luca-giuzzi.unibs.it/corsi/Support/papers-cryptography/gcm-spec.pdf
+
+    {
+        'cls': AES128_GCMCipher,
+        'key': bytes.fromhex('00000000000000000000000000000000'),
+        'iv': bytes.fromhex('000000000000000000000000'),
+        'plaintext': bytes.fromhex('00000000000000000000000000000000'),
+        'ciphertext': bytes.fromhex(
+            '0388dace60b6a392f328c2b971b2fe78'
+            + 'ab6e47d42cec13bdf53a67b21257bddf'
+        ),
+        'block_size': 16,
+    },
+
+    {
+        'cls': AES128_GCMCipher,
+        'key': bytes.fromhex('feffe9928665731c6d6a8f9467308308'),
+        'iv': bytes.fromhex('cafebabefacedbaddecaf888'),
+        'plaintext': bytes.fromhex(
+            'd9313225f88406e5a55909c5aff5269a'
+            + '86a7a9531534f7da2e4c303d8a318a72'
+            + '1c3c0c95956809532fcf0e2449a6b525'
+            + 'b16aedf5aa0de657ba637b391aafd255'
+        ),
+        'ciphertext': bytes.fromhex(
+            '42831ec2217774244b7221b784d0d49c'
+            + 'e3aa212f2c02a4e035c17e2329aca12e'
+            + '21d514b25466931c7d8f6a5aac84aa05'
+            + '1ba30b396a0aac973d58e091473f5985'
+            + '4d5c2af327cd64a62cf35abd2ba6fab4'
+        ),
+        'block_size': 16,
+    },
+
+    {
+        'cls': AES256_GCMCipher,
+        'key': bytes.fromhex(
+            '0000000000000000000000000000000000000000000000000000000000000000'
+        ),
+        'iv': bytes.fromhex('000000000000000000000000'),
+        'plaintext': bytes.fromhex('00000000000000000000000000000000'),
+        'ciphertext': bytes.fromhex(
+            'cea7403d4d606b6e074ec5d3baf39d18'
+            + 'd0d1c8a799996bf0265b98b5d48ab919'
+        ),
+        'block_size': 16,
+    },
+
+    {
+        'cls': AES256_GCMCipher,
+        'key': bytes.fromhex(
+            'feffe9928665731c6d6a8f9467308308feffe9928665731c6d6a8f9467308308'
+        ),
+        'iv': bytes.fromhex('cafebabefacedbaddecaf888'),
+        'plaintext': bytes.fromhex(
+            'd9313225f88406e5a55909c5aff5269a'
+            + '86a7a9531534f7da2e4c303d8a318a72'
+            + '1c3c0c95956809532fcf0e2449a6b525'
+            + 'b16aedf5aa0de657ba637b391aafd255'
+        ),
+        'ciphertext': bytes.fromhex(
+            '522dc1f099567d07f47f37a32a84427d'
+            + '643a8cdcbfe5c0c97598a2bd2555d1aa'
+            + '8cb08e48590dbb3da7b08b1056828838'
+            + 'c5f61e6393ba7a0abcc9f662898015ad'
+            + 'b094dac5d93471bdec1a502270e3cc6c'
+        ),
         'block_size': 16,
     },
 ]

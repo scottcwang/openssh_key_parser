@@ -191,5 +191,10 @@ class ConfidentialityOnlyCipher(InitializationVectorCipher, abc.ABC):
         return decryptor.update(cipher_bytes) + decryptor.finalize()
 
 
-class ConfidentialityIntegrityCipher(InitializationVectorCipher, abc.ABC):
-    pass
+class AEADCipher(InitializationVectorCipher, abc.ABC):
+    @classmethod
+    @abc.abstractmethod
+    def get_tag_length(cls) -> int:
+        raise NotImplementedError()
+
+    TAG_LENGTH = utils.readonly_static_property(get_tag_length)

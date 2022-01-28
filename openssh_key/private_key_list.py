@@ -12,7 +12,7 @@ import typing
 import warnings
 
 from openssh_key import utils
-from openssh_key.cipher import create_cipher
+from openssh_key.cipher import AEADCipher, create_cipher
 from openssh_key.kdf_options import (KDFOptions, NoneKDFOptions,
                                      create_kdf_options)
 from openssh_key.key import PrivateKey, PublicKey
@@ -120,7 +120,7 @@ class PrivateKeyList(BaseList):
 
     __DECIPHER_BYTES_HEADER_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
         FormatInstructionsDict
-    ] =  {
+    ] = {
         'check_int_1': '>I',
         'check_int_2': '>I'
     }
@@ -231,6 +231,11 @@ class PrivateKeyList(BaseList):
             passphrase = ''
         elif passphrase is None:
             passphrase = getpass.getpass('Key passphrase: ')
+
+        if issubclass(cipher_class, AEADCipher):
+            cipher_bytes += byte_stream.read_fixed_bytes(
+                cipher_class.TAG_LENGTH
+            )
 
         decipher_bytes = cipher_class.decrypt(
             kdf_class(kdf_options),
@@ -523,15 +528,24 @@ class PrivateKeyList(BaseList):
         elif passphrase is None:
             passphrase = getpass.getpass('Key passphrase: ')
 
-        cipher_bytes = create_cipher(cipher).encrypt(
+        cipher_class = create_cipher(cipher)
+        cipher_bytes = cipher_class.encrypt(
             create_kdf_options(kdf)(kdf_options),
             passphrase,
             decipher_byte_stream.getvalue()
         )
+
+        if issubclass(cipher_class, AEADCipher):
+            tag = cipher_bytes[-cipher_class.TAG_LENGTH:]
+            cipher_bytes = cipher_bytes[:-cipher_class.TAG_LENGTH]
+
         write_byte_stream.write_from_format_instruction(
             PascalStyleFormatInstruction.BYTES,
             cipher_bytes
         )
+
+        if issubclass(cipher_class, AEADCipher):
+            write_byte_stream.write(tag)
 
         return write_byte_stream.getvalue()
 

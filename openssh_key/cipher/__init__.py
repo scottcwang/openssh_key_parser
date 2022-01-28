@@ -16,5 +16,8 @@ __all__ = [
     'AES128_CBCCipher',
     'AES192_CBCCipher',
     'AES256_CBCCipher',
+    'AES128_GCMCipher',
+    'AES256_GCMCipher',
+    'AEADCipher',
     'create_cipher'
 ]

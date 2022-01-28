@@ -1,7 +1,8 @@
 import typing
 
-from .aes import (AES128_CBCCipher, AES128_CTRCipher, AES192_CBCCipher,
-                  AES192_CTRCipher, AES256_CBCCipher, AES256_CTRCipher)
+from .aes import (AES128_CBCCipher, AES128_CTRCipher, AES128_GCMCipher,
+                  AES192_CBCCipher, AES192_CTRCipher, AES256_CBCCipher,
+                  AES256_CTRCipher, AES256_GCMCipher)
 from .common import Cipher
 from .none import NoneCipher
 
@@ -14,6 +15,8 @@ _CIPHER_MAPPING = {
     'aes192-cbc': AES192_CBCCipher,
     'aes256-cbc': AES256_CBCCipher,
     'rijndael-cbc@lysator.liu.se': AES256_CBCCipher,
+    'aes128-gcm@openssh.com': AES128_GCMCipher,
+    'aes256-gcm@openssh.com': AES256_GCMCipher,
 }
 
 

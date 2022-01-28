@@ -2,9 +2,9 @@ import abc
 import typing
 
 from cryptography.hazmat.primitives import ciphers
-from cryptography.hazmat.primitives.ciphers import algorithms, modes
+from cryptography.hazmat.primitives.ciphers import aead, algorithms, modes
 
-from .common import ConfidentialityOnlyCipher
+from .common import AEADCipher, ConfidentialityOnlyCipher
 
 
 class AESCipher(ConfidentialityOnlyCipher, abc.ABC):
@@ -103,4 +103,56 @@ class AES256_CBCCipher(AESCipher, CBCCipher):
 
     @staticmethod
     def get_key_length() -> int:
+        return 32
+
+
+class AES_GCMCipher(AEADCipher, abc.ABC):
+    @classmethod
+    def get_iv_length(cls) -> int:
+        return 12
+
+    @classmethod
+    def get_tag_length(cls) -> int:
+        return 16
+
+    @classmethod
+    def get_block_size(cls) -> int:
+        return 16
+
+    @classmethod
+    def encrypt_with_key_iv(
+        cls,
+        plain_bytes: bytes,
+        cipher_key: bytes,
+        initialization_vector: bytes
+    ) -> bytes:
+        return aead.AESGCM(cipher_key).encrypt(
+            initialization_vector,
+            plain_bytes,
+            None
+        )
+
+    @classmethod
+    def decrypt_with_key_iv(
+        cls,
+        cipher_bytes: bytes,
+        cipher_key: bytes,
+        initialization_vector: bytes
+    ) -> bytes:
+        return aead.AESGCM(cipher_key).decrypt(
+            initialization_vector,
+            cipher_bytes,
+            None
+        )
+
+
+class AES128_GCMCipher(AES_GCMCipher):
+    @classmethod
+    def get_key_length(cls) -> int:
+        return 16
+
+
+class AES256_GCMCipher(AES_GCMCipher):
+    @classmethod
+    def get_key_length(cls) -> int:
         return 32
