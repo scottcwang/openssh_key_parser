@@ -10,7 +10,6 @@ import types
 import typing
 import warnings
 
-import openssh_key.key as key  # pylint: disable=consider-using-from-import
 from .common import PublicKeyParams
 from .dss import DSSPublicKeyParams
 from .ecdsa import (ECDSA_NISTP256_PublicKeyParams,
@@ -531,6 +530,9 @@ class CertPublicKeyParams(PublicKeyParams, abc.ABC):
         )
         return signed_byte_stream.getvalue()
 
+    if typing.TYPE_CHECKING:  # pragma: no cover
+        from openssh_key import key
+
     def get_signature_key(self) -> 'key.PublicKey':
         """
         Returns the public key of the certificate authority.
@@ -539,6 +541,7 @@ class CertPublicKeyParams(PublicKeyParams, abc.ABC):
             UserWarning: The certificate authority is a certificate; this is
                 not supported by OpenSSH.
         """
+        from openssh_key import key
         signature_key = key.PublicKey.from_bytes(self['signature_key'])
         if isinstance(signature_key.params, CertPublicKeyParams):
             warnings.warn(
