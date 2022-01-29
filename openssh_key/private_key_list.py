@@ -12,7 +12,7 @@ import typing
 import warnings
 
 from openssh_key import utils
-from openssh_key.cipher import AEADCipher, create_cipher
+from openssh_key.cipher import ConfidentialityIntegrityCipher, create_cipher
 from openssh_key.kdf_options import (KDFOptions, NoneKDFOptions,
                                      create_kdf_options)
 from openssh_key.key import PrivateKey, PublicKey
@@ -232,7 +232,7 @@ class PrivateKeyList(BaseList):
         elif passphrase is None:
             passphrase = getpass.getpass('Key passphrase: ')
 
-        if issubclass(cipher_class, AEADCipher):
+        if issubclass(cipher_class, ConfidentialityIntegrityCipher):
             cipher_bytes += byte_stream.read_fixed_bytes(
                 cipher_class.TAG_LENGTH
             )
@@ -535,7 +535,7 @@ class PrivateKeyList(BaseList):
             decipher_byte_stream.getvalue()
         )
 
-        if issubclass(cipher_class, AEADCipher):
+        if issubclass(cipher_class, ConfidentialityIntegrityCipher):
             tag = cipher_bytes[-cipher_class.TAG_LENGTH:]
             cipher_bytes = cipher_bytes[:-cipher_class.TAG_LENGTH]
 
@@ -544,7 +544,7 @@ class PrivateKeyList(BaseList):
             cipher_bytes
         )
 
-        if issubclass(cipher_class, AEADCipher):
+        if issubclass(cipher_class, ConfidentialityIntegrityCipher):
             write_byte_stream.write(tag)
 
         return write_byte_stream.getvalue()

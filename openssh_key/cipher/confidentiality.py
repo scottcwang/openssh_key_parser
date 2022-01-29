@@ -2,9 +2,65 @@ import abc
 import typing
 
 from cryptography.hazmat.primitives import ciphers
-from cryptography.hazmat.primitives.ciphers import aead, algorithms, modes
+from cryptography.hazmat.primitives.ciphers import algorithms, modes
+from cryptography.hazmat.primitives.ciphers.base import CipherContext
+from openssh_key import utils
 
-from .common import AEADCipher, ConfidentialityOnlyCipher
+from .common import InitializationVectorCipher
+
+
+class ConfidentialityOnlyCipher(InitializationVectorCipher, abc.ABC):
+    @classmethod
+    @abc.abstractmethod
+    def get_mode(cls) -> typing.Callable[[bytes], modes.Mode]:
+        raise NotImplementedError()
+
+    MODE = utils.readonly_static_property(get_mode)
+
+    @classmethod
+    @abc.abstractmethod
+    def get_algorithm(cls) -> typing.Callable[[bytes], ciphers.CipherAlgorithm]:
+        raise NotImplementedError()
+
+    ALGORITHM = utils.readonly_static_property(get_algorithm)
+
+    @classmethod
+    def _get_cipher(
+        cls,
+        cipher_key: bytes,
+        initialization_vector: bytes
+    ) -> ciphers.Cipher:
+        return ciphers.Cipher(
+            (cls.ALGORITHM)(cipher_key),
+            (cls.MODE)(initialization_vector)
+        )
+
+    @classmethod
+    def encrypt_with_key_iv(
+        cls,
+        plain_bytes: bytes,
+        cipher_key: bytes,
+        initialization_vector: bytes
+    ) -> bytes:
+        # https://github.com/pyca/cryptography/issues/6083
+        encryptor: CipherContext = cls._get_cipher(
+            cipher_key,
+            initialization_vector
+        ).encryptor()  # type: ignore[no-untyped-call]
+        return encryptor.update(plain_bytes) + encryptor.finalize()
+
+    @classmethod
+    def decrypt_with_key_iv(
+        cls,
+        cipher_bytes: bytes,
+        cipher_key: bytes,
+        initialization_vector: bytes
+    ) -> bytes:
+        decryptor: CipherContext = cls._get_cipher(
+            cipher_key,
+            initialization_vector
+        ).decryptor()  # type: ignore[no-untyped-call]
+        return decryptor.update(cipher_bytes) + decryptor.finalize()
 
 
 class AESCipher(ConfidentialityOnlyCipher, abc.ABC):
@@ -103,56 +159,4 @@ class AES256_CBCCipher(AESCipher, CBCCipher):
 
     @staticmethod
     def get_key_length() -> int:
-        return 32
-
-
-class AES_GCMCipher(AEADCipher, abc.ABC):
-    @classmethod
-    def get_iv_length(cls) -> int:
-        return 12
-
-    @classmethod
-    def get_tag_length(cls) -> int:
-        return 16
-
-    @classmethod
-    def get_block_size(cls) -> int:
-        return 16
-
-    @classmethod
-    def encrypt_with_key_iv(
-        cls,
-        plain_bytes: bytes,
-        cipher_key: bytes,
-        initialization_vector: bytes
-    ) -> bytes:
-        return aead.AESGCM(cipher_key).encrypt(
-            initialization_vector,
-            plain_bytes,
-            None
-        )
-
-    @classmethod
-    def decrypt_with_key_iv(
-        cls,
-        cipher_bytes: bytes,
-        cipher_key: bytes,
-        initialization_vector: bytes
-    ) -> bytes:
-        return aead.AESGCM(cipher_key).decrypt(
-            initialization_vector,
-            cipher_bytes,
-            None
-        )
-
-
-class AES128_GCMCipher(AES_GCMCipher):
-    @classmethod
-    def get_key_length(cls) -> int:
-        return 16
-
-
-class AES256_GCMCipher(AES_GCMCipher):
-    @classmethod
-    def get_key_length(cls) -> int:
         return 32

@@ -1,12 +1,75 @@
+import abc
+
 from cryptography.hazmat.primitives import ciphers, poly1305
-from cryptography.hazmat.primitives.ciphers import algorithms
+from cryptography.hazmat.primitives.ciphers import aead, algorithms
 from cryptography.hazmat.primitives.ciphers.base import CipherContext
-from openssh_key.utils import readonly_static_property
+from openssh_key import utils
 
-from .common import AEADCipher
+from .common import InitializationVectorCipher
 
 
-class ChaCha20Poly1305Cipher(AEADCipher):
+class ConfidentialityIntegrityCipher(InitializationVectorCipher, abc.ABC):
+    @classmethod
+    @abc.abstractmethod
+    def get_tag_length(cls) -> int:
+        raise NotImplementedError()
+
+    TAG_LENGTH = utils.readonly_static_property(get_tag_length)
+
+
+class AES_GCMCipher(ConfidentialityIntegrityCipher, abc.ABC):
+    @classmethod
+    def get_iv_length(cls) -> int:
+        return 12
+
+    @classmethod
+    def get_tag_length(cls) -> int:
+        return 16
+
+    @classmethod
+    def get_block_size(cls) -> int:
+        return 16
+
+    @classmethod
+    def encrypt_with_key_iv(
+        cls,
+        plain_bytes: bytes,
+        cipher_key: bytes,
+        initialization_vector: bytes
+    ) -> bytes:
+        return aead.AESGCM(cipher_key).encrypt(
+            initialization_vector,
+            plain_bytes,
+            None
+        )
+
+    @classmethod
+    def decrypt_with_key_iv(
+        cls,
+        cipher_bytes: bytes,
+        cipher_key: bytes,
+        initialization_vector: bytes
+    ) -> bytes:
+        return aead.AESGCM(cipher_key).decrypt(
+            initialization_vector,
+            cipher_bytes,
+            None
+        )
+
+
+class AES128_GCMCipher(AES_GCMCipher):
+    @classmethod
+    def get_key_length(cls) -> int:
+        return 16
+
+
+class AES256_GCMCipher(AES_GCMCipher):
+    @classmethod
+    def get_key_length(cls) -> int:
+        return 32
+
+
+class ChaCha20Poly1305Cipher(ConfidentialityIntegrityCipher):
     @classmethod
     def get_block_size(cls) -> int:
         return 8
@@ -27,13 +90,14 @@ class ChaCha20Poly1305Cipher(AEADCipher):
     def get_chacha20_key_length(cls) -> int:
         return cls.KEY_LENGTH // 2
 
-    CHACHA20_KEY_LENGTH = readonly_static_property(get_chacha20_key_length)
+    CHACHA20_KEY_LENGTH = utils.readonly_static_property(
+        get_chacha20_key_length)
 
     @classmethod
     def get_chacha20_initial_counter_nonce(cls) -> bytes:
         return b'\x00' * 16
 
-    CHACHA20_INITIAL_COUNTER_NONCE = readonly_static_property(
+    CHACHA20_INITIAL_COUNTER_NONCE = utils.readonly_static_property(
         get_chacha20_initial_counter_nonce
     )
 
@@ -41,7 +105,7 @@ class ChaCha20Poly1305Cipher(AEADCipher):
     def get_chacha20_cipher_text_block_size(cls) -> int:
         return 64
 
-    CHACHA20_CIPHER_TEXT_BLOCK_SIZE = readonly_static_property(
+    CHACHA20_CIPHER_TEXT_BLOCK_SIZE = utils.readonly_static_property(
         get_chacha20_cipher_text_block_size
     )
 
@@ -49,7 +113,8 @@ class ChaCha20Poly1305Cipher(AEADCipher):
     def get_poly1305_key_length(cls) -> int:
         return 32
 
-    POLY1305_KEY_LENGTH = readonly_static_property(get_poly1305_key_length)
+    POLY1305_KEY_LENGTH = utils.readonly_static_property(
+        get_poly1305_key_length)
 
     # Cannot use cryptography.hazmat.primitives.aead.ChaCha20Poly1305
     # since it follows RFC 7539 / 8439 in adding padding and encoding lengths,

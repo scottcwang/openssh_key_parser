@@ -1,10 +1,11 @@
 import typing
 
-from .aes import (AES128_CBCCipher, AES128_CTRCipher, AES128_GCMCipher,
-                  AES192_CBCCipher, AES192_CTRCipher, AES256_CBCCipher,
-                  AES256_CTRCipher, AES256_GCMCipher)
-from .chacha import ChaCha20Poly1305Cipher
 from .common import Cipher
+from .confidentiality import (AES128_CBCCipher, AES128_CTRCipher,
+                              AES192_CBCCipher, AES192_CTRCipher,
+                              AES256_CBCCipher, AES256_CTRCipher)
+from .integrity import (AES128_GCMCipher, AES256_GCMCipher,
+                        ChaCha20Poly1305Cipher)
 from .none import NoneCipher
 
 _CIPHER_MAPPING = {

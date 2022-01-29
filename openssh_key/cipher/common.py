@@ -1,9 +1,5 @@
 import abc
-import typing
 
-from cryptography.hazmat.primitives import ciphers
-from cryptography.hazmat.primitives.ciphers import modes
-from cryptography.hazmat.primitives.ciphers.base import CipherContext
 from openssh_key import utils
 from openssh_key.kdf_options import KDFOptions
 
@@ -135,66 +131,3 @@ class InitializationVectorCipher(Cipher, abc.ABC):
             cipher_key,
             initialization_vector
         )
-
-
-class ConfidentialityOnlyCipher(InitializationVectorCipher, abc.ABC):
-    @classmethod
-    @abc.abstractmethod
-    def get_mode(cls) -> typing.Callable[[bytes], modes.Mode]:
-        raise NotImplementedError()
-
-    MODE = utils.readonly_static_property(get_mode)
-
-    @classmethod
-    @abc.abstractmethod
-    def get_algorithm(cls) -> typing.Callable[[bytes], ciphers.CipherAlgorithm]:
-        raise NotImplementedError()
-
-    ALGORITHM = utils.readonly_static_property(get_algorithm)
-
-    @classmethod
-    def _get_cipher(
-        cls,
-        cipher_key: bytes,
-        initialization_vector: bytes
-    ) -> ciphers.Cipher:
-        return ciphers.Cipher(
-            (cls.ALGORITHM)(cipher_key),
-            (cls.MODE)(initialization_vector)
-        )
-
-    @classmethod
-    def encrypt_with_key_iv(
-        cls,
-        plain_bytes: bytes,
-        cipher_key: bytes,
-        initialization_vector: bytes
-    ) -> bytes:
-        # https://github.com/pyca/cryptography/issues/6083
-        encryptor: CipherContext = cls._get_cipher(
-            cipher_key,
-            initialization_vector
-        ).encryptor()  # type: ignore[no-untyped-call]
-        return encryptor.update(plain_bytes) + encryptor.finalize()
-
-    @classmethod
-    def decrypt_with_key_iv(
-        cls,
-        cipher_bytes: bytes,
-        cipher_key: bytes,
-        initialization_vector: bytes
-    ) -> bytes:
-        decryptor: CipherContext = cls._get_cipher(
-            cipher_key,
-            initialization_vector
-        ).decryptor()  # type: ignore[no-untyped-call]
-        return decryptor.update(cipher_bytes) + decryptor.finalize()
-
-
-class AEADCipher(InitializationVectorCipher, abc.ABC):
-    @classmethod
-    @abc.abstractmethod
-    def get_tag_length(cls) -> int:
-        raise NotImplementedError()
-
-    TAG_LENGTH = utils.readonly_static_property(get_tag_length)
