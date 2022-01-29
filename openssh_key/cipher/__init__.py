@@ -3,6 +3,7 @@ Modules for classes representing symmetric-key ciphers.
 """
 
 from .aes import *
+from .chacha import *
 from .common import *
 from .factory import *
 from .none import *
@@ -19,5 +20,6 @@ __all__ = [
     'AES128_GCMCipher',
     'AES256_GCMCipher',
     'AEADCipher',
+    'ChaCha20Poly1305Cipher',
     'create_cipher'
 ]

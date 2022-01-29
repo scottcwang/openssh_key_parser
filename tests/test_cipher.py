@@ -2,7 +2,8 @@ import pytest
 from openssh_key.cipher import (AES128_CBCCipher, AES128_CTRCipher,
                                 AES128_GCMCipher, AES192_CBCCipher,
                                 AES192_CTRCipher, AES256_CBCCipher,
-                                AES256_CTRCipher, AES256_GCMCipher, NoneCipher,
+                                AES256_CTRCipher, AES256_GCMCipher,
+                                ChaCha20Poly1305Cipher, NoneCipher,
                                 create_cipher)
 from openssh_key.kdf_options import KDFOptions
 
@@ -273,6 +274,37 @@ TEST_VECTORS = [
             + 'b094dac5d93471bdec1a502270e3cc6c'
         ),
         'block_size': 16,
+    },
+
+    {
+        'cls': ChaCha20Poly1305Cipher,
+        'key': bytes.fromhex(
+            '00000000000000000000000000000000'
+            + '00000000000000000000000000000000'
+        ),
+        'iv': bytes(),  # ChaCha20Poly1305 does not use the IV from the KDF
+        'plaintext': bytes.fromhex(
+            '00000000000000000000000000000000'
+            + '00000000000000000000000000000000'
+            + '00000000000000000000000000000000'
+            + '00000000000000000000000000000000'
+        ),
+        'ciphertext': bytes.fromhex(
+            # RFC 8439
+            # Appendix A.1, test vector #2
+            # Block counter 1
+            '9f07e7be5551387a98ba977c732d080d'
+            + 'cb0f29a048e3656912c6533e32ee7aed'
+            + '29b721769ce64e43d57133b074d839d5'
+            + '31ed1f28510afb45ace10a1f4b794d6f'
+            # Appendix A.4, test vector #1
+            # The Poly1305 tag key's first 32 keystream bytes are
+            # '76b8e0ada0f13d90405d6ae55386bd28'
+            # + 'bdd219b8a08ded1aa836efcc8b770dc7'
+            # Apply Poly1305 to the ciphertext to obtain the tag:
+            + 'd15fcdffe28f9464d4d1918ae720e2e9'
+        ),
+        'block_size': 8,
     },
 ]
 
