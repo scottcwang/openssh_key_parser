@@ -4,7 +4,7 @@ from openssh_key.cipher import (AES128_CBCCipher, AES128_CTRCipher,
                                 AES192_CTRCipher, AES256_CBCCipher,
                                 AES256_CTRCipher, AES256_GCMCipher,
                                 ChaCha20Poly1305Cipher, NoneCipher,
-                                create_cipher)
+                                TripleDES_CBCCipher, create_cipher)
 from openssh_key.kdf_options import KDFOptions
 
 
@@ -51,8 +51,32 @@ def test_none_block_size():
     assert NoneCipher.BLOCK_SIZE == 8
 
 
-# RFC3686
 TEST_VECTORS = [
+    # Selected from the TCBCvartext.rsp and TCBCvarkey.rsp test data
+    # https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/block-ciphers#TDES
+    {
+        'cls': TripleDES_CBCCipher,
+        'key': bytes.fromhex(
+            '010101010101010101010101010101010101010101010101'
+        ),
+        'iv': bytes.fromhex('0000000000000000'),
+        'plaintext': bytes.fromhex('8000000000000000'),
+        'ciphertext': bytes.fromhex('95f8a5e5dd31d900'),
+        'block_size': 8,
+    },
+
+    {
+        'cls': TripleDES_CBCCipher,
+        'key': bytes.fromhex(
+            '800101010101010180010101010101018001010101010101'
+        ),
+        'iv': bytes.fromhex('0000000000000000'),
+        'plaintext': bytes.fromhex('0000000000000000'),
+        'ciphertext': bytes.fromhex('95a8d72813daa94d'),
+        'block_size': 8,
+    },
+
+    # RFC3686
     {
         'cls': AES128_CTRCipher,
         'key': bytes.fromhex('AE6852F8121067CC4BF7A5765577F39E'),

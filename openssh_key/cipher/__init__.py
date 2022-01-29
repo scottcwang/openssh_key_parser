@@ -12,6 +12,7 @@ __all__ = [
     'Cipher',
     'NoneCipher',
     'ConfidentialityIntegrityCipher',
+    'TripleDES_CBCCipher',
     'AES128_CTRCipher',
     'AES192_CTRCipher',
     'AES256_CTRCipher',

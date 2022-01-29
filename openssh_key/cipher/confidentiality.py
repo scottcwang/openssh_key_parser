@@ -160,3 +160,24 @@ class AES256_CBCCipher(AESCipher, CBCCipher):
     @staticmethod
     def get_key_length() -> int:
         return 32
+
+
+class TripleDESCipher(ConfidentialityOnlyCipher, abc.ABC):
+    @classmethod
+    def get_block_size(cls) -> int:
+        """The value 8, the cipher block size of Triple DES.
+        """
+        return 8
+
+    @classmethod
+    def get_algorithm(cls) -> typing.Callable[[bytes], ciphers.CipherAlgorithm]:
+        # pylint: disable=unnecessary-lambda
+        return lambda cipher_key: algorithms.TripleDES(
+            cipher_key
+        )
+
+
+class TripleDES_CBCCipher(TripleDESCipher, CBCCipher):
+    @staticmethod
+    def get_key_length() -> int:
+        return 24

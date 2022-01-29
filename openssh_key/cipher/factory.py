@@ -3,13 +3,15 @@ import typing
 from .common import Cipher
 from .confidentiality import (AES128_CBCCipher, AES128_CTRCipher,
                               AES192_CBCCipher, AES192_CTRCipher,
-                              AES256_CBCCipher, AES256_CTRCipher)
+                              AES256_CBCCipher, AES256_CTRCipher,
+                              TripleDES_CBCCipher)
 from .integrity import (AES128_GCMCipher, AES256_GCMCipher,
                         ChaCha20Poly1305Cipher)
 from .none import NoneCipher
 
 _CIPHER_MAPPING = {
     'none': NoneCipher,
+    '3des-cbc': TripleDES_CBCCipher,
     'aes128-ctr': AES128_CTRCipher,
     'aes192-ctr': AES192_CTRCipher,
     'aes256-ctr': AES256_CTRCipher,
