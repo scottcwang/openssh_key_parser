@@ -69,7 +69,7 @@ class InitializationVectorCipher(Cipher, abc.ABC):
     @classmethod
     @abc.abstractmethod
     def get_key_length(cls) -> int:
-        raise NotImplementedError()
+        return 0
 
     KEY_LENGTH = utils.readonly_static_property(get_key_length)
 

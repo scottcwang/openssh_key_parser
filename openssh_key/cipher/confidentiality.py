@@ -13,14 +13,18 @@ class ConfidentialityOnlyCipher(InitializationVectorCipher, abc.ABC):
     @classmethod
     @abc.abstractmethod
     def get_mode(cls) -> typing.Callable[[bytes], modes.Mode]:
-        raise NotImplementedError()
+        def r(_: bytes) -> modes.Mode:
+            raise NotImplementedError()
+        return r
 
     MODE = utils.readonly_static_property(get_mode)
 
     @classmethod
     @abc.abstractmethod
     def get_algorithm(cls) -> typing.Callable[[bytes], ciphers.CipherAlgorithm]:
-        raise NotImplementedError()
+        def r(_: bytes) -> ciphers.CipherAlgorithm:
+            raise NotImplementedError()
+        return r
 
     ALGORITHM = utils.readonly_static_property(get_algorithm)
 

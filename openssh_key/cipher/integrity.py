@@ -12,7 +12,7 @@ class ConfidentialityIntegrityCipher(InitializationVectorCipher, abc.ABC):
     @classmethod
     @abc.abstractmethod
     def get_tag_length(cls) -> int:
-        raise NotImplementedError()
+        return 0
 
     TAG_LENGTH = utils.readonly_static_property(get_tag_length)
 
