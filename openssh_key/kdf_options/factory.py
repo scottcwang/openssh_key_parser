@@ -1,3 +1,8 @@
+"""
+Methods to provide key derivation functions given OpenSSH key derivation
+function type names.
+"""
+
 import typing
 
 from .bcrypt_options import BcryptKDFOptions

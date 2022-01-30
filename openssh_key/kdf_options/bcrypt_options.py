@@ -1,3 +1,7 @@
+"""
+Classes representing options for the Bcrypt-PBKDF2 key derivation function.
+"""
+
 import secrets
 import types
 import typing

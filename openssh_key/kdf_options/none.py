@@ -1,3 +1,7 @@
+"""
+Classes representing the null key derivation function.
+"""
+
 import types
 import typing
 

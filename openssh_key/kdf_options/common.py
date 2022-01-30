@@ -1,3 +1,7 @@
+"""
+Classes representing key derivation function options.
+"""
+
 import abc
 import types
 import typing
