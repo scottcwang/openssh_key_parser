@@ -3,8 +3,25 @@
 This repository provides `openssh_key`, a Python package providing utilities to
 parse and pack OpenSSH private and public key files.
 
-It supports parsing and packing "ssh-rsa" and "ssh-ed25519" keys, with or
-without "aes256-ctr" encryption under the "bcrypt" KDF. It is compliant with
+It supports parsing and packing keys of all types currently supported by
+OpenSSH:
+
+* `ssh-rsa`
+* `ssh-ed25519`
+* `ssh-dss`
+* `ssh-ecdsa-{nistp256,nistp384,nistp521}`
+* `sk-{ed25519,ecdsa-sha2-nistp256}@openssh.com` FIDO/U2F security keys
+* `*-cert-v01@openssh.com` certificates
+
+It can optionally encrypt private keys using the `bcrypt` key derivation
+function and any cipher currently supported by OpenSSH:
+
+* `aes{128,192,256}-{ctr,cbc}`
+* `aes{128,256}-gcm@openssh.com`
+* `chacha20-poly1305@openssh.com`
+* `3des-cbc`
+
+It is compliant with
 the [OpenSSH private key vendor extension](https://cvsweb.openbsd.org/src/usr.bin/ssh/PROTOCOL.key?annotate=HEAD),
 in particular supporting multiple keys in a private key file.
 
@@ -166,6 +183,18 @@ $ pytest
 ```
 
 ## Changelog
+
+### 0.0.4
+
+- **Breaking change** - The `encrypt` and `decrypt` methods of the `Cipher`
+  class now take as arguments an instance of the `KDF` class and a `passphrase`
+  (and no longer `cipher_key` and `initialization_vector`)
+- Support `aes128-ctr`, `aes192-ctr`, `aes128-cbc`, `aes192-cbc`, `aes256-cbc`,
+  `3des-cbc`, `aes128-gcm@openssh.com`, `aes256-gcm@openssh.com`, and
+  `chacha20-poly1305@openssh.com` ciphers for private key encryption
+- Add a `generate` static method to `PublicPrivateKeyPair`
+- _Fix_ - Write an additional newline at the end of a private key file, which
+  is required by OpenSSH `ssh-keygen`
 
 ### 0.0.3
 
