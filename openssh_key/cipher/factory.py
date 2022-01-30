@@ -1,3 +1,7 @@
+"""
+Methods to provide symmetric-key ciphers given OpenSSH cipher type names.
+"""
+
 import typing
 
 from .common import Cipher

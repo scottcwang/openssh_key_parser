@@ -1,3 +1,7 @@
+"""
+Classes representing null encryption.
+"""
+
 from openssh_key.kdf_options import KDFOptions
 
 from .common import Cipher

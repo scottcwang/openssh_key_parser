@@ -1,3 +1,8 @@
+"""
+Classes representing symmetric-key ciphers that offer only a guarantee of
+confidentiality (secrecy).
+"""
+
 import abc
 import typing
 
@@ -10,23 +15,34 @@ from .common import InitializationVectorCipher
 
 
 class ConfidentialityOnlyCipher(InitializationVectorCipher, abc.ABC):
+    """A symmetric-key cipher that offers only a guarantee of confidentiality
+    (secrecy).
+    """
     @classmethod
     @abc.abstractmethod
     def get_mode(cls) -> typing.Callable[[bytes], modes.Mode]:
+        """The mode of operation of this cipher.
+        """
         def r(_: bytes) -> modes.Mode:
             raise NotImplementedError()
         return r
 
     MODE = utils.readonly_static_property(get_mode)
+    """The mode of operation of this cipher.
+    """
 
     @classmethod
     @abc.abstractmethod
     def get_algorithm(cls) -> typing.Callable[[bytes], ciphers.CipherAlgorithm]:
+        """The encryption algorithm of this cipher.
+        """
         def r(_: bytes) -> ciphers.CipherAlgorithm:
             raise NotImplementedError()
         return r
 
     ALGORITHM = utils.readonly_static_property(get_algorithm)
+    """The encryption algorithm of this cipher.
+    """
 
     @classmethod
     def _get_cipher(
@@ -68,6 +84,10 @@ class ConfidentialityOnlyCipher(InitializationVectorCipher, abc.ABC):
 
 
 class AESCipher(ConfidentialityOnlyCipher, abc.ABC):
+    """The Advanced Encryption Standard (the Rijndael block cipher),
+    under a mode of operation that offers only confidentiality.
+    """
+
     @classmethod
     def get_block_size(cls) -> int:
         """The value 16, the cipher block size of AES.
@@ -76,6 +96,8 @@ class AESCipher(ConfidentialityOnlyCipher, abc.ABC):
 
     @classmethod
     def get_algorithm(cls) -> typing.Callable[[bytes], ciphers.CipherAlgorithm]:
+        """The AES encryption algorithm.
+        """
         # pylint: disable=unnecessary-lambda
         return lambda cipher_key: algorithms.AES(
             cipher_key
@@ -83,8 +105,13 @@ class AESCipher(ConfidentialityOnlyCipher, abc.ABC):
 
 
 class CTRCipher(ConfidentialityOnlyCipher, abc.ABC):
+    """A cipher under the counter mode of operation.
+    """
+
     @classmethod
     def get_mode(cls) -> typing.Callable[[bytes], modes.Mode]:
+        """The counter mode of operation.
+        """
         # pylint: disable=unnecessary-lambda
         return lambda initialization_vector: modes.CTR(
             initialization_vector
@@ -99,6 +126,8 @@ class AES128_CTRCipher(AESCipher, CTRCipher):
 
     @staticmethod
     def get_key_length() -> int:
+        """The value 16, the length in bytes of the cipher key.
+        """
         return 16
 
 
@@ -110,6 +139,8 @@ class AES192_CTRCipher(AESCipher, CTRCipher):
 
     @staticmethod
     def get_key_length() -> int:
+        """The value 24, the length in bytes of the cipher key.
+        """
         return 24
 
 
@@ -121,12 +152,19 @@ class AES256_CTRCipher(AESCipher, CTRCipher):
 
     @staticmethod
     def get_key_length() -> int:
+        """The value 32, the length in bytes of the cipher key.
+        """
         return 32
 
 
 class CBCCipher(ConfidentialityOnlyCipher, abc.ABC):
+    """A cipher under the cipher block chaining mode of operation.
+    """
+
     @classmethod
     def get_mode(cls) -> typing.Callable[[bytes], modes.Mode]:
+        """The cipher block chaining mode of operation.
+        """
         # pylint: disable=unnecessary-lambda
         return lambda initialization_vector: modes.CBC(
             initialization_vector
@@ -141,6 +179,8 @@ class AES128_CBCCipher(AESCipher, CBCCipher):
 
     @staticmethod
     def get_key_length() -> int:
+        """The value 16, the length in bytes of the cipher key.
+        """
         return 16
 
 
@@ -152,6 +192,8 @@ class AES192_CBCCipher(AESCipher, CBCCipher):
 
     @staticmethod
     def get_key_length() -> int:
+        """The value 24, the length in bytes of the cipher key.
+        """
         return 24
 
 
@@ -163,10 +205,18 @@ class AES256_CBCCipher(AESCipher, CBCCipher):
 
     @staticmethod
     def get_key_length() -> int:
+        """The value 32, the length in bytes of the cipher key.
+        """
         return 32
 
 
 class TripleDESCipher(ConfidentialityOnlyCipher, abc.ABC):
+    """The Triple Data Encryption Algorithm (3DES).
+
+    NIST `has deprecated <https://csrc.nist.gov/News/2017/Update-to-Current-Use-and-Deprecation-of-TDEA>`_
+    this encryption algorithm since 2017.
+    """
+
     @classmethod
     def get_block_size(cls) -> int:
         """The value 8, the cipher block size of Triple DES.
@@ -175,6 +225,8 @@ class TripleDESCipher(ConfidentialityOnlyCipher, abc.ABC):
 
     @classmethod
     def get_algorithm(cls) -> typing.Callable[[bytes], ciphers.CipherAlgorithm]:
+        """The Triple Data Encryption Algorithm.
+        """
         # pylint: disable=unnecessary-lambda
         return lambda cipher_key: algorithms.TripleDES(
             cipher_key
@@ -182,6 +234,14 @@ class TripleDESCipher(ConfidentialityOnlyCipher, abc.ABC):
 
 
 class TripleDES_CBCCipher(TripleDESCipher, CBCCipher):
+    """The Triple Data Encryption Algorithm with a key length of 192 bits,
+    under the cipher block chaining mode of operation initialized with a given
+    initialization vector.
+    """
+
     @staticmethod
     def get_key_length() -> int:
+        """The value 24, the length in bytes of the three concatenated cipher
+        keys used by 3DES.
+        """
         return 24
