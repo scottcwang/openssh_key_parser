@@ -4,7 +4,7 @@ import secrets
 import warnings
 
 import pytest
-from openssh_key.cipher import create_cipher
+from openssh_key.cipher import ConfidentialityIntegrityCipher, create_cipher
 from openssh_key.kdf_options import create_kdf_options
 from openssh_key.key import PrivateKey, PublicKey
 from openssh_key.key_params import (Ed25519PublicKeyParams,
@@ -115,12 +115,25 @@ def correct_cipher_bytes(
     decipher_byte_stream,
     write_byte_stream=None
 ):
-    cipher_bytes = create_cipher(cipher).encrypt(
+    cipher_class = create_cipher(cipher)
+    cipher_bytes = cipher_class.encrypt(
         create_kdf_options(kdf)(kdf_options),
         passphrase,
         decipher_byte_stream.getvalue()
     )
-    if write_byte_stream is not None:
+
+    if issubclass(cipher_class, ConfidentialityIntegrityCipher):
+        tag = cipher_bytes[len(cipher_bytes) - cipher_class.TAG_LENGTH:]
+        cipher_bytes_without_tag = cipher_bytes[
+            :len(cipher_bytes) - cipher_class.TAG_LENGTH
+        ]
+        if write_byte_stream is not None:
+            write_byte_stream.write_from_format_instruction(
+                PascalStyleFormatInstruction.BYTES,
+                cipher_bytes_without_tag
+            )
+            write_byte_stream.write(tag)
+    elif write_byte_stream is not None:
         write_byte_stream.write_from_format_instruction(
             PascalStyleFormatInstruction.BYTES,
             cipher_bytes
@@ -320,9 +333,117 @@ def test_private_key_list_from_bytes_one_key_bcrypt_aes256ctr(mocker):
     )
 
 
+def test_private_key_list_from_bytes_one_key_bcrypt_aes256gcm(mocker):
+    kdf = 'bcrypt'
+    cipher = 'aes256-gcm@openssh.com'
+
+    write_byte_stream = PascalStyleByteStream()
+    kdf_options_bytes, kdf_options = correct_kdf_options_bytes(kdf)
+    header = correct_header(
+        cipher,
+        kdf,
+        kdf_options_bytes,
+        1,
+        write_byte_stream
+    )
+
+    _, public_key = correct_public_key_bytes_ed25519(write_byte_stream)
+
+    decipher_byte_stream = PascalStyleByteStream()
+
+    decipher_bytes_header = correct_decipher_bytes_header(
+        decipher_byte_stream
+    )
+    _, private_key = correct_private_key_bytes_ed25519(decipher_byte_stream)
+    padding_bytes = correct_decipher_bytes_padding(
+        decipher_byte_stream, cipher, write=True
+    )
+
+    passphrase = 'passphrase'
+    cipher_bytes = correct_cipher_bytes(
+        passphrase,
+        kdf,
+        kdf_options,
+        cipher,
+        decipher_byte_stream,
+        write_byte_stream
+    )
+
+    private_key_list_from_bytes_test_assertions(
+        write_byte_stream,
+        mocker,
+        passphrase,
+        False,
+        True,
+        header,
+        cipher_bytes,
+        [public_key],
+        [private_key],
+        kdf_options,
+        decipher_byte_stream,
+        decipher_bytes_header,
+        padding_bytes
+    )
+
+
 def test_private_key_list_from_bytes_two_keys_bcrypt_aes256ctr(mocker):
     kdf = 'bcrypt'
     cipher = 'aes256-ctr'
+
+    write_byte_stream = PascalStyleByteStream()
+    kdf_options_bytes, kdf_options = correct_kdf_options_bytes(kdf)
+    header = correct_header(
+        cipher,
+        kdf,
+        kdf_options_bytes,
+        2,
+        write_byte_stream
+    )
+
+    _, public_key_0 = correct_public_key_bytes_ed25519(write_byte_stream)
+    _, public_key_1 = correct_public_key_bytes_rsa(write_byte_stream)
+
+    decipher_byte_stream = PascalStyleByteStream()
+
+    decipher_bytes_header = correct_decipher_bytes_header(
+        decipher_byte_stream
+    )
+    _, private_key_0 = correct_private_key_bytes_ed25519(decipher_byte_stream)
+    _, private_key_1 = correct_private_key_bytes_rsa(decipher_byte_stream)
+    padding_bytes = correct_decipher_bytes_padding(
+        decipher_byte_stream, cipher, write=True
+    )
+
+    passphrase = 'passphrase'
+    cipher_bytes = correct_cipher_bytes(
+        passphrase,
+        kdf,
+        kdf_options,
+        cipher,
+        decipher_byte_stream,
+        write_byte_stream
+    )
+
+    private_key_list_from_bytes_test_assertions(
+        write_byte_stream,
+        mocker,
+        passphrase,
+        False,
+        True,
+        header,
+        cipher_bytes,
+        [public_key_0, public_key_1],
+        [private_key_0, private_key_1],
+        kdf_options,
+        decipher_byte_stream,
+        decipher_bytes_header,
+        padding_bytes
+    )
+
+
+def test_private_key_list_from_bytes_two_keys_bcrypt_aes256gcm(mocker):
+    kdf = 'bcrypt'
+    cipher = 'aes256-gcm@openssh.com'
 
     write_byte_stream = PascalStyleByteStream()
     kdf_options_bytes, kdf_options = correct_kdf_options_bytes(kdf)
@@ -1120,8 +1241,13 @@ def private_key_list_pack_bytes_test_assertions(
     cipher_bytes = pack_byte_stream.read_from_format_instruction(
         PascalStyleFormatInstruction.BYTES
     )
+    cipher_class = create_cipher(cipher)
+    if issubclass(cipher_class, ConfidentialityIntegrityCipher):
+        cipher_bytes += pack_byte_stream.read_fixed_bytes(
+            cipher_class.TAG_LENGTH
+        )
 
-    decipher_bytes = create_cipher(cipher).decrypt(
+    decipher_bytes = cipher_class.decrypt(
         create_kdf_options(kdf)(kdf_options),
         passphrase,
         cipher_bytes
@@ -1146,7 +1272,7 @@ def private_key_list_pack_bytes_test_assertions(
             PrivateKey.FOOTER_FORMAT_INSTRUCTIONS_DICT
         ) == key_pair.private.footer
 
-    cipher_block_size = create_cipher(cipher).BLOCK_SIZE
+    cipher_block_size = cipher_class.BLOCK_SIZE
     assert len(decipher_byte_stream.getvalue()) \
         % cipher_block_size == 0
     assert bytes(
@@ -1258,6 +1384,54 @@ def test_private_key_list_pack_bytes_two_keys_none(mocker):
 
 def test_private_key_list_pack_bytes_one_key_bcrypt_aes256_ctr(mocker):
     cipher = 'aes256-ctr'
+    kdf = 'bcrypt'
+    kdf_options = BCRYPT_OPTIONS_TEST
+
+    passphrase = 'passphrase'
+
+    key_pairs = [
+        PublicPrivateKeyPair(
+            PublicKey(
+                ED25519_TEST_HEADER,
+                ED25519_TEST_PUBLIC,
+                {}
+            ),
+            PrivateKey(
+                ED25519_TEST_HEADER,
+                ED25519_TEST_PRIVATE,
+                PRIVATE_TEST_FOOTER
+            )
+        )
+    ]
+
+    private_key_list = PrivateKeyList.from_list(
+        key_pairs,
+        cipher,
+        kdf,
+        kdf_options
+    )
+
+    mocker.patch.object(getpass, 'getpass', return_value=passphrase)
+
+    pack_bytes = private_key_list.pack_bytes()
+
+    generated_kdf_options = PrivateKeyList.from_bytes(pack_bytes).kdf_options
+
+    private_key_list_pack_bytes_test_assertions(
+        pack_bytes,
+        passphrase,
+        2,
+        cipher,
+        kdf,
+        key_pairs,
+        generated_kdf_options
+    )
+
+    assert kdf_options != generated_kdf_options
+
+
+def test_private_key_list_pack_bytes_one_key_bcrypt_aes256_gcm(mocker):
+    cipher = 'aes256-gcm@openssh.com'
     kdf = 'bcrypt'
     kdf_options = BCRYPT_OPTIONS_TEST
 
