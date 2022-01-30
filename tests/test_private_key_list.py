@@ -4,10 +4,12 @@ import secrets
 import warnings
 
 import pytest
+from cryptography.hazmat.primitives.asymmetric import rsa
 from openssh_key.cipher import ConfidentialityIntegrityCipher, create_cipher
 from openssh_key.kdf_options import create_kdf_options
 from openssh_key.key import PrivateKey, PublicKey
 from openssh_key.key_params import (Ed25519PublicKeyParams,
+                                    RSAPrivateKeyParams, RSAPublicKeyParams,
                                     create_private_key_params,
                                     create_public_key_params)
 from openssh_key.pascal_style_byte_stream import (PascalStyleByteStream,
@@ -21,6 +23,32 @@ from tests.test_key import (ED25519_TEST_HEADER, ED25519_TEST_PRIVATE,
                             correct_private_key_bytes_rsa,
                             correct_public_key_bytes_ed25519,
                             correct_public_key_bytes_rsa)
+
+
+def test_public_private_key_pair_generate():
+    key_pair = PublicPrivateKeyPair.generate('ssh-rsa')
+    assert type(key_pair.private.params) == RSAPrivateKeyParams
+    assert type(key_pair.public.params) == RSAPublicKeyParams
+    assert key_pair.private.footer['comment'] == ''
+
+
+def test_public_private_key_pair_generate_comment():
+    key_pair = PublicPrivateKeyPair.generate('ssh-rsa', 'comment')
+    assert type(key_pair.private.params) == RSAPrivateKeyParams
+    assert type(key_pair.public.params) == RSAPublicKeyParams
+    assert key_pair.private.footer['comment'] == 'comment'
+
+
+def test_public_private_key_pair_generate_kwargs():
+    key_pair = PublicPrivateKeyPair.generate(
+        'ssh-rsa',
+        key_size=2048
+    )
+    assert type(key_pair.private.params) == RSAPrivateKeyParams
+    cryptography_rsa_private_key = key_pair.private.params.convert_to(
+        rsa.RSAPrivateKey
+    )
+    assert cryptography_rsa_private_key.key_size == 2048
 
 
 def test_private_key_list_header_format_instructions_dict():

@@ -16,6 +16,7 @@ from openssh_key.cipher import ConfidentialityIntegrityCipher, create_cipher
 from openssh_key.kdf_options import (KDFOptions, NoneKDFOptions,
                                      create_kdf_options)
 from openssh_key.key import PrivateKey, PublicKey
+from openssh_key.key_params import create_private_key_params
 from openssh_key.pascal_style_byte_stream import (FormatInstructionsDict,
                                                   PascalStyleByteStream,
                                                   PascalStyleFormatInstruction,
@@ -43,6 +44,45 @@ class PublicPrivateKeyPair(typing.NamedTuple):
             self.public == other.public and
             self.private == other.private
         )
+
+    @staticmethod
+    def generate(
+        key_type: str,
+        comment: str = '',
+        **kwargs: typing.Any
+    ) -> 'PublicPrivateKeyPair':
+        """Generates a private key of the given type, with an optional comment
+        for the private key.
+
+        Args:
+            key_type
+                The OpenSSH name of the key type.
+            comment
+                The comment for the private key. Default is empty string.
+
+        Returns:
+            A generated public key and its corresponding private key.
+        """
+        private_key_class = create_private_key_params(key_type)
+        private_key_params = private_key_class.generate_private_params(
+            **kwargs)
+        private_key = PrivateKey(
+            header={
+                'key_type': key_type
+            },
+            params=private_key_params,
+            footer={
+                'comment': comment
+            }
+        )
+        public_key = PublicKey(
+            header={
+                'key_type': key_type
+            },
+            params=private_key_params,
+            footer={}
+        )
+        return PublicPrivateKeyPair(public_key, private_key)
 
 
 PrivateKeyListTypeVar = typing.TypeVar(

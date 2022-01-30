@@ -138,12 +138,7 @@ $ python
 ### Generate a private key
 
 ```python
->>> import openssh_key.key_params as kp
->>> sk_params = kp.RSAPrivateKeyParams.generate_private_params()
->>> import openssh_key.key as k
->>> sk_key = k.PrivateKey(header={'key_type': 'ssh-rsa'}, params=sk_params, footer={'comment': 'comment'})
->>> pk_key = k.PublicKey(header={'key_type': 'ssh-rsa'}, params=sk_params, footer={})
->>> pk_sk_pair = pkl.PublicPrivateKeyPair(pk_key, sk_key)
+>>> pk_sk_pair = pkl.PublicPrivateKeyPair.generate('ssh-rsa', 'comment')
 >>> generated_sk_list = pkl.PrivateKeyList.from_list([pk_sk_pair], cipher='aes256-ctr', kdf='bcrypt')
 >>> _ = open('generated_test_id_rsa', 'w').write(generated_sk_list.pack_string(passphrase='secret_passphrase'))
 >>> _ = open('generated_test_id_rsa.pub', 'w').write(generated_pk_key.pack_public_string())
