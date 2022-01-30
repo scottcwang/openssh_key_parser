@@ -189,6 +189,7 @@ $ pytest
 - **Breaking change** - The `encrypt` and `decrypt` methods of the `Cipher`
   class now take as arguments an instance of the `KDF` class and a `passphrase`
   (and no longer `cipher_key` and `initialization_vector`)
+- **Breaking change** - The `kdf` module has been renamed to `kdf_options`
 - Support `aes128-ctr`, `aes192-ctr`, `aes128-cbc`, `aes192-cbc`, `aes256-cbc`,
   `3des-cbc`, `aes128-gcm@openssh.com`, `aes256-gcm@openssh.com`, and
   `chacha20-poly1305@openssh.com` ciphers for private key encryption
