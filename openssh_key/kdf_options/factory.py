@@ -1,6 +1,6 @@
 import typing
 
-from .bcrypt import BcryptKDFOptions
+from .bcrypt_options import BcryptKDFOptions
 from .common import KDFOptions
 from .none import NoneKDFOptions
 

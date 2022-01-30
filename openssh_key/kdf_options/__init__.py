@@ -2,7 +2,7 @@
 Modules for classes representing key derivation function options.
 """
 
-from .bcrypt import *
+from .bcrypt_options import *
 from .common import *
 from .factory import *
 from .none import *
