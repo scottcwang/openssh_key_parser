@@ -1,0 +1,7 @@
+[build-system]
+requires = [
+    "setuptools",
+    "bcrypt>=3.0.0",
+    "cryptography"
+]
+build-backend = "setuptools.build_meta"
