@@ -37,5 +37,5 @@ __all__ = [
     'SecurityKey_Ed25519_PrivateKeyParams',
     'SecurityKey_Ed25519_PublicKeyParams',
     'RSAPrivateKeyParams', 'RSAPublicKeyParams',
-    'create_private_key_params', 'create_public_key_params'
+    'get_private_key_params_class', 'get_public_key_params_class'
 ]

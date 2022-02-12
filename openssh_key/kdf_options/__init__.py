@@ -11,5 +11,5 @@ __all__ = [
     'KDFOptions',
     'NoneKDFOptions',
     'BcryptKDFOptions',
-    'create_kdf_options',
+    'get_kdf_options_class',
 ]

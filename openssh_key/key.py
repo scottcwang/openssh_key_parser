@@ -11,8 +11,8 @@ import warnings
 from openssh_key import utils
 from openssh_key.key_params import (PrivateKeyParams, PublicKeyParams,
                                     PublicKeyParamsTypeVar,
-                                    create_private_key_params,
-                                    create_public_key_params)
+                                    get_private_key_params_class,
+                                    get_public_key_params_class)
 from openssh_key.pascal_style_byte_stream import (FormatInstructionsDict,
                                                   PascalStyleByteStream,
                                                   PascalStyleFormatInstruction,
@@ -97,7 +97,7 @@ class Key(typing.Generic[PublicKeyParamsTypeVar], abc.ABC):
             A :any:`typing.Mapping` containing the read parameter values.
         """
         return byte_stream.read_from_format_instructions_dict(
-            create_public_key_params(
+            get_public_key_params_class(
                 key_type
             ).FORMAT_INSTRUCTIONS_DICT
         )
@@ -375,7 +375,7 @@ class PublicKey(Key[PublicKeyParams]):
         key_type: str,
         key_params_dict: ValuesDict
     ) -> PublicKeyParams:
-        return create_public_key_params(key_type)(key_params_dict)
+        return get_public_key_params_class(key_type)(key_params_dict)
 
 
 class PrivateKey(Key[PrivateKeyParams]):
@@ -413,7 +413,7 @@ class PrivateKey(Key[PrivateKeyParams]):
         byte_stream: PascalStyleByteStream
     ) -> ValuesDict:
         return byte_stream.read_from_format_instructions_dict(
-            create_private_key_params(
+            get_private_key_params_class(
                 key_type
             ).FORMAT_INSTRUCTIONS_DICT
         )
@@ -436,7 +436,7 @@ class PrivateKey(Key[PrivateKeyParams]):
             A :any:`PrivateKeyParams` containing the parameter values in
             ``key_params_dict``.
         """
-        return create_private_key_params(key_type)(key_params_dict)
+        return get_private_key_params_class(key_type)(key_params_dict)
 
     def pack_private_bytes(self) -> bytes:
         """Packs the private parameter values, encoded header, and encoded

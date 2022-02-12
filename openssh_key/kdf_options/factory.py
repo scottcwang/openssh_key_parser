@@ -15,7 +15,7 @@ _KDF_MAPPING = {
 }
 
 
-def create_kdf_options(kdf_type: str) -> typing.Type[KDFOptions]:
+def get_kdf_options_class(kdf_type: str) -> typing.Type[KDFOptions]:
     """Returns the class corresponding to the given key derivation function
     type name.
 

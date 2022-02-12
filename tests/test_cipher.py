@@ -4,7 +4,7 @@ from openssh_key.cipher import (AES128_CBCCipher, AES128_CTRCipher,
                                 AES192_CTRCipher, AES256_CBCCipher,
                                 AES256_CTRCipher, AES256_GCMCipher,
                                 ChaCha20Poly1305Cipher, NoneCipher,
-                                TripleDES_CBCCipher, create_cipher)
+                                TripleDES_CBCCipher, get_cipher_class)
 from openssh_key.kdf_options import KDFOptions
 
 
@@ -22,19 +22,19 @@ class TestIdentityKDF(KDFOptions):
 
 
 def test_factory_none():
-    assert create_cipher('none') == NoneCipher
+    assert get_cipher_class('none') == NoneCipher
 
 
 def test_factory_aes128_ctr():
-    assert create_cipher('aes128-ctr') == AES128_CTRCipher
+    assert get_cipher_class('aes128-ctr') == AES128_CTRCipher
 
 
 def test_factory_aes192_ctr():
-    assert create_cipher('aes192-ctr') == AES192_CTRCipher
+    assert get_cipher_class('aes192-ctr') == AES192_CTRCipher
 
 
 def test_factory_aes256_ctr():
-    assert create_cipher('aes256-ctr') == AES256_CTRCipher
+    assert get_cipher_class('aes256-ctr') == AES256_CTRCipher
 
 
 def test_none_encrypt():

@@ -29,7 +29,7 @@ _CIPHER_MAPPING = {
 }
 
 
-def create_cipher(cipher_type: str) -> typing.Type[Cipher]:
+def get_cipher_class(cipher_type: str) -> typing.Type[Cipher]:
     """Returns the class corresponding to the given cipher type name.
 
     Args:

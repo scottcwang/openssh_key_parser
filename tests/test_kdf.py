@@ -1,17 +1,17 @@
 import bcrypt
 import pytest
 from openssh_key.kdf_options import (BcryptKDFOptions, NoneKDFOptions,
-                                     create_kdf_options)
+                                     get_kdf_options_class)
 from openssh_key.pascal_style_byte_stream import (PascalStyleByteStream,
                                                   PascalStyleFormatInstruction)
 
 
 def test_factory_none():
-    assert create_kdf_options('none') == NoneKDFOptions
+    assert get_kdf_options_class('none') == NoneKDFOptions
 
 
 def test_factory_bcrypt():
-    assert create_kdf_options('bcrypt') == BcryptKDFOptions
+    assert get_kdf_options_class('bcrypt') == BcryptKDFOptions
 
 
 def test_none_options_format_instructions_dict():

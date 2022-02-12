@@ -12,11 +12,11 @@ import typing
 import warnings
 
 from openssh_key import utils
-from openssh_key.cipher import ConfidentialityIntegrityCipher, create_cipher
+from openssh_key.cipher import ConfidentialityIntegrityCipher, get_cipher_class
 from openssh_key.kdf_options import (KDFOptions, NoneKDFOptions,
-                                     create_kdf_options)
+                                     get_kdf_options_class)
 from openssh_key.key import PrivateKey, PublicKey
-from openssh_key.key_params import create_private_key_params
+from openssh_key.key_params import get_private_key_params_class
 from openssh_key.pascal_style_byte_stream import (FormatInstructionsDict,
                                                   PascalStyleByteStream,
                                                   PascalStyleFormatInstruction,
@@ -63,7 +63,7 @@ class PublicPrivateKeyPair(typing.NamedTuple):
         Returns:
             A generated public key and its corresponding private key.
         """
-        private_key_class = create_private_key_params(key_type)
+        private_key_class = get_private_key_params_class(key_type)
         private_key_params = private_key_class.generate_private_params(
             **kwargs)
         private_key = PrivateKey(
@@ -256,7 +256,7 @@ class PrivateKeyList(BaseList):
             PascalStyleFormatInstruction.BYTES
         )
 
-        kdf_class = create_kdf_options(header['kdf'])
+        kdf_class = get_kdf_options_class(header['kdf'])
         kdf_options = kdf_class(
             PascalStyleByteStream(
                 header['kdf_options']
@@ -265,7 +265,7 @@ class PrivateKeyList(BaseList):
             )
         )
 
-        cipher_class = create_cipher(header['cipher'])
+        cipher_class = get_cipher_class(header['cipher'])
 
         if kdf_class == NoneKDFOptions:
             passphrase = ''
@@ -504,7 +504,7 @@ class PrivateKeyList(BaseList):
                 and isinstance(self.kdf_options, collections.abc.Mapping):
             kdf_options = self.kdf_options
         else:
-            kdf_options = create_kdf_options(kdf).generate_options()
+            kdf_options = get_kdf_options_class(kdf).generate_options()
 
         if include_indices is None:
             include_indices = list(range(len(self)))
@@ -514,7 +514,7 @@ class PrivateKeyList(BaseList):
         kdf_options_write_byte_stream = PascalStyleByteStream()
 
         kdf_options_write_byte_stream.write_from_format_instructions_dict(
-            create_kdf_options(kdf).OPTIONS_FORMAT_INSTRUCTIONS_DICT,
+            get_kdf_options_class(kdf).OPTIONS_FORMAT_INSTRUCTIONS_DICT,
             kdf_options
         )
         kdf_options_bytes = kdf_options_write_byte_stream.getvalue()
@@ -559,7 +559,7 @@ class PrivateKeyList(BaseList):
             )
 
         padding_length = (-len(decipher_byte_stream.getvalue())) \
-            % create_cipher(cipher).BLOCK_SIZE
+            % get_cipher_class(cipher).BLOCK_SIZE
         padding_bytes = bytes(range(1, 1 + padding_length))
         decipher_byte_stream.write(padding_bytes)
 
@@ -568,9 +568,9 @@ class PrivateKeyList(BaseList):
         elif passphrase is None:
             passphrase = getpass.getpass('Key passphrase: ')
 
-        cipher_class = create_cipher(cipher)
+        cipher_class = get_cipher_class(cipher)
         cipher_bytes = cipher_class.encrypt(
-            create_kdf_options(kdf)(kdf_options),
+            get_kdf_options_class(kdf)(kdf_options),
             passphrase,
             decipher_byte_stream.getvalue()
         )

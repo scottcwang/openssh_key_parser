@@ -5,13 +5,13 @@ import warnings
 
 import pytest
 from cryptography.hazmat.primitives.asymmetric import rsa
-from openssh_key.cipher import ConfidentialityIntegrityCipher, create_cipher
-from openssh_key.kdf_options import create_kdf_options
+from openssh_key.cipher import ConfidentialityIntegrityCipher, get_cipher_class
+from openssh_key.kdf_options import get_kdf_options_class
 from openssh_key.key import PrivateKey, PublicKey
 from openssh_key.key_params import (Ed25519PublicKeyParams,
                                     RSAPrivateKeyParams, RSAPublicKeyParams,
-                                    create_private_key_params,
-                                    create_public_key_params)
+                                    get_private_key_params_class,
+                                    get_public_key_params_class)
 from openssh_key.pascal_style_byte_stream import (PascalStyleByteStream,
                                                   PascalStyleFormatInstruction)
 from openssh_key.private_key_list import PrivateKeyList, PublicPrivateKeyPair
@@ -105,7 +105,7 @@ def correct_kdf_options_bytes(kdf):
     else:
         raise NotImplementedError()
     kdf_options_write_byte_stream.write_from_format_instructions_dict(
-        create_kdf_options(kdf).OPTIONS_FORMAT_INSTRUCTIONS_DICT,
+        get_kdf_options_class(kdf).OPTIONS_FORMAT_INSTRUCTIONS_DICT,
         kdf_options
     )
     kdf_options_bytes = kdf_options_write_byte_stream.getvalue()
@@ -128,7 +128,7 @@ def correct_decipher_bytes_header(decipher_byte_stream=None):
 
 def correct_decipher_bytes_padding(decipher_byte_stream, cipher, write=False):
     padding_length = (-len(decipher_byte_stream.getvalue())) \
-        % create_cipher(cipher).BLOCK_SIZE
+        % get_cipher_class(cipher).BLOCK_SIZE
     padding_bytes = bytes(range(1, 1 + padding_length))
     if write:
         decipher_byte_stream.write(padding_bytes)
@@ -143,9 +143,9 @@ def correct_cipher_bytes(
     decipher_byte_stream,
     write_byte_stream=None
 ):
-    cipher_class = create_cipher(cipher)
+    cipher_class = get_cipher_class(cipher)
     cipher_bytes = cipher_class.encrypt(
-        create_kdf_options(kdf)(kdf_options),
+        get_kdf_options_class(kdf)(kdf_options),
         passphrase,
         decipher_byte_stream.getvalue()
     )
@@ -1065,7 +1065,7 @@ def test_private_key_list_from_string_passphrase(mocker):
         ],
         'aes256-ctr',
         'bcrypt',
-        create_kdf_options('bcrypt').generate_options()
+        get_kdf_options_class('bcrypt').generate_options()
     )
     passphrase = 'passphrase'
     private_keys_bytes = private_key_list.pack_bytes(passphrase=passphrase)
@@ -1231,7 +1231,7 @@ def private_key_list_pack_bytes_test_assertions(
 
     kdf_options_byte_stream = PascalStyleByteStream()
     kdf_options_byte_stream.write_from_format_instructions_dict(
-        create_kdf_options(kdf).OPTIONS_FORMAT_INSTRUCTIONS_DICT,
+        get_kdf_options_class(kdf).OPTIONS_FORMAT_INSTRUCTIONS_DICT,
         kdf_options
     )
     kdf_options_bytes = kdf_options_byte_stream.getvalue()
@@ -1257,7 +1257,7 @@ def private_key_list_pack_bytes_test_assertions(
             PublicKey.HEADER_FORMAT_INSTRUCTIONS_DICT
         ) == key_pair.public.header
         assert public_key_byte_stream.read_from_format_instructions_dict(
-            create_public_key_params(
+            get_public_key_params_class(
                 key_pair.public.header['key_type']
             ).FORMAT_INSTRUCTIONS_DICT
         ) == key_pair.public.params
@@ -1269,14 +1269,14 @@ def private_key_list_pack_bytes_test_assertions(
     cipher_bytes = pack_byte_stream.read_from_format_instruction(
         PascalStyleFormatInstruction.BYTES
     )
-    cipher_class = create_cipher(cipher)
+    cipher_class = get_cipher_class(cipher)
     if issubclass(cipher_class, ConfidentialityIntegrityCipher):
         cipher_bytes += pack_byte_stream.read_fixed_bytes(
             cipher_class.TAG_LENGTH
         )
 
     decipher_bytes = cipher_class.decrypt(
-        create_kdf_options(kdf)(kdf_options),
+        get_kdf_options_class(kdf)(kdf_options),
         passphrase,
         cipher_bytes
     )
@@ -1292,7 +1292,7 @@ def private_key_list_pack_bytes_test_assertions(
             PrivateKey.HEADER_FORMAT_INSTRUCTIONS_DICT
         ) == key_pair.private.header
         assert decipher_byte_stream.read_from_format_instructions_dict(
-            create_private_key_params(
+            get_private_key_params_class(
                 key_pair.private.header['key_type']
             ).FORMAT_INSTRUCTIONS_DICT
         ) == key_pair.private.params

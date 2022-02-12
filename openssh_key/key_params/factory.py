@@ -105,7 +105,7 @@ _KEY_TYPE_MAPPING = {
 }
 
 
-def create_public_key_params(key_type: str) -> typing.Type[PublicKeyParams]:
+def get_public_key_params_class(key_type: str) -> typing.Type[PublicKeyParams]:
     """Returns the class corresponding to public key parameters objects of the
     given key type name.
 
@@ -124,7 +124,7 @@ def create_public_key_params(key_type: str) -> typing.Type[PublicKeyParams]:
     return _KEY_TYPE_MAPPING[key_type].publicKeyParamsClass
 
 
-def create_private_key_params(key_type: str) -> typing.Type[PrivateKeyParams]:
+def get_private_key_params_class(key_type: str) -> typing.Type[PrivateKeyParams]:
     """Returns the class corresponding to private key parameters objects of the
     given key type name.
 

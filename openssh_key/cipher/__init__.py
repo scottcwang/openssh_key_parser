@@ -22,5 +22,5 @@ __all__ = [
     'AES128_GCMCipher',
     'AES256_GCMCipher',
     'ChaCha20Poly1305Cipher',
-    'create_cipher'
+    'get_cipher_class'
 ]
