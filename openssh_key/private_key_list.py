@@ -261,7 +261,7 @@ class PrivateKeyList(BaseList):
             PascalStyleByteStream(
                 header['kdf_options']
             ).read_from_format_instructions_dict(
-                kdf_class.OPTIONS_FORMAT_INSTRUCTIONS_DICT
+                kdf_class.FORMAT_INSTRUCTIONS_DICT
             )
         )
 
@@ -514,7 +514,7 @@ class PrivateKeyList(BaseList):
         kdf_options_write_byte_stream = PascalStyleByteStream()
 
         kdf_options_write_byte_stream.write_from_format_instructions_dict(
-            get_kdf_options_class(kdf).OPTIONS_FORMAT_INSTRUCTIONS_DICT,
+            get_kdf_options_class(kdf).FORMAT_INSTRUCTIONS_DICT,
             kdf_options
         )
         kdf_options_bytes = kdf_options_write_byte_stream.getvalue()

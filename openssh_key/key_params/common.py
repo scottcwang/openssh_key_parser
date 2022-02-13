@@ -3,13 +3,9 @@ cryptosystems.
 """
 
 import abc
-import types
 import typing
 
-from openssh_key import utils
-from openssh_key.pascal_style_byte_stream import (FormatInstructionsDict,
-                                                  PascalStyleByteStream,
-                                                  ValuesDict)
+from openssh_key.pascal_style_byte_stream import PascalStyleDict, ValuesDict
 
 PublicKeyParamsTypeVar = typing.TypeVar(
     'PublicKeyParamsTypeVar',
@@ -38,7 +34,7 @@ class ConversionFunctions(typing.NamedTuple):
     """
 
 
-class PublicKeyParams(utils.BaseDict, abc.ABC):
+class PublicKeyParams(PascalStyleDict):
     """The parameters comprising a key.
 
     The names and iteration order of parameters of *public* keys recognized by
@@ -55,10 +51,6 @@ class PublicKeyParams(utils.BaseDict, abc.ABC):
         UserWarning: A value in ``params`` is missing or does not have a type
             that matches the format instructions for this key type.
     """
-
-    def __init__(self, params: ValuesDict):
-        super().__init__(params)
-        self.check_params_are_valid()
 
     @classmethod
     def convert_from(
@@ -118,38 +110,6 @@ class PublicKeyParams(utils.BaseDict, abc.ABC):
             that take key objects of that type and return parameter values.
         """
         return {}
-
-    __FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[FormatInstructionsDict] = {}
-
-    @classmethod
-    @abc.abstractmethod
-    def get_format_instructions_dict(cls) -> FormatInstructionsDict:
-        """The Pascal-style byte stream format instructions for the parameters
-        of a key of this type.
-        """
-        return types.MappingProxyType(
-            PublicKeyParams.__FORMAT_INSTRUCTIONS_DICT
-        )
-
-    FORMAT_INSTRUCTIONS_DICT = utils.readonly_static_property(
-        get_format_instructions_dict
-    )
-    """The Pascal-style byte stream format instructions for the parameters
-    of a key of this type.
-    """
-
-    def check_params_are_valid(self) -> None:
-        """Checks whether the values within this parameters object conform to
-        the format instructions.
-
-        Raises:
-            UserWarning: A parameter value is missing or does not have a type
-                that matches the format instructions for this key type.
-        """
-        PascalStyleByteStream.check_dict_matches_format_instructions_dict(
-            self.data,
-            self.FORMAT_INSTRUCTIONS_DICT
-        )
 
     def convert_to(  # pylint: disable=no-self-use
         self,

@@ -13,7 +13,7 @@ class TestIdentityKDF(KDFOptions):
         return bytes(passphrase)
 
     @classmethod
-    def get_options_format_instructions_dict(cls):
+    def get_format_instructions_dict(cls):
         return {}
 
     @classmethod
@@ -336,7 +336,7 @@ TEST_VECTORS = [
 @pytest.mark.parametrize('test_case', TEST_VECTORS)
 def test_encrypt(test_case):
     return test_case['cls'].encrypt(
-        TestIdentityKDF(),
+        TestIdentityKDF(None),
         test_case['key']
         + test_case['iv'],
         test_case['plaintext']
@@ -346,7 +346,7 @@ def test_encrypt(test_case):
 @pytest.mark.parametrize('test_case', TEST_VECTORS)
 def test_decrypt(test_case):
     return test_case['cls'].decrypt(
-        TestIdentityKDF(),
+        TestIdentityKDF(None),
         test_case['key']
         + test_case['iv'],
         test_case['ciphertext']

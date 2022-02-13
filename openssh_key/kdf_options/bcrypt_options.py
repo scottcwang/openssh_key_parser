@@ -68,7 +68,7 @@ class BcryptKDFOptions(KDFOptions):
             ignore_few_rounds=True
         )
 
-    __OPTIONS_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
+    __FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
         FormatInstructionsDict
     ] = {
         'salt': PascalStyleFormatInstruction.BYTES,
@@ -79,9 +79,9 @@ class BcryptKDFOptions(KDFOptions):
     """
 
     @classmethod
-    def get_options_format_instructions_dict(cls) -> FormatInstructionsDict:
+    def get_format_instructions_dict(cls) -> FormatInstructionsDict:
         return types.MappingProxyType(
-            BcryptKDFOptions.__OPTIONS_FORMAT_INSTRUCTIONS_DICT
+            BcryptKDFOptions.__FORMAT_INSTRUCTIONS_DICT
         )
 
     @classmethod

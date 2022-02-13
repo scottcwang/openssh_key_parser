@@ -36,16 +36,16 @@ class NoneKDFOptions(KDFOptions):
         """
         return b''
 
-    __OPTIONS_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
+    __FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
         FormatInstructionsDict
     ] = {}
     """Empty format instructions.
     """
 
     @classmethod
-    def get_options_format_instructions_dict(cls) -> FormatInstructionsDict:
+    def get_format_instructions_dict(cls) -> FormatInstructionsDict:
         return types.MappingProxyType(
-            NoneKDFOptions.__OPTIONS_FORMAT_INSTRUCTIONS_DICT
+            NoneKDFOptions.__FORMAT_INSTRUCTIONS_DICT
         )
 
     @classmethod

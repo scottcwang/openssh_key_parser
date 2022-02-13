@@ -3,11 +3,9 @@ Classes representing key derivation function options.
 """
 
 import abc
-import types
 import typing
 
-from openssh_key import utils
-from openssh_key.pascal_style_byte_stream import FormatInstructionsDict
+from openssh_key.pascal_style_byte_stream import PascalStyleDict
 
 KDFOptionsTypeVar = typing.TypeVar(
     'KDFOptionsTypeVar',
@@ -15,7 +13,7 @@ KDFOptionsTypeVar = typing.TypeVar(
 )
 
 
-class KDFOptions(utils.BaseDict, abc.ABC):
+class KDFOptions(PascalStyleDict):
     """The parameters of a password-based key derivation function.
 
     Used to obtain a pseudorandom symmetric key by cryptographically hashing
@@ -38,27 +36,6 @@ class KDFOptions(utils.BaseDict, abc.ABC):
             Key derivation function result.
         """
         return b''
-
-    __OPTIONS_FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[
-        FormatInstructionsDict
-    ]
-
-    @classmethod
-    @abc.abstractmethod
-    def get_options_format_instructions_dict(cls) -> FormatInstructionsDict:
-        """The Pascal-style byte stream format instructions for the parameters
-        to a key derivation function.
-        """
-        return types.MappingProxyType(
-            KDFOptions.__OPTIONS_FORMAT_INSTRUCTIONS_DICT
-        )
-
-    OPTIONS_FORMAT_INSTRUCTIONS_DICT = utils.readonly_static_property(
-        get_options_format_instructions_dict
-    )
-    """The Pascal-style byte stream format instructions for the parameters
-    to a key derivation function.
-    """
 
     @classmethod
     @abc.abstractmethod

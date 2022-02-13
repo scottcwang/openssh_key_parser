@@ -14,16 +14,16 @@ def test_factory_bcrypt():
     assert get_kdf_options_class('bcrypt') == BcryptKDFOptions
 
 
-def test_none_options_format_instructions_dict():
-    assert NoneKDFOptions.OPTIONS_FORMAT_INSTRUCTIONS_DICT == {}
+def test_none_format_instructions_dict():
+    assert NoneKDFOptions.FORMAT_INSTRUCTIONS_DICT == {}
 
 
 def test_none_generate_options():
     assert NoneKDFOptions.generate_options() == {}
 
 
-def test_bcrypt_options_format_instructions_dict():
-    assert BcryptKDFOptions.OPTIONS_FORMAT_INSTRUCTIONS_DICT == {
+def test_bcrypt_format_instructions_dict():
+    assert BcryptKDFOptions.FORMAT_INSTRUCTIONS_DICT == {
         'salt': PascalStyleFormatInstruction.BYTES,
         'rounds': '>I'
     }
@@ -34,7 +34,7 @@ def test_bcrypt_generate_options():
     with pytest.warns(None) as warnings_list:
         PascalStyleByteStream.check_dict_matches_format_instructions_dict(
             options,
-            BcryptKDFOptions.OPTIONS_FORMAT_INSTRUCTIONS_DICT
+            BcryptKDFOptions.FORMAT_INSTRUCTIONS_DICT
         )
     assert not warnings_list
     assert len(options['salt']) == BcryptKDFOptions.SALT_LENGTH
@@ -47,7 +47,7 @@ def test_bcrypt_generate_options_salt_length():
     with pytest.warns(None) as warnings_list:
         PascalStyleByteStream.check_dict_matches_format_instructions_dict(
             options,
-            BcryptKDFOptions.OPTIONS_FORMAT_INSTRUCTIONS_DICT
+            BcryptKDFOptions.FORMAT_INSTRUCTIONS_DICT
         )
     assert not warnings_list
     assert len(options['salt']) == salt_length
@@ -60,7 +60,7 @@ def test_bcrypt_generate_options_rounds():
     with pytest.warns(None) as warnings_list:
         PascalStyleByteStream.check_dict_matches_format_instructions_dict(
             options,
-            BcryptKDFOptions.OPTIONS_FORMAT_INSTRUCTIONS_DICT
+            BcryptKDFOptions.FORMAT_INSTRUCTIONS_DICT
         )
     assert not warnings_list
     assert len(options['salt']) == BcryptKDFOptions.SALT_LENGTH

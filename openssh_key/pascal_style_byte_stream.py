@@ -2,9 +2,11 @@
 or variable-size.
 """
 
+import abc
 import enum
 import io
 import struct
+import types
 import typing
 import warnings
 
@@ -437,3 +439,28 @@ class PascalStyleByteStream(io.BytesIO):
                     )
             else:
                 raise NotImplementedError()
+
+
+class PascalStyleDict(utils.BaseDict, abc.ABC):
+    def __init__(self, params: ValuesDict):
+        super().__init__(params)
+        self.check_params_are_valid()
+
+    __FORMAT_INSTRUCTIONS_DICT: typing.ClassVar[FormatInstructionsDict] = {}
+
+    @classmethod
+    @abc.abstractmethod
+    def get_format_instructions_dict(cls) -> FormatInstructionsDict:
+        return types.MappingProxyType(
+            PascalStyleDict.__FORMAT_INSTRUCTIONS_DICT
+        )
+
+    FORMAT_INSTRUCTIONS_DICT = utils.readonly_static_property(
+        get_format_instructions_dict
+    )
+
+    def check_params_are_valid(self) -> None:
+        PascalStyleByteStream.check_dict_matches_format_instructions_dict(
+            self.data,
+            self.FORMAT_INSTRUCTIONS_DICT
+        )
