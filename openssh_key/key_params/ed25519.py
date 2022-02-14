@@ -135,10 +135,10 @@ class Ed25519PublicKeyParams(PublicKeyParams):
         }
 
         try:
-            import nacl
+            import nacl.signing as nacl_signing
 
             def ed25519_public_key_convert_from_pynacl(
-                key_object: nacl.signing.VerifyKey
+                key_object: nacl_signing.VerifyKey
             ) -> ValuesDict:
                 return {
                     'public': bytes(key_object)
@@ -146,11 +146,11 @@ class Ed25519PublicKeyParams(PublicKeyParams):
 
             def ed25519_public_key_convert_to_pynacl(
                 key_params: ValuesDict
-            ) -> nacl.signing.VerifyKey:
-                return nacl.signing.VerifyKey(key_params['public'])
+            ) -> nacl_signing.VerifyKey:
+                return nacl_signing.VerifyKey(key_params['public'])
 
             conversion_functions_dict[
-                nacl.signing.VerifyKey
+                nacl_signing.VerifyKey
             ] = ConversionFunctions(
                 ed25519_public_key_convert_from_pynacl,
                 ed25519_public_key_convert_to_pynacl
@@ -346,10 +346,10 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
         }
 
         try:
-            import nacl
+            import nacl.signing as nacl_signing
 
             def ed25519_private_key_convert_from_pynacl(
-                key_object: nacl.signing.SigningKey
+                key_object: nacl_signing.SigningKey
             ) -> ValuesDict:
                 private_bytes = bytes(key_object)
                 public_bytes = bytes(key_object.verify_key)
@@ -360,15 +360,15 @@ class Ed25519PrivateKeyParams(PrivateKeyParams, Ed25519PublicKeyParams):
 
             def ed25519_private_key_convert_to_pynacl(
                 key_params: ValuesDict
-            ) -> nacl.signing.SigningKey:
-                return nacl.signing.SigningKey(
+            ) -> nacl_signing.SigningKey:
+                return nacl_signing.SigningKey(
                     key_params[
                         'private_public'
                     ][:Ed25519PrivateKeyParams.KEY_SIZE]
                 )
 
             conversion_functions_dict[
-                nacl.signing.SigningKey
+                nacl_signing.SigningKey
             ] = ConversionFunctions(
                 ed25519_private_key_convert_from_pynacl,
                 ed25519_private_key_convert_to_pynacl
