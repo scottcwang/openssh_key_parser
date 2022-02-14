@@ -13,8 +13,8 @@ OpenSSH:
 * `sk-{ed25519,ecdsa-sha2-nistp256}@openssh.com` FIDO/U2F security keys
 * `*-cert-v01@openssh.com` certificates
 
-It can optionally encrypt private keys using the `bcrypt` key derivation
-function and any cipher currently supported by OpenSSH:
+It can optionally encrypt and decrypt private keys using the `bcrypt` key
+derivation function and any cipher currently supported by OpenSSH:
 
 * `aes{128,192,256}-{ctr,cbc}`
 * `aes{128,256}-gcm@openssh.com`
@@ -183,6 +183,14 @@ $ pytest
 ```
 
 ## Changelog
+
+### 0.0.5
+
+- _Fix_ - Fix incorrect key type name for `ecdsa-sha2-*`
+- _Fix_ - Fix bad import of `nacl.signing` in `ed25519`
+- **Breaking change** - The `create_{cipher,kdf_options,public_key_params,private_key_params}`
+  factory methods are renamed to `get_*_class`
+- Migrate to `pyproject.toml`
 
 ### 0.0.4
 
