@@ -9,7 +9,7 @@ OpenSSH:
 * `ssh-rsa`
 * `ssh-ed25519`
 * `ssh-dss`
-* `ssh-ecdsa-{nistp256,nistp384,nistp521}`
+* `ecdsa-sha2-{nistp256,nistp384,nistp521}`
 * `sk-{ed25519,ecdsa-sha2-nistp256}@openssh.com` FIDO/U2F security keys
 * `*-cert-v01@openssh.com` certificates
 

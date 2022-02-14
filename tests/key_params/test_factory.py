@@ -52,32 +52,32 @@ def test_factory_dss_private():
 
 def test_factory_ecdsa_nistp256_public():
     assert get_public_key_params_class(
-        'ssh-ecdsa-nistp256') == ECDSA_NISTP256_PublicKeyParams
+        'ecdsa-sha2-nistp256') == ECDSA_NISTP256_PublicKeyParams
 
 
 def test_factory_ecdsa_nistp256_private():
     assert get_private_key_params_class(
-        'ssh-ecdsa-nistp256') == ECDSA_NISTP256_PrivateKeyParams
+        'ecdsa-sha2-nistp256') == ECDSA_NISTP256_PrivateKeyParams
 
 
 def test_factory_ecdsa_nistp384_public():
     assert get_public_key_params_class(
-        'ssh-ecdsa-nistp384') == ECDSA_NISTP384_PublicKeyParams
+        'ecdsa-sha2-nistp384') == ECDSA_NISTP384_PublicKeyParams
 
 
 def test_factory_ecdsa_nistp384_private():
     assert get_private_key_params_class(
-        'ssh-ecdsa-nistp384') == ECDSA_NISTP384_PrivateKeyParams
+        'ecdsa-sha2-nistp384') == ECDSA_NISTP384_PrivateKeyParams
 
 
 def test_factory_ecdsa_nistp521_public():
     assert get_public_key_params_class(
-        'ssh-ecdsa-nistp521') == ECDSA_NISTP521_PublicKeyParams
+        'ecdsa-sha2-nistp521') == ECDSA_NISTP521_PublicKeyParams
 
 
 def test_factory_ecdsa_nistp521_private():
     assert get_private_key_params_class(
-        'ssh-ecdsa-nistp521') == ECDSA_NISTP521_PrivateKeyParams
+        'ecdsa-sha2-nistp521') == ECDSA_NISTP521_PrivateKeyParams
 
 
 def test_factory_sk_ecdsa_nistp256_public():

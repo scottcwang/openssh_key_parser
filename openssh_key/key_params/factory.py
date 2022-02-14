@@ -53,13 +53,13 @@ _KEY_TYPE_MAPPING = {
     'ssh-dss': PublicPrivateKeyParamsClasses(
         DSSPublicKeyParams, DSSPrivateKeyParams
     ),
-    'ssh-ecdsa-nistp256': PublicPrivateKeyParamsClasses(
+    'ecdsa-sha2-nistp256': PublicPrivateKeyParamsClasses(
         ECDSA_NISTP256_PublicKeyParams, ECDSA_NISTP256_PrivateKeyParams
     ),
-    'ssh-ecdsa-nistp384': PublicPrivateKeyParamsClasses(
+    'ecdsa-sha2-nistp384': PublicPrivateKeyParamsClasses(
         ECDSA_NISTP384_PublicKeyParams, ECDSA_NISTP384_PrivateKeyParams
     ),
-    'ssh-ecdsa-nistp521': PublicPrivateKeyParamsClasses(
+    'ecdsa-sha2-nistp521': PublicPrivateKeyParamsClasses(
         ECDSA_NISTP521_PublicKeyParams, ECDSA_NISTP521_PrivateKeyParams
     ),
     'sk-ecdsa-sha2-nistp256@openssh.com': PublicPrivateKeyParamsClasses(
