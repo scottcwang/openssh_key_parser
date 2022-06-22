@@ -236,7 +236,8 @@ class PascalStyleByteStream(io.BytesIO):
         """
         read_bytes = self.read(num_bytes)
         if len(read_bytes) < num_bytes:
-            raise EOFError(read_bytes)
+            raise EOFError("Fewer than 'num_bytes' bytes remaining in the "
+                    "underlying bytestream")
         return read_bytes
 
     def read_pascal_bytes(self, string_length_size: int) -> bytes:
