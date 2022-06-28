@@ -339,9 +339,9 @@ class PrivateKeyList(BaseList):
         except ValueError as e:
             raise e
         except EOFError as e:
-            raise ValueError('Premature EOF detected while parsing key.')
-        except e:
-            raise ValueError('Unexpected error condition reached.')
+            raise ValueError('Premature EOF detected while parsing key.') from e
+        except BaseException as e:  # pragma: no cover
+            raise ValueError('Unexpected error condition reached.') from e
 
         return cls(
             initlist,
