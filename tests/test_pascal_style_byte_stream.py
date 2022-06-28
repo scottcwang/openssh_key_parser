@@ -11,11 +11,20 @@ def test_read_fixed_bytes():
     assert result == test_bytes
 
 
-def test_read_fixed_bytes_underfull():
+def test_read_fixed_bytes_underfull_nonempty():
     test_bytes = b'\x01\x02\x03\x04'
     byte_stream = PascalStyleByteStream(test_bytes)
-    with pytest.raises(EOFError):
+    with pytest.raises(EOFError) as e:
         byte_stream.read_fixed_bytes(5)
+        assert not e.args[0]
+
+
+def test_read_fixed_bytes_underfull_empty():
+    test_bytes = b''
+    byte_stream = PascalStyleByteStream(test_bytes)
+    with pytest.raises(EOFError) as e:
+        byte_stream.read_fixed_bytes(5)
+        assert e.args[0]
 
 
 def test_read_fixed_bytes_overfull():

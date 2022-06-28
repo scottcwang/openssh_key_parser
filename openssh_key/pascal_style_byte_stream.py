@@ -216,7 +216,7 @@ class PascalStyleByteStream(io.BytesIO):
                     )
                 )
             except EOFError as e:
-                if len(e.args[0]) == 0:
+                if e.args[0]:
                     return l
                 raise
 
@@ -236,7 +236,9 @@ class PascalStyleByteStream(io.BytesIO):
         """
         read_bytes = self.read(num_bytes)
         if len(read_bytes) < num_bytes:
-            raise EOFError("Fewer than 'num_bytes' bytes remaining in the "
+            if len(read_bytes) == 0:
+                raise EOFError(True, 'Underlying bytestream is empty')
+            raise EOFError(False, "Fewer than 'num_bytes' bytes remaining in the "
                     "underlying bytestream")
         return read_bytes
 
