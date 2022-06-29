@@ -170,6 +170,14 @@ def test_read_from_pascal_overfull():
     assert byte_stream.read() == b'\x00'
 
 
+def test_read_from_bad_format_instruction():
+    pascal_bytes = b'\x00\x00\x00\x04' + b'abcd' + b'\x00'
+    byte_stream = PascalStyleByteStream(pascal_bytes)
+    with pytest.raises(ValueError):
+        byte_stream.read_from_format_instruction(
+            ['does', 'not', 'support', 'lists'])
+
+
 def test_read_from_format_instructions_dict():
     pascal_bytes = b'\x00\x00\x00\x01' + b'\x00' \
         + b'\x00\x00\x00\x02'
@@ -476,6 +484,16 @@ def test_write_from_mpint_format_instruction_bad_class_str():
         )
 
 
+def test_write_from_bad_format_instruction():
+    test = 'random'
+    byte_stream = PascalStyleByteStream()
+    with pytest.raises(ValueError):
+        byte_stream.write_from_format_instruction(
+            ['does', 'not', 'support', 'lists'],
+            test
+        )
+
+
 def test_write_from_format_instructions_dict():
     byte_stream = PascalStyleByteStream()
     byte_stream.write_from_format_instructions_dict({
@@ -766,5 +784,17 @@ def test_check_dict_length_incorrect_type():
                     PascalStyleFormatInstruction.MPINT,
                     1
                 )
+            }
+        )
+
+
+def test_check_dict_bad_format_instruction():
+    with pytest.raises(ValueError):
+        PascalStyleByteStream.check_dict_matches_format_instructions_dict(
+            {
+                'a': 'string'
+            },
+            {
+                'a': ['does', 'not', 'support', 'lists']
             }
         )
