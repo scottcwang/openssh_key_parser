@@ -114,7 +114,7 @@ class PublicKeyParams(PascalStyleDict):
         """
         return {}
 
-    def convert_to(  # pylint: disable=no-self-use
+    def convert_to(
         self,
         destination_class: typing.Type[typing.Any]
     ) -> typing.Any:
