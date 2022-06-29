@@ -126,7 +126,7 @@ class InitializationVectorCipher(Cipher, abc.ABC):
         Returns:
             Ciphertext bytes.
         """
-        raise NotImplementedError()
+        raise NotImplementedError('abstract method')
 
     @classmethod
     @abc.abstractmethod
@@ -151,7 +151,7 @@ class InitializationVectorCipher(Cipher, abc.ABC):
         Returns:
             Plaintext bytes.
         """
-        raise NotImplementedError()
+        raise NotImplementedError('abstract method')
 
     @classmethod
     def encrypt(

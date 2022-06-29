@@ -66,7 +66,7 @@ PARAMS_TEST_CASES = [
 
 
 def test_ed25519_public_convert_from_unknown():
-    with pytest.raises(NotImplementedError):
+    with pytest.raises(ValueError):
         Ed25519PublicKeyParams.convert_from('random')
 
 
@@ -162,7 +162,7 @@ def test_ed25519_public_convert_to_missing_pynacl(mocker):
     ed25519_public = Ed25519PublicKeyParams({
         'public': ed25519_private['public']
     })
-    with pytest.raises(NotImplementedError):
+    with pytest.raises(ValueError):
         ed25519_public.convert_to(nacl.signing.VerifyKey)
 
 
@@ -179,7 +179,7 @@ def test_ed25519_private_generate_private_params():
 
 
 def test_ed25519_private_convert_from_unknown():
-    with pytest.raises(NotImplementedError):
+    with pytest.raises(ValueError):
         Ed25519PrivateKeyParams.convert_from('random')
 
 
@@ -275,11 +275,11 @@ def test_ed25519_private_convert_to_pynacl_public():
 def test_ed25519_private_convert_to_missing_pynacl(mocker):
     mocker.patch.dict(sys.modules, {'nacl': None})
     ed25519_private = Ed25519PrivateKeyParams.generate_private_params()
-    with pytest.raises(NotImplementedError):
+    with pytest.raises(ValueError):
         ed25519_private.convert_to(nacl.signing.VerifyKey)
 
 
 def test_ed25519_public_convert_to_not_implemented():
     ed25519_private = Ed25519PrivateKeyParams.generate_private_params()
-    with pytest.raises(NotImplementedError):
+    with pytest.raises(ValueError):
         assert ed25519_private.convert_to(type)

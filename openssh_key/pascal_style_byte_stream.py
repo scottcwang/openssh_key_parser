@@ -123,7 +123,8 @@ class PascalStyleByteStream(io.BytesIO):
         Raises:
             EOFError: The underlying bytestream does not contain enough bytes
                 to read a complete value according to ``format_instruction``.
-            ValueError: ``string_length_size`` is nonpositive.
+            ValueError: ``string_length_size`` is nonpositive, or ``format_instruction``
+                is not a supported value.
         """
         if string_length_size is None:
             string_length_size = PascalStyleByteStream.OPENSSH_DEFAULT_STRING_LENGTH_SIZE
@@ -146,7 +147,11 @@ class PascalStyleByteStream(io.BytesIO):
                     byteorder='big',
                     signed=True
                 )
-        raise NotImplementedError()
+            else:
+                raise NotImplementedError('No other enum values')
+        raise ValueError(
+            'format instruction ' + str(format_instruction) + ' is not recognised'
+        )
 
     def read_from_format_instructions_dict(
         self,
@@ -239,7 +244,7 @@ class PascalStyleByteStream(io.BytesIO):
             if len(read_bytes) == 0:
                 raise EOFError(True, 'Underlying bytestream is empty')
             raise EOFError(False, "Fewer than 'num_bytes' bytes remaining in the "
-                    "underlying bytestream")
+                "underlying bytestream")
         return read_bytes
 
     def read_pascal_bytes(self, string_length_size: int) -> bytes:
@@ -290,6 +295,10 @@ class PascalStyleByteStream(io.BytesIO):
                 ``int`` preceding the variable-length value that indicates the
                 length of the latter. Ignored otherwise. The default is 4,
                 which OpenSSH uses for encoding keys.
+
+        Raises:
+            ValueError: ``format_instruction`` is not a
+                supported value.
         """
         if string_length_size is None:
             string_length_size = PascalStyleByteStream.OPENSSH_DEFAULT_STRING_LENGTH_SIZE
@@ -323,7 +332,7 @@ class PascalStyleByteStream(io.BytesIO):
                     signed=True
                 )
             else:
-                raise NotImplementedError()
+                raise NotImplementedError('No other enum values')
             write_bytes_len_bytes = len(write_bytes).to_bytes(
                 length=string_length_size,
                 byteorder='big',
@@ -331,7 +340,9 @@ class PascalStyleByteStream(io.BytesIO):
             )
             write_bytes = write_bytes_len_bytes + write_bytes
         else:
-            raise NotImplementedError()
+            raise ValueError(
+                'format instruction ' + str(format_instruction) + ' is not recognised'
+            )
         self.write(write_bytes)
 
     def write_from_format_instructions_dict(
@@ -441,7 +452,11 @@ class PascalStyleByteStream(io.BytesIO):
                             str(v.format_instruction.value.__name__)
                     )
             else:
-                raise NotImplementedError()
+                raise ValueError(
+                    'format instruction '
+                    + str(v) + ' for ' + str(k)
+                    + ' is not recognised'
+                )
 
 
 class PascalStyleDict(utils.BaseDict, abc.ABC):

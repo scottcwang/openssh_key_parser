@@ -40,7 +40,7 @@ PARAMS_TEST_CASES = [
 
 
 def test_dss_public_convert_from_unknown():
-    with pytest.raises(NotImplementedError):
+    with pytest.raises(ValueError):
         DSSPublicKeyParams.convert_from('random')
 
 
@@ -98,7 +98,7 @@ def test_dss_public_convert_to_cryptography_public():
 
 
 def test_dss_private_convert_from_unknown():
-    with pytest.raises(NotImplementedError):
+    with pytest.raises(ValueError):
         DSSPrivateKeyParams.convert_from('random')
 
 
@@ -170,5 +170,5 @@ def test_dss_private_convert_to_cryptography_public():
 
 def test_dss_public_convert_to_not_implemented():
     dss_private = DSSPrivateKeyParams.generate_private_params()
-    with pytest.raises(NotImplementedError):
+    with pytest.raises(ValueError):
         assert dss_private.convert_to(type)

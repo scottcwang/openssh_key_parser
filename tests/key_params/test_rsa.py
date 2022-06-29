@@ -38,7 +38,7 @@ PARAMS_TEST_CASES = [
 
 
 def test_rsa_public_convert_from_unknown():
-    with pytest.raises(NotImplementedError):
+    with pytest.raises(ValueError):
         RSAPublicKeyParams.convert_from('random')
 
 
@@ -167,7 +167,7 @@ def test_rsa_private_generate_private_params_invalid_key_size():
 
 
 def test_rsa_private_convert_from_unknown():
-    with pytest.raises(NotImplementedError):
+    with pytest.raises(ValueError):
         RSAPrivateKeyParams.convert_from('random')
 
 
@@ -237,5 +237,5 @@ def test_rsa_private_convert_to_cryptography_public():
 
 def test_rsa_public_convert_to_not_implemented():
     rsa_private = RSAPrivateKeyParams.generate_private_params()
-    with pytest.raises(NotImplementedError):
+    with pytest.raises(ValueError):
         assert rsa_private.convert_to(type)

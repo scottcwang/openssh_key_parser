@@ -189,7 +189,7 @@ _ECDSA_CURVES = [
 
 
 def test_ecdsa_public_convert_from_unknown():
-    with pytest.raises(NotImplementedError):
+    with pytest.raises(ValueError):
         ECDSAPublicKeyParams.convert_from('random')
 
 
@@ -233,7 +233,7 @@ def test_ecdsa_public_convert_from_cryptography_public_different_curve(
         ecdsa_key_object = ec.generate_private_key(
             other_ecdsa_curve['cryptography_curve_type']()
         ).public_key()
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(ValueError):
             ecdsa_curve['public_cls'].convert_from(ecdsa_key_object)
 
 
@@ -266,7 +266,7 @@ def test_ecdsa_public_convert_to_cryptography_public_bad_curve_identifier(
                 'q': ecdsa_private['q']
             })
         with pytest.raises(
-            NotImplementedError,
+            ValueError,
             match='The curve identifier encoded in the public key does not '
             'correspond to the key type'
         ):
@@ -305,7 +305,7 @@ def test_ecdsa_private_generate_private_params_specific_curve(ecdsa_curve):
 
 
 def test_ecdsa_private_convert_from_unknown():
-    with pytest.raises(NotImplementedError):
+    with pytest.raises(ValueError):
         ECDSAPrivateKeyParams.convert_from('random')
 
 
@@ -335,7 +335,7 @@ def test_ecdsa_private_convert_from_cryptography_private_different_curve(
         ecdsa_key_object = ec.generate_private_key(
             other_ecdsa_curve['cryptography_curve_type']
         )
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(ValueError):
             ecdsa_curve['private_cls'].convert_from(ecdsa_key_object)
 
 
@@ -365,5 +365,5 @@ def test_ecdsa_private_convert_to_cryptography_public(ecdsa_curve):
 @pytest.mark.parametrize('ecdsa_curve', _ECDSA_CURVES)
 def test_ecdsa_public_convert_to_not_implemented(ecdsa_curve):
     ecdsa_private = ecdsa_curve['private_cls'].generate_private_params()
-    with pytest.raises(NotImplementedError):
+    with pytest.raises(ValueError):
         assert ecdsa_private.convert_to(type)

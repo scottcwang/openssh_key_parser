@@ -24,7 +24,7 @@ class ConfidentialityOnlyCipher(InitializationVectorCipher, abc.ABC):
         """The mode of operation of this cipher.
         """
         def r(_: bytes) -> modes.Mode:
-            raise NotImplementedError()
+            raise NotImplementedError('returned from abstract method')
         return r
 
     MODE = utils.readonly_static_property(get_mode)
@@ -37,7 +37,7 @@ class ConfidentialityOnlyCipher(InitializationVectorCipher, abc.ABC):
         """The encryption algorithm of this cipher.
         """
         def r(_: bytes) -> ciphers.CipherAlgorithm:
-            raise NotImplementedError()
+            raise NotImplementedError('returned from abstract method')
         return r
 
     ALGORITHM = utils.readonly_static_property(get_algorithm)

@@ -101,7 +101,7 @@ class ECDSAPublicKeyParams(PublicKeyParams, abc.ABC):
                     continue
                 try:
                     return subcls.convert_from(key_object)
-                except NotImplementedError:
+                except ValueError:
                     pass
         return super().convert_from(key_object)
 
@@ -120,6 +120,10 @@ class ECDSAPublicKeyParams(PublicKeyParams, abc.ABC):
             A :py:class:`typing.Mapping` from the above types of key objects
             to functions that take key objects of these types and return
             parameter values.
+
+        Raises:
+            ValueError: the curve identifier encoded in the public key does not
+                correspond to the key type
         """
         def ecdsa_public_key_convert_from_cryptography(
             key_object: ec.EllipticCurvePublicKey
@@ -138,7 +142,7 @@ class ECDSAPublicKeyParams(PublicKeyParams, abc.ABC):
             key_params: ValuesDict
         ) -> typing.Optional[ec.EllipticCurvePublicKey]:
             if key_params['identifier'] != cls.CURVE_IDENTIFIER:
-                raise NotImplementedError(
+                raise ValueError(
                     'The curve identifier encoded in the public key does not '
                     'correspond to the key type'
                 )

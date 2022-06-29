@@ -71,7 +71,7 @@ class PublicKeyParams(PascalStyleDict):
                 An object containing key parameter values.
 
         Raises:
-            NotImplementedError: ``key_object`` is not of a supported type,
+            ValueError: ``key_object`` is not of a supported type,
                 or it does not contain the attributes necessary to construct
                 a parameters object of this class.
         """
@@ -84,7 +84,7 @@ class PublicKeyParams(PascalStyleDict):
             for subcls in cls.__subclasses__():
                 try:
                     params_dict = dict(subcls.convert_from(key_object))
-                except NotImplementedError:
+                except ValueError:
                     pass
                 if params_dict is not None:
                     break
@@ -93,7 +93,10 @@ class PublicKeyParams(PascalStyleDict):
                 k: params_dict[k]
                 for k in cls.FORMAT_INSTRUCTIONS_DICT
             })
-        raise NotImplementedError()
+        raise ValueError(
+            'key_object is not of a supported type, or does not contain the attributes '
+            'necessary to construct a parameters object of this class'
+        )
 
     @classmethod
     def conversion_functions(
@@ -131,10 +134,10 @@ class PublicKeyParams(PascalStyleDict):
                 object are to be converted.
 
         Raises:
-            ValueError: ``destination_class`` is not a class.
+            ValueError: ``destination_class`` is not a class, or converting
+                this parameters object to an object of type ``destination_class``
+                is not supported.
             ImportError: ``destination_class`` cannot be imported.
-            NotImplementedError: Converting this parameters object to an
-                object of type ``destination_class`` is not supported.
         """
         if not isinstance(destination_class, type):
             raise ValueError('destination_class must be a class')
@@ -146,7 +149,11 @@ class PublicKeyParams(PascalStyleDict):
                     return supercls.conversion_functions()[
                         candidate_class
                     ].mapping_to_object(self)
-        raise NotImplementedError()
+        raise ValueError(  # pragma: no cover
+            'Converting this parameters object to an object of type '
+            + destination_class.__name__
+            + ' is not supported'
+        )
 
 
 PrivateKeyParamsTypeVar = typing.TypeVar(
