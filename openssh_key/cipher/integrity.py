@@ -254,7 +254,7 @@ class ChaCha20Poly1305Cipher(ConfidentialityIntegrityCipher):
                 cls.CHACHA20_INITIAL_COUNTER_NONCE
             ),
             mode=None
-        ).encryptor()  # type: ignore[no-untyped-call]
+        ).encryptor()
 
         # The ChaCha20 block counter starts at 0
         # Obtain the first block by encrypting 64 zero bytes
@@ -297,7 +297,7 @@ class ChaCha20Poly1305Cipher(ConfidentialityIntegrityCipher):
                 cls.CHACHA20_INITIAL_COUNTER_NONCE
             ),
             mode=None
-        ).decryptor()  # type: ignore[no-untyped-call]
+        ).decryptor()
 
         # The ChaCha20 block counter starts at 0
         # Obtain the first block by decrypting 64 zero bytes,

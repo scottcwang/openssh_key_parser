@@ -62,11 +62,10 @@ class ConfidentialityOnlyCipher(InitializationVectorCipher, abc.ABC):
         cipher_key: bytes,
         initialization_vector: bytes
     ) -> bytes:
-        # https://github.com/pyca/cryptography/issues/6083
         encryptor: CipherContext = cls._get_cipher(
             cipher_key,
             initialization_vector
-        ).encryptor()  # type: ignore[no-untyped-call]
+        ).encryptor()
         return encryptor.update(plain_bytes) + encryptor.finalize()
 
     @classmethod
@@ -79,7 +78,7 @@ class ConfidentialityOnlyCipher(InitializationVectorCipher, abc.ABC):
         decryptor: CipherContext = cls._get_cipher(
             cipher_key,
             initialization_vector
-        ).decryptor()  # type: ignore[no-untyped-call]
+        ).decryptor()
         return decryptor.update(cipher_bytes) + decryptor.finalize()
 
 
