@@ -184,6 +184,11 @@ $ pytest
 
 ## Changelog
 
+### 0.0.6
+
+- _Fix_ - Don't dump raw bytes in `pascal_style_byte_stream` exception message (@mike-arnica)
+- _Fix_ - Raise `ValueError` instead of `NotImplementedError`
+
 ### 0.0.5
 
 - _Fix_ - Fix incorrect key type name for `ecdsa-sha2-*`
@@ -207,7 +212,7 @@ $ pytest
 
 ### 0.0.3
 
-- 0.0.2 and on requires Python >=3.10
+- 0.0.2 and on requires Python >=3.10 (@FloLie)
 
 ### 0.0.2
 
@@ -223,6 +228,8 @@ Initial release, supporting:
 - `none` and `bcrypt` key derivation functions for ciphers
 - OpenSSH key formats
 
-## Disclaimer
+## Security
 
-This software hasn't undergone a security review; use at your own risk.
+I'm grateful to Mike Doyle (@mike-arnica), Head of Security Research at Arnica.io, for performing a [security review](https://github.com/scottcwang/openssh_key_parser/pull/5) of version 0.0.6 of `openssh_key_parser`.
+
+To report a vulnerability, please contact me privately at [wangsc@cs.wisc.edu](wangsc@cs.wisc.edu).
