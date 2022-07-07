@@ -1,5 +1,9 @@
 # openssh_key_parser
 
+**Please don't use versions 0.0.1 - 0.0.5, which are affected by
+[CVE-2022-31124](https://github.com/scottcwang/openssh_key_parser/security/advisories/GHSA-hm37-9xh2-q499),
+a High severity vulnerability. Upgrade to at least version 0.0.6.**
+
 This repository provides `openssh_key`, a Python package providing utilities to
 parse and pack OpenSSH private and public key files.
 
@@ -186,7 +190,9 @@ $ pytest
 
 ### 0.0.6
 
-- _Fix_ - Don't dump raw bytes in `pascal_style_byte_stream` exception message (@mike-arnica)
+- _Fix_ - Don't dump raw bytes in `pascal_style_byte_stream` exception message.
+  **Fixes [CVE-2022-31124](https://github.com/scottcwang/openssh_key_parser/security/advisories/GHSA-hm37-9xh2-q499),
+  a High severity vulnerability.** ([@mike-arnica](https://github.com/mike-arnica))
 - _Fix_ - Raise `ValueError` instead of `NotImplementedError`
 
 ### 0.0.5
@@ -212,7 +218,7 @@ $ pytest
 
 ### 0.0.3
 
-- 0.0.2 and on requires Python >=3.10 (@FloLie)
+- 0.0.2 and on requires Python >=3.10 ([@FloLie](https://github.com/FloLie))
 
 ### 0.0.2
 
@@ -230,6 +236,12 @@ Initial release, supporting:
 
 ## Security
 
-I'm grateful to Mike Doyle (@mike-arnica), Head of Security Research at Arnica.io, for performing a [security review](https://github.com/scottcwang/openssh_key_parser/pull/5) of version 0.0.6 of `openssh_key_parser`.
+I'm grateful to Mike Doyle ([@mike-arnica](https://github.com/mike-arnica)), Head of Security Research at
+Arnica.io, for performing a [security review](https://github.com/scottcwang/openssh_key_parser/pull/5) of
+version 0.0.5 of `openssh_key_parser` and finding
+[CVE-2022-31124](https://github.com/scottcwang/openssh_key_parser/security/advisories/GHSA-hm37-9xh2-q499).
+[Here's](https://www.arnica.io/blog/hacking-upstream-finding-a-0-day-in-an-openssh-key-parser-library) Mike's blog post
+about the process he undertook.
 
-To report a vulnerability, please contact me privately at [wangsc@cs.wisc.edu](wangsc@cs.wisc.edu).
+To report a vulnerability, please [open a new draft security
+advisory](https://github.com/scottcwang/openssh_key_parser/security/advisories/new).
