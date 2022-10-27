@@ -47,9 +47,12 @@ class readonly_static_property(
     ) -> ReadonlyStaticPropertyTypeVar:
         if cls is None:
             cls = type(obj)
+        f = self._getter
+        if isinstance(f, (staticmethod, classmethod)):
+            f = f.__func__
         return typing.cast(
             ReadonlyStaticPropertyTypeVar,
-            getattr(cls, self._getter.__name__)()
+            getattr(cls, f.__name__)()
         )
 
 
