@@ -188,6 +188,10 @@ $ pytest
 
 ## Changelog
 
+### 0.0.7
+
+- _Fix_ - Support Python 3.9; migrate `setup.cfg` to `pyproject.toml` ([@KOLANICH](https://github.com/KOLANICH))
+
 ### 0.0.6
 
 - _Fix_ - Don't dump raw bytes in `pascal_style_byte_stream` exception message.

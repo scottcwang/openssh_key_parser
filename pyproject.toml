@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "openssh_key_parser"
-version = "0.0.6"
+version = "0.0.7"
 authors = [{name = "Scott C Wang", email = "wangsc@cs.wisc.edu"}]
 description = "Parse and pack OpenSSH private and public key files"
 classifiers = [
