@@ -1,7 +1,48 @@
 [build-system]
-requires = [
-    "setuptools",
-    "bcrypt>=3.0.0",
-    "cryptography"
-]
+requires = ["setuptools>=61.2"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "openssh_key_parser"
+version = "0.0.6"
+authors = [{name = "Scott C Wang", email = "wangsc@cs.wisc.edu"}]
+description = "Parse and pack OpenSSH private and public key files"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+requires-python = ">=3.9"
+dependencies = [
+    "bcrypt>=3.0.0",
+    "cryptography",
+]
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[project.urls]
+Homepage = "https://github.com/scottcwang/openssh_key_parser"
+
+[project.optional-dependencies]
+test = [
+    "pytest>=6.0.0",
+    "pytest-cov",
+    "pytest-pylint",
+    "pytest-mock",
+    "pytest-mypy",
+    "pynacl",
+    "sphinx>=3.0.0",
+    "sphinx-autodoc-typehints",
+]
+
+[tool.setuptools]
+include-package-data = false
+
+[tool.setuptools.packages.find]
+include = [
+    "openssh_key",
+    "openssh_key.*",
+]
+namespaces = false
